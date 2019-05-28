@@ -15,7 +15,7 @@
 //     return view('welcome');
 // });
 
-Route::get('/', 'StaticPagesController@index');
+Route::get('/home', 'StaticPagesController@index')->name('home');
 
 Route::resource('/staffs','StaffsController');
 
@@ -30,3 +30,8 @@ Route::get('showf', 'AttendancesController@showf')->name('fakeshow');
 Route::resource('/holidays','HolidaysController');
 
 Route::resource('/salarys','SalarysController');
+
+Route::get('login','SessionsController@create')->name('login');
+Route::post('login','SessionsController@store')->name('login');
+Route::delete('logout','SessionsController@destroy')->name('logout');
+

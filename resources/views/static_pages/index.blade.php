@@ -15,7 +15,13 @@
         <!--<img src="/chinapost/Public/assets/img/top.png">-->
     </div>
 
-    <div class="dl-log">欢迎您，<span class="dl-log-user">root</span><a href="#" title="退出系统" class="dl-log-quit">[退出]</a>
+    <div class="dl-log">欢迎您，<span class="dl-log-user">{{ Auth::user()->name }}</span>
+      <form action="{{ route('logout') }}" method="post" style="display: inline-block;" id="mylogout">
+        {{ csrf_field() }}
+        {{ method_field('DELETE') }}
+<!--         <button type="submit" name="button">[退出]</button> -->
+        <a href="" title="退出系统" class="dl-log-quit" onclick="document.getElementById('mylogout').submit();return false;">[退出]</a>
+      </form>
     </div>
 </div>
 <div class="content">
