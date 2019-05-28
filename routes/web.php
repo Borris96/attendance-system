@@ -15,10 +15,12 @@
 //     return view('welcome');
 // });
 
-Route::get('/', 'StaticPagesController@index');
+Route::get('/home', 'StaticPagesController@index');
 
 Route::resource('/staffs','StaffsController');
 
 Route::resource('/absences','AbsencesController');
 
 Route::resource('/extra_works','ExtraWorksController');
+
+Route::resource('/attendances','AttendancesController');
