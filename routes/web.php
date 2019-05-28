@@ -20,3 +20,5 @@ Route::get('/', 'StaticPagesController@index');
 Route::resource('/staffs','StaffsController');
 
 Route::resource('/absences','AbsencesController');
+
+Route::resource('/extra_works','ExtraWorksController');

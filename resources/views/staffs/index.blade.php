@@ -3,7 +3,7 @@
 @section('content')
 <form class="form-inline definewidth m20" action="{{ route('staffs.index') }}" method="get">
     员工姓名：
-    <input type="text" name="username" id="username"class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
+    <input type="text" name="staffname" id="staffname"class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp; <a class="btn btn-success" href="{{ route('staffs.create') }}" role="button">新增员工</a>
 
 </form>
