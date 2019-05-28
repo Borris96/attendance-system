@@ -60,4 +60,25 @@
         </tr>
 </table>
 
+<h5 style="margin: 20px;">工资详情</h5>
+<table class="table table-bordered table-hover definewidth m10">
+    <thead>
+    <tr>
+        <th>基本工时</th>
+        <th>基本时薪</th>
+        <th>特殊工时</th>
+        <th>特殊时薪</th>
+        <th>扣费</th>
+        <th>该月工资</th>
+    </tr>
+    </thead>
+       <tr>
+            <td>100小时</td>
+            <td>30元</td>
+            <td>20小时</td>
+            <td>50元</td>
+            <td>100元</td>
+            <td>1000元</td>
+</table>
+
 @stop
