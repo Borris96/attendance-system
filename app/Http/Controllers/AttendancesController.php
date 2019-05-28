@@ -10,4 +10,9 @@ class AttendancesController extends Controller
     {
         return view('attendances/index');
     }
+
+    public function showf()
+    {
+        return view('attendances/showf');
+    }
 }

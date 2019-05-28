@@ -5,6 +5,13 @@
 <form class="form-inline definewidth m20" action="{{ route('attendances.index') }}" method="get">
     员工姓名：
     <input type="text" name="staffname" id="staffname"class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
+
+    <select name="name" id="name_select">
+        <option value="March">三月</option>
+        <option value="April">四月</option>
+        <option value="May">五月</option>
+    </select>
+    &nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>
 
 </form>
@@ -46,7 +53,7 @@
             <td>否</td>
             <td>5000.00元</td>
             <td>
-                <a href="">查看</a> <!-- route('staffs.edit', $staff->id) -->
+                <a href="{{ route('fakeshow') }}">查看</a> <!-- route('staffs.edit', $staff->id) -->
             </td>
         </tr>
 </table>

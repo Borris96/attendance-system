@@ -24,3 +24,5 @@ Route::resource('/absences','AbsencesController');
 Route::resource('/extra_works','ExtraWorksController');
 
 Route::resource('/attendances','AttendancesController');
+
+Route::get('showf', 'AttendancesController@showf')->name('fakeshow');
