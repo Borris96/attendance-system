@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>@yield('title', 'Attendance System') - JadeClass</title>
+    <title>@yield('title', '考勤管理系统') - JadeClass</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap-responsive.css') }}" />

@@ -15,7 +15,7 @@
 //     return view('welcome');
 // });
 
-Route::get('/home', 'StaticPagesController@index');
+Route::get('/', 'StaticPagesController@index');
 
 Route::resource('/staffs','StaffsController');
 
@@ -26,3 +26,7 @@ Route::resource('/extra_works','ExtraWorksController');
 Route::resource('/attendances','AttendancesController');
 
 Route::get('showf', 'AttendancesController@showf')->name('fakeshow');
+
+Route::resource('/holidays','HolidaysController');
+
+Route::resource('/salarys','SalarysController');
