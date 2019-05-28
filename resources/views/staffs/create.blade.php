@@ -1,40 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>JadeClass-新增员工</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap-responsive.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
-    <script type="text/javascript" src="{{ asset('js/jquery.js') }}"></script>
-<!--     <script type="text/javascript" src="../Js/jquery.sorted.js"></script> -->
-    <script type="text/javascript" src="{{ asset('js/bootstrap.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/ckform.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/common.js') }}"></script>
-
-
-
-    <style type="text/css">
-        body {
-            padding-bottom: 40px;
-        }
-        .sidebar-nav {
-            padding: 9px 0;
-        }
-
-        @media (max-width: 980px) {
-            /* Enable use of floated navbar text */
-            .navbar-text.pull-right {
-                float: none;
-                padding-left: 5px;
-                padding-right: 5px;
-            }
-        }
-
-
-    </style>
-</head>
-<body>
+@extends('layouts.default')
+@section('title','新增员工')
+@section('content')
 <form action="{{ route('staffs.index') }}" method="post" class="definewidth m20">
 <table class="table table-bordered table-hover definewidth m10">
     <tr>
@@ -92,15 +58,15 @@
           &nbsp;&nbsp;
           <label for="tue" style="display: inline-block;"><input type="checkbox" name="day" value="Tuesday" id="tue"/>周二</label>
           &nbsp;&nbsp;
-          <label for="wed" style="display: inline-block;"><input type="checkbox" name="day" value="Monday" id="wed"/>周三</label>
+          <label for="wed" style="display: inline-block;"><input type="checkbox" name="day" value="Wednesday" id="wed"/>周三</label>
           &nbsp;&nbsp;
-          <label for="thu" style="display: inline-block;"><input type="checkbox" name="day" value="Monday" id="thu"/>周四</label>
+          <label for="thu" style="display: inline-block;"><input type="checkbox" name="day" value="Thursday" id="thu"/>周四</label>
           &nbsp;&nbsp;
-          <label for="fri" style="display: inline-block;"><input type="checkbox" name="day" value="Monday" id="fri"/>周五</label>
+          <label for="fri" style="display: inline-block;"><input type="checkbox" name="day" value="Friday" id="fri"/>周五</label>
           &nbsp;&nbsp;
-          <label for="sat" style="display: inline-block;"><input type="checkbox" name="day" value="Monday" id="sat"/>周六</label>
+          <label for="sat" style="display: inline-block;"><input type="checkbox" name="day" value="Saturday" id="sat"/>周六</label>
           &nbsp;&nbsp;
-          <label for="sun" style="display: inline-block;"><input type="checkbox" name="day" value="Monday" id="sun"/>周日</label>
+          <label for="sun" style="display: inline-block;"><input type="checkbox" name="day" value="Sunday" id="sun"/>周日</label>
           &nbsp;&nbsp;
         </td>
     </tr>
@@ -116,11 +82,12 @@
     </tr>
 </table>
 </form>
-</body>
-</html>
+
 <script>
   var defaultDate = document.querySelectorAll('#date-picker');
   for (var i = 0; i<defaultDate.length; i++) {
     defaultDate[i].valueAsDate = new Date();
   }
 </script>
+
+@stop

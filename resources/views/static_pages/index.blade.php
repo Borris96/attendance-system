@@ -34,7 +34,7 @@
 <div style="text-align:center;">
     &copy; Since 2019 <a href="https://github.com/Borris96/attendance-system">JadeClass</a>
     &nbsp;|&nbsp;
-    Powered by <a href="https://laravelacademy.org" title="采用emlog系统" target="_blank">Laravel</a>
+    Powered by <a href="https://laravelacademy.org" title="采用Laravel系统" target="_blank">Laravel</a>
 </div>
 
 <script type="text/javascript" src="{{ asset('js/jquery-1.8.1.min.js') }}" charset="utf-8"></script>
@@ -43,7 +43,7 @@
 <script type="text/javascript" src="{{ asset('js/config-min.js') }}" charset="utf-8"></script>
 <script>
     BUI.use('common/main',function(){
-        var config = [{id:'1',menu:[{text:'上班考勤管理',items:[{id:'1',text:'员工信息管理',href:'{{ route('staffs.index') }}'},{id:'2',text:'基本信息管理',href:''},{id:'3',text:'请假信息管理',href:''},{id:'4',text:'加班信息管理',href:''},{id:'5',text:'考勤信息管理',href:''}]}]},{id:'2',homePage : '9',menu:[{text:'上课考勤管理',items:[{id:'99',text:'查询业务',href:''}]}]}];
+        var config = [{id:'1',menu:[{text:'上班考勤管理',items:[{id:'1',text:'员工信息管理',href:'{{ route('staffs.index') }}'},{id:'2',text:'基本信息管理',href:''},{id:'3',text:'请假信息管理',href:'{{ route('absences.index') }}'},{id:'4',text:'加班信息管理',href:''},{id:'5',text:'考勤信息管理',href:''}]}]},{id:'2',homePage : '9',menu:[{text:'上课考勤管理',items:[{id:'99',text:'查询业务',href:''}]}]}];
         new PageUtil.MainPage({
             modulesConfig : config
         });
