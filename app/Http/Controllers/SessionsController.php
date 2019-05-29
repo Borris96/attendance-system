@@ -21,7 +21,7 @@ class SessionsController extends Controller
         ]);
         if (Auth::attempt($credentials)){
             session()->flash('success','登录成功！');
-            return redirect()->route('home',[Auth::user()]);
+            return redirect()->route('users.show',[Auth::user()]);
         } else {
             session()->flash('danger','密码或用户名错误。');
             return redirect()->back()->withInput();

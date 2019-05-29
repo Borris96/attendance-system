@@ -17,6 +17,8 @@ Route::get('/', function () {
 
 Route::get('/home', 'StaticPagesController@index')->name('home');
 
+Route::resource('users', 'UsersController');
+
 Route::resource('/staffs','StaffsController');
 
 Route::resource('/absences','AbsencesController');
