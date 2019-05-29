@@ -5,7 +5,7 @@
 <table class="table table-bordered table-hover definewidth m10">
     <tr>
         <td width="10%" class="tableleft">员工姓名</td>
-        <td><input type="text" name="username"/></td>
+        <td><input type="text" name="staffname"/></td>
     </tr>
     <tr>
         <td class="tableleft">英文名</td>
@@ -18,7 +18,7 @@
     <tr>
         <td class="tableleft">所属部门</td>
          <td>
-          <select name="department">
+          <select name="department_name">
 <!--             <option disabled="disabled">请选择</option> -->
             <option value="renshi">人事部</option><option value='jiaocai'>教材部</option><option value='kefu'>客服部</option>
           </select>
@@ -27,7 +27,7 @@
     <tr>
         <td class="tableleft">当前职位</td>
          <td>
-          <select name="position">
+          <select name="position_name">
 <!--             <option disabled="disabled">请选择</option> -->
             <option value="wenyuan">文员</option><option value='jingli'>经理</option><option value='shixisheng'>实习生</option>
           </select>
@@ -54,25 +54,25 @@
     <tr>
         <td class="tableleft">工作日</td>
         <td>
-          <label for="mon" style="display: inline-block;"><input type="checkbox" name="day" value="Monday" id="mon"/>周一</label>
+          <label for="mon" style="display: inline-block;"><input type="checkbox" name="workday1" value="Monday" id="mon"/>周一</label>
           &nbsp;&nbsp;
-          <label for="tue" style="display: inline-block;"><input type="checkbox" name="day" value="Tuesday" id="tue"/>周二</label>
+          <label for="tue" style="display: inline-block;"><input type="checkbox" name="workday2" value="Tuesday" id="tue"/>周二</label>
           &nbsp;&nbsp;
-          <label for="wed" style="display: inline-block;"><input type="checkbox" name="day" value="Wednesday" id="wed"/>周三</label>
+          <label for="wed" style="display: inline-block;"><input type="checkbox" name="workday3" value="Wednesday" id="wed"/>周三</label>
           &nbsp;&nbsp;
-          <label for="thu" style="display: inline-block;"><input type="checkbox" name="day" value="Thursday" id="thu"/>周四</label>
+          <label for="thu" style="display: inline-block;"><input type="checkbox" name="workday4" value="Thursday" id="thu"/>周四</label>
           &nbsp;&nbsp;
-          <label for="fri" style="display: inline-block;"><input type="checkbox" name="day" value="Friday" id="fri"/>周五</label>
+          <label for="fri" style="display: inline-block;"><input type="checkbox" name="workday5" value="Friday" id="fri"/>周五</label>
           &nbsp;&nbsp;
-          <label for="sat" style="display: inline-block;"><input type="checkbox" name="day" value="Saturday" id="sat"/>周六</label>
+          <label for="sat" style="display: inline-block;"><input type="checkbox" name="workday6" value="Saturday" id="sat"/>周六</label>
           &nbsp;&nbsp;
-          <label for="sun" style="display: inline-block;"><input type="checkbox" name="day" value="Sunday" id="sun"/>周日</label>
+          <label for="sun" style="display: inline-block;"><input type="checkbox" name="workday7" value="Sunday" id="sun"/>周日</label>
           &nbsp;&nbsp;
         </td>
     </tr>
     <tr>
         <td class="tableleft">年假天数</td>
-        <td><input type="text" name="annual_holidays"/></td> <!-- 需要自动计算 -->
+        <td><input type="text" name="annual_holiday"/></td> <!-- 需要自动计算 -->
     </tr>
     <tr>
         <td class="tableleft"></td>
