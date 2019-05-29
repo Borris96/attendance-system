@@ -13,9 +13,9 @@
 
     <div class="dl-title">
         <!--<img src="/chinapost/Public/assets/img/top.png">-->
-    </div>
 
-    <div class="dl-log">欢迎您，<span class="dl-log-user">{{ Auth::user()->name }}</span>
+    </div>
+    <div class="dl-log"> 欢迎您，<span class="dl-log-user">{{ Auth::user()->name }}</span>
       <form action="{{ route('logout') }}" method="post" style="display: inline-block;" id="mylogout">
         {{ csrf_field() }}
         {{ method_field('DELETE') }}
