@@ -1,6 +1,7 @@
 @extends('layouts.default')
 @section('title','员工信息')
 @section('content')
+@include('shared._messages')
 <form class="form-inline definewidth m20" action="{{ route('staffs.index') }}" method="get">
     员工姓名：
     <input type="text" name="staffname" id="staffname"class="abc input-default" placeholder="" value="">&nbsp;&nbsp;

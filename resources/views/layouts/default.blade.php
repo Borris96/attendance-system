@@ -38,7 +38,6 @@
     </style>
 </head>
 <body>
-@include('shared._messages')
 @yield('content')
 </body>
 </html>

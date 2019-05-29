@@ -9,7 +9,7 @@
   {{ csrf_field() }}
   <table class="table table-bordered table-hover definewidth m10">
       <tr>
-          <td width="10%" class="tableleft">员工姓名</td>
+          <td width="10%" class="tableleft">员工姓名*</td>
           <td><input type="text" name="staffname"/></td>
       </tr>
       <tr>
@@ -17,7 +17,7 @@
           <td><input type="text" name="englishname"/></td>
       </tr>
       <tr>
-          <td class="tableleft">员工编号</td>
+          <td class="tableleft">员工编号*</td>
           <td><input type="text" name="id"/></td>
       </tr>
       <tr>
@@ -51,13 +51,13 @@
           </td>
       </tr>
       <tr>
-          <td class="tableleft">应上下班时间</td>
+          <td class="tableleft">应上下班时间*</td>
           <td>
             <input type="time" name="work_time" value="09:00"/> &nbsp;至&nbsp; <input type="time" name="home_time" value="18:00"/>
           </td>
       </tr>
       <tr>
-          <td class="tableleft">工作日</td>
+          <td class="tableleft">工作日*</td>
           <td>
             <label for="mon" style="display: inline-block;"><input type="checkbox" name="workdays[0]" value="Monday" id="mon"/>周一</label>
             &nbsp;&nbsp;

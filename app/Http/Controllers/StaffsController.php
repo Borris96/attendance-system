@@ -45,22 +45,15 @@ class StaffsController extends Controller
         $staff->join_work = $request->get('join_work');
         $staff->work_time = $request->get('work_time');
         $staff->home_time = $request->get('home_time');
-        // $workdays_array = $request->input('workdays[]');
-        // var_dump($workdays_array);
-        // exit();
-        $workdaysall = '';
-        $workdays_array = [0=>'Monday', 1=>'Tuesday'];
-        foreach($workdays_array as $wd){
-
-            $workdaysall.=$wd.',';
-
-        }
-        $workdaysall = rtrim($workdaysall,',');
-        $staff->workdays = $workdaysall;
+        // $workdaysall = '';
+        // $workdays_array = [0=>'Monday', 1=>'Tuesday'];
+        $workdays_array = $request->input('workdays');
+        $staff->workdays = $staff->getAllWorkdays($workdays_array);
         $staff->annual_holiday = $request->get('annual_holiday');
 
         if ($staff->save()) {
-            return redirect()->back(); //应导向列表
+            session()->flash('success','保存成功！');
+            return redirect('staffs'); //应导向列表
         } else {
             session()->flash('danger','保存失败！');
             return redirect()->back()->withInput();
