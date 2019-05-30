@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class PositionsTable extends Migration
+class CreateStaffworkdaysTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class PositionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('positions', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('position_name',50);
-            $table->timestamps();
+        Schema::create('staffworkdays', function (Blueprint $table) {
+            $table->unsignedInteger('staff_id');
+            $table->string('workday_name',10);
         });
     }
 
@@ -27,6 +26,6 @@ class PositionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('positions');
+        Schema::dropIfExists('staffworkdays');
     }
 }

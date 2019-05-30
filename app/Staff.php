@@ -8,6 +8,10 @@ class Staff extends Model
 {
     protected $table = 'staffs';
 
+    public function belongsToDepartment(){
+        $this->belongsTo('App\Department');
+    }
+
 
     public function getAllWorkdays($workdays_array){
         $workdaysall = '';

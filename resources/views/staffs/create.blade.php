@@ -5,7 +5,7 @@
 
 <div class="container">
 @include('shared._errors')
-<form action="{{ route('staffs.index') }}" method="post" class="definewidth m20">
+<form action="{{ route('staffs.store') }}" method="post" class="definewidth m20">
   {{ csrf_field() }}
   <table class="table table-bordered table-hover definewidth m10">
       <tr>
@@ -18,23 +18,30 @@
       </tr>
       <tr>
           <td class="tableleft">员工编号*</td>
-          <td><input type="text" name="id"/></td>
+          <td><input type="text" name="satff_id"/></td>
       </tr>
       <tr>
           <td class="tableleft">所属部门</td>
            <td>
-            <select name="department_name">
+            <select name="departments">
+              @foreach ($departments as $d)
   <!--             <option disabled="disabled">请选择</option> -->
-              <option value="renshi">人事部</option><option value='jiaocai'>教材部</option><option value='kefu'>客服部</option>
+              <option value="{{$d->id}}">{{ $d->department_name }}
+
+              @endforeach
             </select>
           </td>
       </tr>
       <tr>
           <td class="tableleft">当前职位</td>
            <td>
-            <select name="position_name">
+            <select name="positions">
   <!--             <option disabled="disabled">请选择</option> -->
-              <option value="wenyuan">文员</option><option value='jingli'>经理</option><option value='shixisheng'>实习生</option>
+              @foreach ($positions as $p)
+  <!--             <option disabled="disabled">请选择</option> -->
+              <option value="{{$p->id}}">{{ $p->position_name }}
+
+              @endforeach
             </select>
           </td>
       </tr>
