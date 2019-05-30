@@ -68,6 +68,12 @@ class StaffsController extends Controller
         $positionname=DB::table('positions')->join('staffs','position_id','=','positions.id')->select('positions.position_name')->where('position_id',$position_id)->value('position_name');
         $staff->position_name = $positionname;
 
+        // foreach ($workdays_array as $wd) {
+        //     $staffworkday = new Staffworkday();
+        //     $staffworkday->workday_name = $wd;
+        //     $staffworkday->staff_id = $request->get('id');
+        // }
+        $staff->insertWorkDays($workdays_array,$request->get('id'));
 
         if ($staff->save()) {
             session()->flash('success','保存成功！');

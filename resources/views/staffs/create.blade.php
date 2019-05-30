@@ -10,15 +10,15 @@
   <table class="table table-bordered table-hover definewidth m10">
       <tr>
           <td width="10%" class="tableleft">员工姓名*</td>
-          <td><input type="text" name="staffname"/></td>
+          <td><input type="text" name="staffname" value="{{ old('staffname') }}"/></td>
       </tr>
       <tr>
           <td class="tableleft">英文名</td>
-          <td><input type="text" name="englishname"/></td>
+          <td><input type="text" name="englishname" value="{{ old('englishname') }}"/></td>
       </tr>
       <tr>
           <td class="tableleft">员工编号*</td>
-          <td><input type="text" name="id"/></td>
+          <td><input type="text" name="id" value="{{ old('id') }}"/></td>
       </tr>
       <tr>
           <td class="tableleft">所属部门</td>
@@ -46,15 +46,15 @@
           </td>
       </tr>
       <tr>
-          <td class="tableleft">入职日期</td>
+          <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" id="date-picker"/>
+            <input type="date" name="join_company" id="date-picker" value="{{ old('join_company') }}"/>
           </td>
       </tr>
       <tr>
           <td class="tableleft">参加工作</td>
           <td>
-            <input type="date" name="join_work" id="date-picker"/>
+            <input type="date" name="join_work" id="date-picker" value="{{ old('join_work') }}"/>
           </td>
       </tr>
       <tr>
@@ -84,7 +84,7 @@
       </tr>
       <tr>
           <td class="tableleft">年假天数</td>
-          <td><input type="text" name="annual_holiday"/></td> <!-- 需要自动计算 -->
+          <td><input type="text" name="annual_holiday" value="5"/></td> <!-- 需要自动计算 -->
       </tr>
       <tr>
           <td class="tableleft"></td>
