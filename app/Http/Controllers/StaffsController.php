@@ -20,7 +20,7 @@ class StaffsController extends Controller
     public function index()
     {
         $staffs = Staff::paginate(10);
-        // $departments = Department::all();
+        $departments = Department::all();
         return view('staffs/index',compact('staffs','departments'));
     }
 
