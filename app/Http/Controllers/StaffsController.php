@@ -20,8 +20,7 @@ class StaffsController extends Controller
     public function index()
     {
         $staffs = Staff::paginate(10);
-        $departments = Department::all();
-        return view('staffs/index',compact('staffs','departments'));
+        return view('staffs/index',compact('staffs'));
     }
 
     public function create()
@@ -61,11 +60,13 @@ class StaffsController extends Controller
         $staff->workdays = $staff->getAllWorkdays($workdays_array);
         $staff->annual_holiday = $request->get('annual_holiday');
 
-        $departmentname=DB::table('departments')->join('staffs','department_id','=','departments.id')->select('departments.department_name')->where('department_id','1')->value('department_name');
+        $department_id = $staff->department_id;
+        $departmentname=DB::table('departments')->join('staffs','department_id','=','departments.id')->select('departments.department_name')->where('department_id',$department_id)->value('department_name');
         $staff->department_name = $departmentname;
 
-         $positionname=DB::table('positions')->join('staffs','position_id','=','positions.id')->select('positions.position_name')->where('position_id','1')->value('position_name');
-         $staff->position_name = $positionname;
+        $position_id = $staff->position_id;
+        $positionname=DB::table('positions')->join('staffs','position_id','=','positions.id')->select('positions.position_name')->where('position_id',$position_id)->value('position_name');
+        $staff->position_name = $positionname;
 
 
         if ($staff->save()) {
