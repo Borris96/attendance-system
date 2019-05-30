@@ -22,10 +22,25 @@
         <th>操作</th>
     </tr>
     </thead>
-
+    @foreach ($staffs as $staff)
+       <tr>
+            <td>{{ $staff->id }}</td>
+            <td>{{ $staff->staffname }}</td>
+            <td>{{ $staff->englishname }}</td>
+            <td>{{ $staff->department_name }}</td>
+            <td>{{ $staff->position_name }}</td>
+            <td>{{ $staff->join_company }}</td>
+            <td>{{ $staff->join_work }}</td>
+            <td>
+                <a href="">详情</a> | <!-- route('staffs.show', $staff->id) -->
+                <a href="">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
+                <a href="" onclick="delcfm()">删除</a> <!-- route('staffs.destroy', $staff->id) -->
+            </td>
+        </tr>
+      @endforeach
 </table>
 
-
+{{ $staffs->links() }} <!-- show paginate -->
 
 
 <script>
