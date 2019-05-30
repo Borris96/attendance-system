@@ -8,6 +8,7 @@
     <button type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp; <a class="btn btn-success" href="{{ route('staffs.create') }}" role="button">新增员工</a>
 
 </form>
+
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
@@ -39,14 +40,18 @@
       @endforeach
 </table>
 
+{{ $staffs->links() }} <!-- show paginate -->
+
+
 <script>
 
   function delcfm() {
       if (!confirm("确认要删除？")) {
-          window.event.returnValue = false;//这句话关键，没有的话，还是会执行下一步的
+          window.event.returnValue = false;
       }
   }
 
 </script>
+
 
 @stop

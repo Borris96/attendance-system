@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap-responsive.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('css/chosen.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/paginate.css') }}" />
     <script type="text/javascript" src="{{ asset('js/jquery.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/jquery-1.8.1.min.js') }}"></script>
 <!--     <script type="text/javascript" src="../Js/jquery.sorted.js"></script> -->

@@ -15,7 +15,8 @@ class StaffsController extends Controller
 
     public function index()
     {
-        return view('staffs/index')->withStaffs(Staff::all());
+        $staffs = Staff::paginate(10);
+        return view('staffs/index',compact('staffs'));
     }
 
     public function create()
