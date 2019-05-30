@@ -18,7 +18,7 @@
       </tr>
       <tr>
           <td class="tableleft">员工编号*</td>
-          <td><input type="text" name="satff_id"/></td>
+          <td><input type="text" name="id"/></td>
       </tr>
       <tr>
           <td class="tableleft">所属部门</td>

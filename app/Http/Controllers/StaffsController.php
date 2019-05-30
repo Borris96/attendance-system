@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 use App\Staff;
 use App\Department;
@@ -33,7 +34,7 @@ class StaffsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'staff_id'=>'required|unique:staffs|max:10',
+            'id'=>'required|unique:staffs|max:10',
             'staffname'=>'required|max:50',
             'englishname'=>'max:50',
             'department'=>'max:50',
@@ -45,11 +46,11 @@ class StaffsController extends Controller
         ]);
 
         $staff = new Staff();
-        $staff->id = $request->get('staff_id');
+        $staff->id = $request->get('id');
         $staff->staffname = $request->get('staffname');
         $staff->englishname = $request->get('englishname');
-        $staff->department_id = $request->get('department');
-        $staff->position_id = $request->get('position');
+        $staff->department_id = $request->get('departments');
+        $staff->position_id = $request->get('positions');
         $staff->join_company = $request->get('join_company');
         $staff->join_work = $request->get('join_work');
         $staff->work_time = $request->get('work_time');
@@ -59,6 +60,14 @@ class StaffsController extends Controller
         $workdays_array = $request->input('workdays');
         $staff->workdays = $staff->getAllWorkdays($workdays_array);
         $staff->annual_holiday = $request->get('annual_holiday');
+
+        $departmentname=DB::table('departments')->join('staffs','department_id','=','departments.id')->select('departments.department_name')->where('department_id','1')->value('department_name');
+        $staff->department_name = $departmentname;
+
+         $positionname=DB::table('positions')->join('staffs','position_id','=','positions.id')->select('positions.position_name')->where('position_id','1')->value('position_name');
+         $staff->position_name = $positionname;
+
+
         if ($staff->save()) {
             session()->flash('success','保存成功！');
             return redirect('staffs'); //应导向列表

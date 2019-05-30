@@ -8,9 +8,9 @@ class Staff extends Model
 {
     protected $table = 'staffs';
 
-    public function belongsToDepartment(){
-        $this->belongsTo('App\Department');
-    }
+    // public function hasOneDepartment(){
+    //     $this->hasOne('App\Department','id','department_id');
+    // }
 
 
     public function getAllWorkdays($workdays_array){

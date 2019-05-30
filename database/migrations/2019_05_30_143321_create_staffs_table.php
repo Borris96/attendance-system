@@ -18,7 +18,9 @@ class CreateStaffsTable extends Migration
             $table->string('staffname',50);
             $table->string('englishname',50)->nullable();
             $table->unsignedInteger('department_id')->nullable();
+            $table->string('department_name',50)->nullable();
             $table->unsignedInteger('position_id')->nullable();
+            $table->string('position_name')->nullable();
             $table->date('join_company')->nullable();
             $table->date('join_work')->nullable();
             $table->time('work_time');
