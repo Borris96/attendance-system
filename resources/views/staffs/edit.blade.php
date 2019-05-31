@@ -11,15 +11,15 @@
   <table class="table table-bordered table-hover definewidth m10">
       <tr>
           <td width="10%" class="tableleft">员工姓名*</td>
-          <td><input type="text" name="staffname" value="{{ $staff->staffname }}"/></td>
+          <td><input type="text" name="staffname" value="{{ $staff->staffname }}" disabled/></td>
       </tr>
       <tr>
           <td class="tableleft">英文名</td>
-          <td><input type="text" name="englishname" value="{{$staff->englishname}}"/></td>
+          <td><input type="text" name="englishname" value="{{$staff->englishname}}" disabled/></td>
       </tr>
       <tr>
           <td class="tableleft">员工编号*</td>
-          <td><input type="text" name="id" value="{{ $staff->id }}"/></td>
+          <td><input type="text" name="id" value="{{ $staff->id }}" disabled/></td>
       </tr>
       <tr>
           <td class="tableleft">所属部门</td>
@@ -54,13 +54,13 @@
       <tr>
           <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" value="{{$staff->join_company}}" max="{{ date('Y-m-d') }}" />
+            <input type="date" name="join_company" value="{{$staff->join_company}}" max="{{ date('Y-m-d') }}" disabled/>
           </td>
       </tr>
       <tr>
           <td class="tableleft">参加工作年数</td>
           <td>
-            <input type="text" name="work_year" placeholder="年，实习生可不填" value="{{$staff->work_year}}"/>
+            <input type="text" name="work_year" placeholder="" value="{{$staff->work_year}}" disabled/>
           </td>
       </tr>
       <tr>

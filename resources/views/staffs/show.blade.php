@@ -52,6 +52,6 @@
 </table>
 <p style="margin: 20px; text-align: right;">总应工作时长：XX小时</p>
 <a class="btn btn-success" style="margin: 20px" href="{{ route('staffs.index') }}" role="button">返回列表</a>
-
+<a class="btn btn-success" href="{{ route('staffs.edit',$staff->id) }}" role="button">编辑信息</a>
 
 @stop

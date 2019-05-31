@@ -38,7 +38,27 @@ class Staff extends Model
                 'updated_at' => date('Y-m-d H:i:s',time()),
             ]);
         }
+        return;
     }
+
+//Insert workdays into staffworkdays table
+    public function updateWorkDays($workdays_array, $staffid){
+        $origin = DB::table('staffworkdays')->where('staff_id',$staffid);
+        if ($origin->get('workday_name') != $workdays_array)
+        {
+            // $created_at = $origin->get('created_at');
+            DB::table('staffworkdays')->where('staff_id',$staffid)->delete();
+            foreach ($workdays_array as $wd) {
+                DB::table('staffworkdays')->insert([
+                    'staff_id'=>$staffid,
+                    'workday_name'=> $wd,
+                    'updated_at' => date('Y-m-d H:i:s',time()),
+                ]);
+            }
+        }
+        return;
+    }
+
 //Calculate annual holidays for staffs
     public function getAnnualHolidays($work_year, $join_company){
 
