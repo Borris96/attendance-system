@@ -32,8 +32,8 @@
             <td>{{ $staff->join_company }}</td>
             <td>{{ $staff->work_year }}</td>
             <td>
-                <a href="{{ route('staffs.show',$staff->id) }}">详情</a> | <!-- route('staffs.show', $staff->id) -->
-                <a href="">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
+                <a href="{{ route('staffs.show',$staff->id) }}">详情</a> |
+                <a href="{{ route('staffs.edit',$staff->id) }}">编辑</a> |
 
                 <form action="{{ route('staffs.destroy', $staff->id) }}" method="POST" style="display: inline-block;" id="myDelete">
                   {{ csrf_field() }}

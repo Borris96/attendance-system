@@ -1,34 +1,37 @@
 @extends('layouts.default')
-@section('title','新增员工')
+@section('title','编辑员工')
 @section('content')
 @include('shared._messages')
 
 <div class="container">
 @include('shared._errors')
-<form action="{{ route('staffs.store') }}" method="post" class="definewidth m20">
+<form action="{{ route('staffs.update', $staff->id) }}" method="post" class="definewidth m20">
+  {{ method_field('PATCH') }}
   {{ csrf_field() }}
   <table class="table table-bordered table-hover definewidth m10">
       <tr>
           <td width="10%" class="tableleft">员工姓名*</td>
-          <td><input type="text" name="staffname" value="{{ old('staffname') }}"/></td>
+          <td><input type="text" name="staffname" value="{{ $staff->staffname }}"/></td>
       </tr>
       <tr>
           <td class="tableleft">英文名</td>
-          <td><input type="text" name="englishname" value="{{ old('englishname') }}"/></td>
+          <td><input type="text" name="englishname" value="{{$staff->englishname}}"/></td>
       </tr>
       <tr>
           <td class="tableleft">员工编号*</td>
-          <td><input type="text" name="id" value="{{ old('id') }}"/></td>
+          <td><input type="text" name="id" value="{{ $staff->id }}"/></td>
       </tr>
       <tr>
           <td class="tableleft">所属部门</td>
            <td>
-            <select name="departments">
+            <select name="departments" value="{{$staff->department_name}}">
               <option value="">----请选择----</option>
               @foreach ($departments as $d)
-  <!--             <option disabled="disabled">请选择</option> -->
-              <option value="{{$d->id}}">{{ $d->department_name }}</option>
-
+                @if (($staff->department_name)===$d->department_name)
+                <option value="{{$d->id}}" selected="selected">{{ $d->department_name }}</option>
+                @else
+                <option value="{{$d->id}}">{{ $d->department_name }}</option>
+                @endif
               @endforeach
             </select>
           </td>
@@ -39,9 +42,11 @@
             <select name="positions">
               <option value="">----请选择----</option>
               @foreach ($positions as $p)
-  <!--             <option disabled="disabled">请选择</option> -->
-              <option value="{{$p->id}}">{{ $p->position_name }}</option>
-
+                @if (($staff->position_name)===$p->position_name)
+                <option value="{{$p->id}}" selected="selected"> {{ $p->position_name }}</option>
+                @else
+                <option value="{{$p->id}}">{{ $p->position_name }}</option>
+                @endif
               @endforeach
             </select>
           </td>
@@ -49,26 +54,33 @@
       <tr>
           <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" id="date-picker" max="{{ date('Y-m-d') }}"/>
+            <input type="date" name="join_company" value="{{$staff->join_company}}" max="{{ date('Y-m-d') }}" />
           </td>
       </tr>
       <tr>
-          <td class="tableleft">参加工作</td>
+          <td class="tableleft">参加工作年数</td>
           <td>
-            <input type="text" name="work_year" placeholder="年，实习生可不填" value="{{ old('work_year') }}"/>
+            <input type="text" name="work_year" placeholder="年，实习生可不填" value="{{$staff->work_year}}"/>
           </td>
       </tr>
       <tr>
           <td class="tableleft">应上下班时间*</td>
           <td>
-            <input type="time" name="work_time" value="09:00"/> &nbsp;至&nbsp; <input type="time" name="home_time" value="18:00"/>
+            <input type="time" name="work_time" value="{{$staff->work_time}}"/> &nbsp;至&nbsp; <input type="time" name="home_time" value="{{$staff->home_time}}"/>
           </td>
       </tr>
       <tr>
           <td class="tableleft">工作日*</td>
           <td>
+            @if ($workdays->where('workday_name','周一')!==0)
+            <label for="mon" style="display: inline-block;"><input type="checkbox" name="workdays[0]" value="周一" id="mon" checked="checked" />周一</label>
+            &nbsp;&nbsp;
+            @else
             <label for="mon" style="display: inline-block;"><input type="checkbox" name="workdays[0]" value="周一" id="mon"/>周一</label>
             &nbsp;&nbsp;
+            @endif
+
+
             <label for="tue" style="display: inline-block;"><input type="checkbox" name="workdays[1]" value="周二" id="tue"/>周二</label>
             &nbsp;&nbsp;
             <label for="wed" style="display: inline-block;"><input type="checkbox" name="workdays[2]" value="周三" id="wed"/>周三</label>
@@ -85,7 +97,11 @@
       </tr>
       <tr>
           <td class="tableleft">年假天数</td>
-          <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算"/></td>
+          <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算" value="{{$staff->annual_holiday}}"/></td>
+      </tr>
+      <tr>
+          <td class="tableleft">剩余年假天数</td>
+          <td><input type="text" name="remaining_annual_holiday" placeholder="" value="{{$staff->remaining_annual_holiday}}"/></td>
       </tr>
       <tr>
           <td class="tableleft"></td>

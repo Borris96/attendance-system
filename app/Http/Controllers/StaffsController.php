@@ -98,4 +98,17 @@ class StaffsController extends Controller
         }
 
     }
+
+    public function edit($id) {
+        $staff = Staff::find($id);
+        $staff_id = $staff->id;
+        $workdays = Staffworkday::where('staff_id', $staff_id)->get('workday_name');
+        $departments = Department::all();
+        $positions = Position::all();
+        return view('staffs.edit',compact('staff','workdays','departments','positions'));
+    }
+
+    public function update() {
+
+    }
 }
