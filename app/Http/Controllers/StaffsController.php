@@ -23,6 +23,12 @@ class StaffsController extends Controller
         return view('staffs/index',compact('staffs'));
     }
 
+    public function show($id)
+    {
+        $staff = Staff::find($id);
+        return view('staffs/{staff}',compact('staff'));
+    }
+
     public function create()
     {
         $departments = Department::all();
@@ -49,7 +55,9 @@ class StaffsController extends Controller
         $staff->staffname = $request->get('staffname');
         $staff->englishname = $request->get('englishname');
         $staff->department_id = $request->get('departments');
+        $staff->department_name = Department::find($staff->department_id)->department_name;
         $staff->position_id = $request->get('positions');
+        $staff->position_name = Position::find($staff->position_id)->position_name;
         $staff->join_company = $request->get('join_company');
         $staff->join_work = $request->get('join_work');
         $staff->work_time = $request->get('work_time');
@@ -59,20 +67,6 @@ class StaffsController extends Controller
         $workdays_array = $request->input('workdays');
         $staff->workdays = $staff->getAllWorkdays($workdays_array);
         $staff->annual_holiday = $request->get('annual_holiday');
-
-        $department_id = $staff->department_id;
-        $departmentname=DB::table('departments')->join('staffs','department_id','=','departments.id')->select('departments.department_name')->where('department_id',$department_id)->value('department_name');
-        $staff->department_name = $departmentname;
-
-        $position_id = $staff->position_id;
-        $positionname=DB::table('positions')->join('staffs','position_id','=','positions.id')->select('positions.position_name')->where('position_id',$position_id)->value('position_name');
-        $staff->position_name = $positionname;
-
-        // foreach ($workdays_array as $wd) {
-        //     $staffworkday = new Staffworkday();
-        //     $staffworkday->workday_name = $wd;
-        //     $staffworkday->staff_id = $request->get('id');
-        // }
         $staff->insertWorkDays($workdays_array,$request->get('id'));
 
         if ($staff->save()) {

@@ -26,7 +26,7 @@
             <select name="departments">
               @foreach ($departments as $d)
   <!--             <option disabled="disabled">请选择</option> -->
-              <option value="{{$d->id}}">{{ $d->department_name }}
+              <option value="{{$d->id}}">{{ $d->department_name }}</option>
 
               @endforeach
             </select>
@@ -39,7 +39,7 @@
   <!--             <option disabled="disabled">请选择</option> -->
               @foreach ($positions as $p)
   <!--             <option disabled="disabled">请选择</option> -->
-              <option value="{{$p->id}}">{{ $p->position_name }}
+              <option value="{{$p->id}}">{{ $p->position_name }}</option>
 
               @endforeach
             </select>
@@ -54,7 +54,7 @@
       <tr>
           <td class="tableleft">参加工作</td>
           <td>
-            <input type="date" name="join_work" id="date-picker" value="{{ old('join_work') }}"/>
+            <input type="date" name="join_work"/>
           </td>
       </tr>
       <tr>
