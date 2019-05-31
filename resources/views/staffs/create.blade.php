@@ -24,6 +24,7 @@
           <td class="tableleft">所属部门</td>
            <td>
             <select name="departments">
+              <option value="">----请选择----</option>
               @foreach ($departments as $d)
   <!--             <option disabled="disabled">请选择</option> -->
               <option value="{{$d->id}}">{{ $d->department_name }}</option>
@@ -36,7 +37,7 @@
           <td class="tableleft">当前职位</td>
            <td>
             <select name="positions">
-  <!--             <option disabled="disabled">请选择</option> -->
+              <option value="">----请选择----</option>
               @foreach ($positions as $p)
   <!--             <option disabled="disabled">请选择</option> -->
               <option value="{{$p->id}}">{{ $p->position_name }}</option>
@@ -48,13 +49,13 @@
       <tr>
           <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" id="date-picker" value="{{ old('join_company') }}"/>
+            <input type="date" name="join_company" id="date-picker" max="{{ date('Y-m-d') }}"/>
           </td>
       </tr>
       <tr>
           <td class="tableleft">参加工作</td>
           <td>
-            <input type="date" name="join_work"/>
+            <input type="text" name="work_year" placeholder="年，实习生可不填" value="{{ old('work_year') }}"/>
           </td>
       </tr>
       <tr>
@@ -84,8 +85,8 @@
       </tr>
       <tr>
           <td class="tableleft">年假天数</td>
-          <td><input type="text" name="annual_holiday" value="5"/></td> <!-- 需要自动计算 -->
-      </tr>
+          <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算"/></td> <!-- 需要自动计算
+      </tr> -->
       <tr>
           <td class="tableleft"></td>
           <td>

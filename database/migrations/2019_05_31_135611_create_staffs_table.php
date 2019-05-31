@@ -14,7 +14,7 @@ class CreateStaffsTable extends Migration
     public function up()
     {
         Schema::create('staffs', function (Blueprint $table) {
-            $table->unsignedInteger('id')->unique();
+            $table->unsignedInteger('id');
             $table->string('staffname',50);
             $table->string('englishname',50)->nullable();
             $table->unsignedInteger('department_id')->nullable();
@@ -22,11 +22,12 @@ class CreateStaffsTable extends Migration
             $table->unsignedInteger('position_id')->nullable();
             $table->string('position_name')->nullable();
             $table->date('join_company')->nullable();
-            $table->date('join_work')->nullable();
+            $table->unsignedInteger('work_year')->nullable();
             $table->time('work_time');
             $table->time('home_time');
             $table->string('workdays',100); // Mon,Tue,Wed,Thu,Fri
             $table->decimal('annual_holiday',5,2)->nullable();
+            $table->decimal('remaining_annual_holiday',5,2)->nullable();
             $table->timestamps();
             $table->primary('id');
         });

@@ -24,61 +24,31 @@
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
-        <th>类型</th>
-        <th>日期</th>
-        <th>应上班</th>
-        <th>应下班</th>
-        <th>实上班</th>
-        <th>实下班</th>
-        <th>迟到（分）</th>
-        <th>早退（分）</th>
-        <th>请假记录</th>
-        <th>加班记录</th>
-        <th>总工时</th>
-        <th>是否异常</th>
-        <th>操作</th>
+        <th>年假天数</th>
+        <th>使用天数</th>
     </tr>
     </thead>
-       <tr>
-            <td>正常</td>
-            <td>04/01</td>
-            <td>9:00</td>
-            <td>18:00</td>
-            <td>9:02</td>
-            <td>18:05</td>
-            <td>2</td>
-            <td>0</td>
-            <td>事假，16:00-18:00</td>
-            <td>18:00-19:00, 未批准</td>
-            <td>8小时</td>
-            <td>否</td>
-            <td>
-                <a href="">编辑工时记录</a> | <!-- route('staffs.edit', $staff->id) -->
-                <a href="">编辑请假记录</a> |
-                <a href="">编辑加班记录</a>
-            </td>
-        </tr>
+    <tr>
+        <td>{{ $staff->annual_holiday}}</td>
+        <td>{{ $staff->remaining_holiday}}</td> <!-- 请假管理功能完善之后需要修改 -->
+    </tr>
 </table>
 
-<h5 style="margin: 20px;">工资详情</h5>
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
-        <th>基本工时</th>
-        <th>基本时薪</th>
-        <th>特殊工时</th>
-        <th>特殊时薪</th>
-        <th>扣费</th>
-        <th>该月工资</th>
+        <th>星期</th>
+        <th>应上班时间</th>
+        <th>应下班时间</th>
     </tr>
     </thead>
-       <tr>
-            <td>100小时</td>
-            <td>30元</td>
-            <td>20小时</td>
-            <td>50元</td>
-            <td>100元</td>
-            <td>1000元</td>
+    <tr>
+        <td>一</td>
+        <td>9:00</td>
+        <td>18:00</td>
+    </tr>
 </table>
+<a class="btn btn-success" style="margin: 20px" href="{{ route('staffs.index') }}" role="button">返回列表</a>
+
 
 @stop

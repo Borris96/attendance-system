@@ -23,10 +23,10 @@ class StaffsController extends Controller
         return view('staffs/index',compact('staffs'));
     }
 
-    public function show($id)
+    public function show(Staff $staff)
     {
-        $staff = Staff::find($id);
-        return view('staffs/{staff}',compact('staff'));
+        // $staff = Staff::find($id);
+        return view('staffs.show',compact('staff'));
     }
 
     public function create()
@@ -59,14 +59,19 @@ class StaffsController extends Controller
         $staff->position_id = $request->get('positions');
         $staff->position_name = Position::find($staff->position_id)->position_name;
         $staff->join_company = $request->get('join_company');
-        $staff->join_work = $request->get('join_work');
+        $staff->work_year = $request->get('work_year');
         $staff->work_time = $request->get('work_time');
         $staff->home_time = $request->get('home_time');
         // $workdaysall = '';
         // $workdays_array = [0=>'Monday', 1=>'Tuesday'];
         $workdays_array = $request->input('workdays');
         $staff->workdays = $staff->getAllWorkdays($workdays_array);
-        $staff->annual_holiday = $request->get('annual_holiday');
+
+        if ($request->get('annual_holiday')!==null){
+            $staff->annual_holiday = $request->get('annual_holiday');
+        } else {
+            $staff->annual_holiday = $staff->getAnnualHolidays($staff->work_year, $staff->join_company);
+        }
         $staff->insertWorkDays($workdays_array,$request->get('id'));
 
         if ($staff->save()) {

@@ -30,9 +30,9 @@
             <td>{{ $staff->department_name }}</td>
             <td>{{ $staff->position_name }}</td>
             <td>{{ $staff->join_company }}</td>
-            <td>{{ $staff->join_work }}</td>
+            <td>{{ $staff->work_year }}</td>
             <td>
-                <a href="">详情</a> | <!-- route('staffs.show', $staff->id) -->
+                <a href="{{ route('staffs.show',$staff->id) }}">详情</a> | <!-- route('staffs.show', $staff->id) -->
                 <a href="">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
                 <a href="" onclick="delcfm()">删除</a> <!-- route('staffs.destroy', $staff->id) -->
             </td>

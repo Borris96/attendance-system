@@ -28,8 +28,8 @@ class Staff extends Model
         $workdaysall = rtrim($workdaysall,',');
         return $workdaysall;
     }
-
-    public function insertWorkDays($workdays_array, $staffid){ //Insert workdays into staffworkdays table
+//Insert workdays into staffworkdays table
+    public function insertWorkDays($workdays_array, $staffid){
         foreach ($workdays_array as $wd) {
             DB::table('staffworkdays')->insert([
                 'staff_id'=>$staffid,
@@ -38,5 +38,23 @@ class Staff extends Model
                 'updated_at' => date('Y-m-d H:i:s',time()),
             ]);
         }
+    }
+//Calculate annual holidays for staffs
+    public function getAnnualHolidays($work_year, $join_company){
+
+        if ($work_year<10){
+            $default_holiday = 5;
+        } elseif ($work_year>=10 && $work_year<20){
+            $default_holiday = 10;
+        } elseif ($work_year>=20){
+            $default_holiday = 15;
+        } else {
+            $default_holiday = 0;
+        }
+
+        $end_date = strtotime("December 31");
+        $join_company = strtotime($join_company);
+        $annual_holiday = $default_holiday*($end_date-$join_company)/(360*24*60*60);
+        return $annual_holiday;
     }
 }
