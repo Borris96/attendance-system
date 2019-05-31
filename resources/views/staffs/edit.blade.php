@@ -72,7 +72,7 @@
       <tr>
           <td class="tableleft">工作日*</td>
           <td>
-            @if ($workdays->where('workday_name','周一')!==0)
+            @if (!($workdays->where('workday_name','周一')->isEmpty()))
             <label for="mon" style="display: inline-block;"><input type="checkbox" name="workdays[0]" value="周一" id="mon" checked="checked" />周一</label>
             &nbsp;&nbsp;
             @else
@@ -80,19 +80,53 @@
             &nbsp;&nbsp;
             @endif
 
-
+            @if (!($workdays->where('workday_name','周二')->isEmpty()))
+            <label for="tue" style="display: inline-block;"><input type="checkbox" name="workdays[1]" value="周二" id="tue" checked="checked"/>周二</label>
+            &nbsp;&nbsp;
+            @else
             <label for="tue" style="display: inline-block;"><input type="checkbox" name="workdays[1]" value="周二" id="tue"/>周二</label>
             &nbsp;&nbsp;
+            @endif
+
+            @if (!($workdays->where('workday_name','周三')->isEmpty()))
+            <label for="wed" style="display: inline-block;"><input type="checkbox" name="workdays[2]" value="周三" id="wed" checked="checked"/>周三</label>
+            &nbsp;&nbsp;
+            @else
             <label for="wed" style="display: inline-block;"><input type="checkbox" name="workdays[2]" value="周三" id="wed"/>周三</label>
             &nbsp;&nbsp;
+            @endif
+
+            @if (!($workdays->where('workday_name','周四')->isEmpty()))
+            <label for="thu" style="display: inline-block;"><input type="checkbox" name="workdays[3]" value="周四" id="thu" checked="checked"/>周四</label>
+            &nbsp;&nbsp;
+            @else
             <label for="thu" style="display: inline-block;"><input type="checkbox" name="workdays[3]" value="周四" id="thu"/>周四</label>
             &nbsp;&nbsp;
+            @endif
+
+            @if (!($workdays->where('workday_name','周五')->isEmpty()))
+            <label for="fri" style="display: inline-block;"><input type="checkbox" name="workdays[4]" value="周五" id="fri" checked="checked"/>周五</label>
+            &nbsp;&nbsp;
+            @else
             <label for="fri" style="display: inline-block;"><input type="checkbox" name="workdays[4]" value="周五" id="fri"/>周五</label>
             &nbsp;&nbsp;
+            @endif
+
+            @if (!($workdays->where('workday_name','周六')->isEmpty()))
+            <label for="sat" style="display: inline-block;"><input type="checkbox" name="workdays[5]" value="周六" id="sat" checked="checked"/>周六</label>
+            &nbsp;&nbsp;
+            @else
             <label for="sat" style="display: inline-block;"><input type="checkbox" name="workdays[5]" value="周六" id="sat"/>周六</label>
             &nbsp;&nbsp;
+            @endif
+
+            @if (!($workdays->where('workday_name','周日')->isEmpty()))
+            <label for="sun" style="display: inline-block;"><input type="checkbox" name="workdays[6]" value="周日" id="sun" checked="checked"/>周日</label>
+            &nbsp;&nbsp;
+            @else
             <label for="sun" style="display: inline-block;"><input type="checkbox" name="workdays[6]" value="周日" id="sun"/>周日</label>
             &nbsp;&nbsp;
+            @endif
           </td>
       </tr>
       <tr>
