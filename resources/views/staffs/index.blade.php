@@ -34,7 +34,12 @@
             <td>
                 <a href="{{ route('staffs.show',$staff->id) }}">详情</a> | <!-- route('staffs.show', $staff->id) -->
                 <a href="">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
-                <a href="" onclick="delcfm()">删除</a> <!-- route('staffs.destroy', $staff->id) -->
+
+                <form action="{{ route('staffs.destroy', $staff->id) }}" method="POST" style="display: inline-block;" id="myDelete">
+                  {{ csrf_field() }}
+                  {{ method_field('DELETE') }}
+                  <a href="" title="删除" onclick="delcfm();document.getElementById('myDelete').submit();return false;">删除</a>
+                </form>
             </td>
         </tr>
       @endforeach

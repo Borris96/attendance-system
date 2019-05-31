@@ -25,12 +25,12 @@
     <thead>
     <tr>
         <th>年假天数</th>
-        <th>使用天数</th>
+        <th>剩余天数</th>
     </tr>
     </thead>
     <tr>
         <td>{{ $staff->annual_holiday}}</td>
-        <td>{{ $staff->remaining_holiday}}</td> <!-- 请假管理功能完善之后需要修改 -->
+        <td>{{ $staff->annual_holiday - $staff->remaining_holiday}}</td> <!-- 请假管理功能完善之后需要修改 -->
     </tr>
 </table>
 
@@ -50,6 +50,7 @@
     </tr>
     @endforeach
 </table>
+<p style="margin: 20px; text-align: right;">总应工作时长：48小时</p>
 <a class="btn btn-success" style="margin: 20px" href="{{ route('staffs.index') }}" role="button">返回列表</a>
 
 

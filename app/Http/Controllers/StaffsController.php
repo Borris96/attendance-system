@@ -38,6 +38,15 @@ class StaffsController extends Controller
         return view('staffs/create',compact('departments','positions'));
     }
 
+// 任何和该员工有关联的数据都应该删除 （员工ID不是unique的）
+    public function destroy($id)
+    {
+        Staff::find($id)->delete();
+        Staffworkday::where('staff_id',$id)->delete();
+        session()->flash('warning','删除成功！');
+        return redirect()->back()->withInput();
+    }
+
     public function store(Request $request)
     {
         $this->validate($request, [
