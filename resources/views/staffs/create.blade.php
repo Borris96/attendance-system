@@ -67,19 +67,19 @@
       <tr>
           <td class="tableleft">工作日*</td>
           <td>
-            <label for="mon" style="display: inline-block;"><input type="checkbox" name="workdays[0]" value="Monday" id="mon"/>周一</label>
+            <label for="mon" style="display: inline-block;"><input type="checkbox" name="workdays[0]" value="周一" id="mon"/>周一</label>
             &nbsp;&nbsp;
-            <label for="tue" style="display: inline-block;"><input type="checkbox" name="workdays[1]" value="Tuesday" id="tue"/>周二</label>
+            <label for="tue" style="display: inline-block;"><input type="checkbox" name="workdays[1]" value="周二" id="tue"/>周二</label>
             &nbsp;&nbsp;
-            <label for="wed" style="display: inline-block;"><input type="checkbox" name="workdays[2]" value="Wednesday" id="wed"/>周三</label>
+            <label for="wed" style="display: inline-block;"><input type="checkbox" name="workdays[2]" value="周三" id="wed"/>周三</label>
             &nbsp;&nbsp;
-            <label for="thu" style="display: inline-block;"><input type="checkbox" name="workdays[3]" value="Thursday" id="thu"/>周四</label>
+            <label for="thu" style="display: inline-block;"><input type="checkbox" name="workdays[3]" value="周四" id="thu"/>周四</label>
             &nbsp;&nbsp;
-            <label for="fri" style="display: inline-block;"><input type="checkbox" name="workdays[4]" value="Friday" id="fri"/>周五</label>
+            <label for="fri" style="display: inline-block;"><input type="checkbox" name="workdays[4]" value="周五" id="fri"/>周五</label>
             &nbsp;&nbsp;
-            <label for="sat" style="display: inline-block;"><input type="checkbox" name="workdays[5]" value="Saturday" id="sat"/>周六</label>
+            <label for="sat" style="display: inline-block;"><input type="checkbox" name="workdays[5]" value="周六" id="sat"/>周六</label>
             &nbsp;&nbsp;
-            <label for="sun" style="display: inline-block;"><input type="checkbox" name="workdays[6]" value="Sunday" id="sun"/>周日</label>
+            <label for="sun" style="display: inline-block;"><input type="checkbox" name="workdays[6]" value="周日" id="sun"/>周日</label>
             &nbsp;&nbsp;
           </td>
       </tr>

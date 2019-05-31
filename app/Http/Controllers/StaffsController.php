@@ -23,10 +23,12 @@ class StaffsController extends Controller
         return view('staffs/index',compact('staffs'));
     }
 
-    public function show(Staff $staff)
+    public function show($id)
     {
-        // $staff = Staff::find($id);
-        return view('staffs.show',compact('staff'));
+        $staff = Staff::find($id);
+        $staff_id = $staff->id;
+        $workdays = Staffworkday::where('staff_id', $staff_id)->get('workday_name');
+        return view('staffs.show',compact('staff','workdays'));
     }
 
     public function create()
@@ -55,9 +57,13 @@ class StaffsController extends Controller
         $staff->staffname = $request->get('staffname');
         $staff->englishname = $request->get('englishname');
         $staff->department_id = $request->get('departments');
-        $staff->department_name = Department::find($staff->department_id)->department_name;
+        if ($staff->department_id!==null){
+            $staff->department_name = Department::find($staff->department_id)->department_name;
+        }
         $staff->position_id = $request->get('positions');
-        $staff->position_name = Position::find($staff->position_id)->position_name;
+        if ($staff->position_id!==null){
+            $staff->position_name = Position::find($staff->position_id)->position_name;
+        }
         $staff->join_company = $request->get('join_company');
         $staff->work_year = $request->get('work_year');
         $staff->work_time = $request->get('work_time');

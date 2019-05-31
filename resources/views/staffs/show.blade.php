@@ -42,11 +42,13 @@
         <th>应下班时间</th>
     </tr>
     </thead>
+    @foreach($workdays as $workday)
     <tr>
-        <td>一</td>
-        <td>9:00</td>
-        <td>18:00</td>
+        <td>{{ $workday->workday_name }}</td>
+        <td>{{ date("H:i",strtotime($staff->work_time)) }}</td>
+        <td>{{ date("H:i",strtotime($staff->home_time)) }}</td>
     </tr>
+    @endforeach
 </table>
 <a class="btn btn-success" style="margin: 20px" href="{{ route('staffs.index') }}" role="button">返回列表</a>
 
