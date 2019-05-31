@@ -119,8 +119,8 @@ class StaffsController extends Controller
         ]);
 
         $staff = Staff::find($id);
-        $staff->staffname = $request->get('staffname');
-        $staff->englishname = $request->get('englishname');
+        // $staff->staffname = $request->get('staffname');
+        // $staff->englishname = $request->get('englishname');
         $staff->department_id = $request->get('departments');
         if ($staff->department_id!==null){
             $staff->department_name = Department::find($staff->department_id)->department_name;
@@ -129,7 +129,7 @@ class StaffsController extends Controller
         if ($staff->position_id!==null){
             $staff->position_name = Position::find($staff->position_id)->position_name;
         }
-        $staff->work_year = $request->get('work_year');
+        // $staff->work_year = $request->get('work_year');
         $staff->work_time = $request->get('work_time');
         $staff->home_time = $request->get('home_time');
 
