@@ -42,7 +42,7 @@ class Staff extends Model
 //Calculate annual holidays for staffs
     public function getAnnualHolidays($work_year, $join_company){
 
-        if ($work_year<10){
+        if ($work_year<10 && $work_year>0){
             $default_holiday = 5;
         } elseif ($work_year>=10 && $work_year<20){
             $default_holiday = 10;
