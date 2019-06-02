@@ -54,7 +54,7 @@
       <tr>
           <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" value="{{$staff->join_company}}" max="{{ date('Y-m-d') }}" disabled/>
+            <input type="date" name="join_company" value="{{$staff->join_company}}" max="{{ date('Y-m-d') }}" disabled />
           </td>
       </tr>
       <tr>
@@ -129,14 +129,14 @@
             @endif
           </td>
       </tr>
-      <tr>
+<!--       <tr>
           <td class="tableleft">年假天数</td>
-          <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算" value="{{$staff->annual_holiday}}"/></td>
+          <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算" value=""/></td>
       </tr>
       <tr>
           <td class="tableleft">剩余年假天数</td>
-          <td><input type="text" name="remaining_annual_holiday" placeholder="" value="{{$staff->remaining_annual_holiday}}"/></td>
-      </tr>
+          <td><input type="text" name="remaining_annual_holiday" placeholder="如不填写则自动计算" value=""/></td>
+      </tr> -->
       <tr>
           <td class="tableleft"></td>
           <td>

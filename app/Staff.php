@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class Staff extends Model
 {
@@ -75,6 +76,30 @@ class Staff extends Model
         $end_date = strtotime("December 31");
         $join_company = strtotime($join_company);
         $annual_holiday = $default_holiday*($end_date-$join_company)/(360*24*60*60);
+        return $annual_holiday;
+    }
+
+    public function updateWorkYears($updated_at, $work_year){
+        if ($updated_at->isLastYear() ){
+            $work_year += 1;
+        }
+        return $work_year;
+    }
+
+    public function updateAnnualHolidays($updated_at, $annual_holiday, $work_year){
+
+        if ($updated_at->isLastYear() ){
+            if ($work_year<10 && $work_year>0){
+                $default_holiday = 5;
+            } elseif ($work_year>=10 && $work_year<20){
+                $default_holiday = 10;
+            } elseif ($work_year>=20){
+                $default_holiday = 15;
+            } else {
+                $default_holiday = 0;
+            }
+            $annual_holiday += $default_holiday;
+        }
         return $annual_holiday;
     }
 }

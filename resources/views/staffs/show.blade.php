@@ -10,6 +10,7 @@
         <th>英文名</th>
         <th>所属部门</th>
         <th>职位</th>
+        <th>参加工作年数</th>
     </tr>
     </thead>
        <tr>
@@ -18,6 +19,7 @@
             <td>{{ $staff->englishname }}</td>
             <td>{{ $staff->department_name }}</td>
             <td>{{ $staff->position_name }}</td>
+            <td>{{ $staff->work_year }}</td>
 </table>
 
 
@@ -50,8 +52,8 @@
     </tr>
     @endforeach
 </table>
-<p style="margin: 20px; text-align: right;">总应工作时长：XX小时</p>
-<a class="btn btn-success" style="margin: 20px" href="{{ route('staffs.index') }}" role="button">返回列表</a>
-<a class="btn btn-success" href="{{ route('staffs.edit',$staff->id) }}" role="button">编辑信息</a>
+<p style="margin: 20px; text-align: right;">总应工作时长：?? 小时</p>
+<a class="btn btn-success" style="margin: 20px" href="{{ route('staffs.edit',$staff->id) }}" role="button">编辑信息</a>
+<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
 
 @stop

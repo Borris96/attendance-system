@@ -20,6 +20,18 @@ class StaffsController extends Controller
     public function index()
     {
         $staffs = Staff::paginate(10);
+        foreach ($staffs as $staff) {
+            $work_year = $staff->work_year;
+            $updated_at = $staff->updated_at;
+            $annual_holiday = $staff->annual_holiday;
+            $remaining_annual_holiday = $staff->remaining_annual_holiday;
+            $staff->work_year = $staff->updateWorkYears($updated_at, $work_year);
+            $staff->annual_holiday = $staff->updateAnnualHolidays($updated_at, $annual_holiday, $staff->work_year);
+            $staff->remaining_annual_holiday = $staff->updateAnnualHolidays($updated_at, $remaining_annual_holiday, $staff->work_year);
+            if ($staff->workyear!=$work_year && $staff->annual_holiday!=$annual_holiday){
+                $staff->save();
+            }
+        }
         return view('staffs/index',compact('staffs'));
     }
 
@@ -54,11 +66,12 @@ class StaffsController extends Controller
             'staffname'=>'required|max:50',
             'englishname'=>'max:50',
             'department'=>'max:50',
+            'work_year' => 'required|max:2',
             'position'=>'max:50',
             'work_time'=>'required',
             'home_time'=>'required',
             'workdays'=>'required|max:100',
-            'annual_holiday'=>'max:10',
+            'annual_holiday'=>'max:2',
         ]);
 
         $staff = new Staff();
@@ -87,6 +100,7 @@ class StaffsController extends Controller
         } else {
             $staff->annual_holiday = $staff->getAnnualHolidays($staff->work_year, $staff->join_company);
         }
+        $staff->remaining_annual_holiday = $staff->annual_holiday;
         $staff->insertWorkDays($workdays_array,$staff->id);
 
         if ($staff->save()) {
@@ -115,7 +129,7 @@ class StaffsController extends Controller
             'work_time'=>'required',
             'home_time'=>'required',
             'workdays'=>'required|max:100',
-            'annual_holiday'=>'max:10',
+            // 'annual_holiday'=>'max:10',
         ]);
 
         $staff = Staff::find($id);
@@ -132,15 +146,16 @@ class StaffsController extends Controller
         // $staff->work_year = $request->get('work_year');
         $staff->work_time = $request->get('work_time');
         $staff->home_time = $request->get('home_time');
+        // $staff->join_company = $request->get('join_company');
 
         $workdays_array = $request->input('workdays');
         $staff->workdays = $staff->getAllWorkdays($workdays_array);
 
-        if ($request->get('annual_holiday')!==null){
-            $staff->annual_holiday = $request->get('annual_holiday');
-        } else {
-            $staff->annual_holiday = $staff->getAnnualHolidays($staff->work_year, $staff->join_company);
-        }
+        // if ($request->get('annual_holiday')!=null){
+        //     $staff->annual_holiday = $request->get('annual_holiday');
+        // } else {
+        //     $staff->annual_holiday = $staff->getAnnualHolidays($staff->work_year, $staff->join_company);
+        // }
 
         $staff->updateWorkDays($workdays_array,$staff->id);
 

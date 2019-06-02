@@ -49,13 +49,13 @@
       <tr>
           <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" id="date-picker" max="{{ date('Y-m-d') }}"/>
+            <input type="date" name="join_company" id="date-picker" max="{{ date('Y-m-d') }}" value="{{ old('join_company') }}"/>
           </td>
       </tr>
       <tr>
-          <td class="tableleft">参加工作</td>
+          <td class="tableleft">参加工作年数*</td>
           <td>
-            <input type="text" name="work_year" placeholder="年，实习生可不填" value="{{ old('work_year') }}"/>
+            <input type="text" name="work_year" placeholder="" value="{{ old('work_year') }}"/>
           </td>
       </tr>
       <tr>

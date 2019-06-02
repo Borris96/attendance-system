@@ -19,6 +19,8 @@
         <th>当前职位</th>
         <th>入职日期</th>
         <th>参加工作年数</th>
+        <th>年假天数</th>
+        <th>剩余天数</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -31,6 +33,8 @@
             <td>{{ $staff->position_name }}</td>
             <td>{{ $staff->join_company }}</td>
             <td>{{ $staff->work_year }}</td>
+            <td>{{ $staff->annual_holiday }}</td>
+            <td>{{ $staff->remaining_annual_holiday }}</td>
             <td>
                 <a href="{{ route('staffs.show',$staff->id) }}">详情</a> |
                 <a href="{{ route('staffs.edit',$staff->id) }}">编辑</a> |
