@@ -10,6 +10,15 @@ class Staff extends Model
 {
     protected $table = 'staffs';
 
+    public function workHistorys()
+    {
+        return $this->hasMany(WorkHistory::class);
+    }
+
+    public function absences(){
+        return $this->hasMany(Absence::class);
+    }
+
     // public function hasOneDepartment(){
     //     $this->hasOne('App\Department','id','department_id');
     // }
@@ -33,7 +42,6 @@ class Staff extends Model
         $workdaysall = rtrim($workdaysall,',');
         return $workdaysall;
     }
-//
 
     /**
      * 把选中的工作日录入staffworkday表
@@ -132,5 +140,19 @@ class Staff extends Model
             $annual_holiday += $default_holiday;
         }
         return $annual_holiday;
+    }
+
+    public function insertWH($work_experiences_array, $leave_experiences_array, $staffid){
+        $length = max(count($work_experiences_array), count($leave_experiences_array));
+        for ($i=0; $i<$length; $i++) {
+            DB::table('work_historys')->insert([
+                'staff_id'=>$staffid,
+                'work_experience'=>$work_experiences_array[$i],
+                'leave_experience'=>$leave_experiences_array[$i],
+                'created_at' => date('Y-m-d H:i:s',time()),
+                'updated_at' => date('Y-m-d H:i:s',time()),
+            ]);
+        }
+        return;
     }
 }

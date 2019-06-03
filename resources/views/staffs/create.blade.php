@@ -49,9 +49,27 @@
       <tr>
           <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" id="date-picker" min="{{ date('Y').'-01-01' }}" max="{{ date('Y-m-d') }}" value="{{ old('join_company') }}"/>
+            <input type="date" name="join_company" min="{{ date('Y').'-01-01' }}" max="{{ date('Y-m-d') }}"/>
           </td>
       </tr>
+
+      <tr>
+          <td class="tableleft">工作经历*</td>
+          <td>
+            <input type="date" name="work_experiences[0]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[0]"/> <br>
+            <input type="date" name="work_experiences[1]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[1]"/> <br>
+            <input type="date" name="work_experiences[2]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[2]"/> <br>
+            <input type="date" name="work_experiences[3]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[3]"/> <br>
+            <input type="date" name="work_experiences[4]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[4]"/> <br>
+            <input type="date" name="work_experiences[5]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[5]"/> <br>
+            <input type="date" name="work_experiences[6]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[6]"/> <br>
+            <input type="date" name="work_experiences[7]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[7]"/> <br>
+            <input type="date" name="work_experiences[8]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[8]"/> <br>
+            <input type="date" name="work_experiences[9]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[9]"/> <br>
+          </td>
+      </tr>
+
+
       <tr>
           <td class="tableleft">参加工作年数*</td>
           <td>

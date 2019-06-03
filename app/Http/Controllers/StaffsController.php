@@ -9,6 +9,7 @@ use App\Staff;
 use App\Department;
 use App\Position;
 use App\Staffworkday;
+use App\WorkHistory;
 
 class StaffsController extends Controller
 {
@@ -98,6 +99,12 @@ class StaffsController extends Controller
         $workdays_array = $request->input('workdays');
         $staff->workdays = $staff->getAllWorkdays($workdays_array);
 
+        //Insert work historys into work_historys table
+        $work_experiences_array = $request->get('work_experiences');
+        $leave_experiences_array = $request->get('leave_experiences');
+
+        // $staff->insertWH($work_experiences_array, $leave_experiences_array, $staff->id);
+
         if ($request->get('annual_holiday')!==null){
             $staff->annual_holiday = $request->get('annual_holiday');
         } else {
@@ -105,8 +112,8 @@ class StaffsController extends Controller
         }
         $staff->remaining_annual_holiday = $staff->annual_holiday;
         $staff->insertWorkDays($workdays_array,$staff->id);
-
         if ($staff->save()) {
+            // $staff->insertWH($work_experiences_array, $leave_experiences_array, $staff->id);
             session()->flash('success','保存成功！');
             return redirect('staffs'); //应导向列表
         } else {
