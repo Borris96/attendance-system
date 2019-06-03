@@ -42,7 +42,7 @@ class Absence extends Model
                     $crest_start -= 1;
                 }
                 $crest_end = (min($str_end,strtotime($end_date.' 18:00:00'))-strtotime($end_date.' 9:00:00'))/3600; // 计算最后一天小时数
-                if ($str_end>strtotime($start_date.' 12:00'))
+                if ($str_end>strtotime($end_date.' 12:00'))
                 {
                     $crest_end -= 1;
                 }

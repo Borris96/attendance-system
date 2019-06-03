@@ -10,10 +10,10 @@ class Staff extends Model
 {
     protected $table = 'staffs';
 
-    public function workHistorys()
-    {
-        return $this->hasMany(WorkHistory::class);
-    }
+    // public function workHistorys()
+    // {
+    //     return $this->hasMany(WorkHistory::class);
+    // }
 
     public function absences(){
         return $this->hasMany(Absence::class);
@@ -92,18 +92,18 @@ class Staff extends Model
     public function getAnnualHolidays($work_year, $join_company){
 
         if ($work_year<10 && $work_year>0){
-            $default_holiday = 5;
+            $default_holiday = 5*8;
         } elseif ($work_year>=10 && $work_year<20){
-            $default_holiday = 10;
+            $default_holiday = 10*8;
         } elseif ($work_year>=20){
-            $default_holiday = 15;
+            $default_holiday = 15*8;
         } else {
             $default_holiday = 0;
         }
 
         $end_date = strtotime("December 31");
         $join_company = strtotime($join_company);
-        $annual_holiday = $default_holiday*($end_date-$join_company)/(360*24*60*60);
+        $annual_holiday = $default_holiday*($end_date-$join_company)/(365*24*60*60); //入职年剩余年假等于 百分比（入职时该年还剩下的天数除以365）乘以该年应得年假小时数
         return $annual_holiday;
     }
 
@@ -129,11 +129,11 @@ class Staff extends Model
 
         if ($updated_at->isLastYear() ){
             if ($work_year<10 && $work_year>0){
-                $default_holiday = 5;
+                $default_holiday = 5*8;
             } elseif ($work_year>=10 && $work_year<20){
-                $default_holiday = 10;
+                $default_holiday = 10*8;
             } elseif ($work_year>=20){
-                $default_holiday = 15;
+                $default_holiday = 15*8;
             } else {
                 $default_holiday = 0;
             }
@@ -142,7 +142,7 @@ class Staff extends Model
         return $annual_holiday;
     }
 
-    public function insertWH($work_experiences_array, $leave_experiences_array, $staffid){
+    public function insertWH($work_experiences_array, $leave_experiences_array, $staffid){ //实在不行重写数据表
         $length = max(count($work_experiences_array), count($leave_experiences_array));
         for ($i=0; $i<$length; $i++) {
             DB::table('work_historys')->insert([

@@ -102,7 +102,7 @@
           </td>
       </tr>
       <tr>
-          <td class="tableleft">年假天数</td>
+          <td class="tableleft">年假小时数</td>
           <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算"/></td>
       </tr>
       <tr>
