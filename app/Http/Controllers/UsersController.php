@@ -24,6 +24,6 @@ class UsersController extends Controller
     {
         $this->authorize('show', $user);
         return view('static_pages/index');
-        return route('home');
+        // return route('home');
     }
 }

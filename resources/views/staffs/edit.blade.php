@@ -54,7 +54,7 @@
       <tr>
           <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" value="{{$staff->join_company}}" max="{{ date('Y-m-d') }}" disabled />
+            <input type="date" name="join_company" value="{{$staff->join_company}}" min="" max="{{ date('Y-m-d') }}" disabled />
           </td>
       </tr>
       <tr>

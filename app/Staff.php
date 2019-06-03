@@ -18,7 +18,11 @@ class Staff extends Model
     //     $this->hasMany('App\Staffworkdays','id','department_id');
     // }
 
-
+    /**
+     * 把选中的工作日转换成string
+     * @param arr $workdays_array
+     * @return string $workdaysall
+     */
     public function getAllWorkdays($workdays_array){
         $workdaysall = '';
         foreach($workdays_array as $wd){
@@ -29,7 +33,14 @@ class Staff extends Model
         $workdaysall = rtrim($workdaysall,',');
         return $workdaysall;
     }
-//Insert workdays into staffworkdays table
+//
+
+    /**
+     * 把选中的工作日录入staffworkday表
+     * @param arr $workdays_array, int $staffid
+     * @return void
+     */
+
     public function insertWorkDays($workdays_array, $staffid){
         foreach ($workdays_array as $wd) {
             DB::table('staffworkdays')->insert([
@@ -42,7 +53,11 @@ class Staff extends Model
         return;
     }
 
-//Insert workdays into staffworkdays table
+    /**
+     * 把编辑时选中的工作日通过先录入后删除的形式更新至staffworkday表
+     * @param arr $workdays_array, int $staffid
+     * @return void
+     */
     public function updateWorkDays($workdays_array, $staffid){
         $origin = DB::table('staffworkdays')->where('staff_id',$staffid);
         if ($origin->get('workday_name') != $workdays_array)
@@ -60,7 +75,12 @@ class Staff extends Model
         return;
     }
 
-//Calculate annual holidays for staffs
+    /**
+     * 计算年假
+     * @param int $work_year, date $join_company
+     * @return int $annual_holiday
+     */
+
     public function getAnnualHolidays($work_year, $join_company){
 
         if ($work_year<10 && $work_year>0){
@@ -79,6 +99,12 @@ class Staff extends Model
         return $annual_holiday;
     }
 
+
+    /**
+     * 如果进入新一年，更新工作年数
+     * @param date $updated_at, int $work_year
+     * @return int $work_year
+     */
     public function updateWorkYears($updated_at, $work_year){
         if ($updated_at->isLastYear() ){
             $work_year += 1;
@@ -86,6 +112,11 @@ class Staff extends Model
         return $work_year;
     }
 
+    /**
+     * 如果进入新一年，更新年假
+     * @param date $updated_at, int $annual_holiday, int $work_year
+     * @return int $annual_holiday
+     */
     public function updateAnnualHolidays($updated_at, $annual_holiday, $work_year){
 
         if ($updated_at->isLastYear() ){

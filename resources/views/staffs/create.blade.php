@@ -49,7 +49,7 @@
       <tr>
           <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" id="date-picker" max="{{ date('Y-m-d') }}" value="{{ old('join_company') }}"/>
+            <input type="date" name="join_company" id="date-picker" min="{{ date('Y').'-01-01' }}" max="{{ date('Y-m-d') }}" value="{{ old('join_company') }}"/>
           </td>
       </tr>
       <tr>

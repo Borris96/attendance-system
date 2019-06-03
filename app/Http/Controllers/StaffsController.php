@@ -21,6 +21,7 @@ class StaffsController extends Controller
     {
         $staffs = Staff::paginate(10);
         foreach ($staffs as $staff) {
+            //主要是为了自动更新年假。如果下一年到了，自动加上年假天数。
             $work_year = $staff->work_year;
             $updated_at = $staff->updated_at;
             $annual_holiday = $staff->annual_holiday;
@@ -51,6 +52,7 @@ class StaffsController extends Controller
     }
 
 // 任何和该员工有关联的数据都应该删除 （员工ID不是unique的）
+// 但后期此功能需要修改成“离职”，因为员工数据不可以轻易删除
     public function destroy($id)
     {
         Staff::find($id)->delete();
@@ -79,6 +81,7 @@ class StaffsController extends Controller
         $staff->staffname = $request->get('staffname');
         $staff->englishname = $request->get('englishname');
         $staff->department_id = $request->get('departments');
+        // 根据id获取员工所属部门和职位
         if ($staff->department_id!==null){
             $staff->department_name = Department::find($staff->department_id)->department_name;
         }
