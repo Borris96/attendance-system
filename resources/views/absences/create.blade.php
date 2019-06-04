@@ -3,6 +3,7 @@
 @section('content')
 <div class="container">
 @include('shared._errors')
+@include('shared._messages')
 <form action="{{ route('absences.store') }}" method="post" class="definewidth m20">
   {{ csrf_field() }}
 <table class="table table-bordered table-hover definewidth m10">

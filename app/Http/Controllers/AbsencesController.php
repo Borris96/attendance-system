@@ -15,7 +15,8 @@ class AbsencesController extends Controller
 
     public function index()
     {
-        return view('absences/index');
+        $absences = Absence::orderBy('id','desc')->paginate(10);
+        return view('absences/index',compact('absences'));
     }
 
     public function create()
@@ -40,6 +41,15 @@ class AbsencesController extends Controller
         $absence->absence_type = $request->get('absence_type');
         $absence->absence_start_time = $request->get('absence_start_time');
         $absence->absence_end_time = $request->get('absence_end_time');
+        if ($absence->absence_start_time>$absence->absence_end_time){
+            session()->flash('danger','日期填写错误！');
+            return redirect()->back()->withInput();
+        }
+
+        if (strtotime($absence->absence_start_time)>strtotime(date("Y-m-d", strtotime($absence->absence_start_time)).' 18:00') || strtotime($absence->absence_end_time)<strtotime(date("Y-m-d", strtotime($absence->absence_end_time)).' 9:00')){
+            session()->flash('danger','日期超出范围！');
+            return redirect()->back()->withInput();
+        }
 
         $absence->approve = $request->get('approve');
         $absence->note = $request->get('note');

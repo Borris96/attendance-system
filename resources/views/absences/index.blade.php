@@ -20,27 +20,37 @@
         <th>时长</th>
         <th>是否批准</th>
         <th>备注</th>
+        <th>创建日期</th>
         <th>上次修改</th>
         <th>操作</th>
     </tr>
     </thead>
+    @foreach ($absences as $absence)
        <tr>
-            <td>001</td>
-            <td>张三</td>
-            <td>Jack</td>
-            <td>教材部</td>
-            <td>事假</td>
-            <td>2017/07/02 9:00 至 2017/07/02 16:00</td>
-            <td>7小时</td>
-            <td>否</td>
-            <td>实际请假7小时</td>
-            <td>2017/07/03 9:30</td>
+            <td>{{ $absence->staff->id }}</td>
+            <td>{{ $absence->staff->staffname }}</td>
+            <td>{{ $absence->staff->englishname }}</td>
+            <td>{{ $absence->staff->department_name }}</td>
+            <td>{{ $absence->absence_type }}</td>
+            <td>{{ date("Y-m-d H:i", strtotime($absence->absence_start_time)) }} 至 {{ date("Y-m-d H:i", strtotime($absence->absence_end_time)) }}</td>
+            <td>{{ $absence->duration }}</td>
+            <td>
+              @if ($absence->approve == true) 是
+              @else 否
+              @endif
+            </td>
+            <td>{{ $absence->note }}</td>
+            <td>{{ $absence->created_at }}</td>
+            <td>{{ $absence->updated_at }}</td>
             <td>
                 <a href="">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
                 <a href="" onclick="delcfm()">删除</a> <!-- route('staffs.destroy', $staff->id) -->
             </td>
         </tr>
+      @endforeach
 </table>
+
+{{ $absences->links() }}
 
 <script>
 
