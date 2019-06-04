@@ -1,6 +1,7 @@
 @extends('layouts.default')
 @section('title','请假信息')
 @section('content')
+@include('shared._messages')
 
 <form class="form-inline definewidth m20" action="{{ route('absences.index') }}" method="get">
     员工姓名：
@@ -43,7 +44,7 @@
             <td>{{ $absence->created_at }}</td>
             <td>{{ $absence->updated_at }}</td>
             <td>
-                <a href="">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
+                <a href="{{route('absences.edit',$absence->id)}}">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
                 <a href="" onclick="delcfm()">删除</a> <!-- route('staffs.destroy', $staff->id) -->
             </td>
         </tr>

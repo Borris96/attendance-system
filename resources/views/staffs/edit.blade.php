@@ -24,7 +24,7 @@
       <tr>
           <td class="tableleft">所属部门</td>
            <td>
-            <select name="departments" value="{{$staff->department_name}}">
+            <select name="departments">
               <option value="">----请选择----</option>
               @foreach ($departments as $d)
                 @if (($staff->department_name)===$d->department_name)

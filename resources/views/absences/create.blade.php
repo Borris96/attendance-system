@@ -50,7 +50,7 @@
         <td>
           <select name="approve">
             <option value=""> -----请选择----- </option>
-            <option value=1 @if(old('approve') == '是') selected @endif>是</option><option value=0 @if(old('approve') == '否') selected @endif>否</option>
+            <option value=1 @if(old('approve') == 1) selected @endif>是</option><option value=0 @if(old('approve') == 0) selected @endif>否</option>
           </select>
         </td>
     </tr>
