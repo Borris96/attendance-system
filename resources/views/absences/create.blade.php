@@ -8,7 +8,7 @@
   {{ csrf_field() }}
 <table class="table table-bordered table-hover definewidth m10">
     <tr>
-        <td width="10%" class="tableleft">员工姓名</td>
+        <td width="10%" class="tableleft">员工姓名*</td>
         <td>
 
         <select name="staff_id" id="name_select">
@@ -21,7 +21,7 @@
         </td>
     </tr>
     <tr>
-        <td class="tableleft">请假类型</td>
+        <td class="tableleft">请假类型*</td>
          <td>
           <select name="absence_type">
             <option value=""> -----请选择----- </option>
@@ -33,7 +33,7 @@
         </td>
     </tr>
     <tr>
-        <td class="tableleft">请假时间</td>
+        <td class="tableleft">请假时间*</td>
         <td>
           <input type="datetime-local" name="absence_start_time"
           @if (old('absence_start_time')!=null) value="{{ date('Y-m-d',strtotime(old('absence_start_time'))).'T'.date('H:i',strtotime(old('absence_start_time'))) }}"
@@ -46,7 +46,7 @@
         </td>
     </tr>
     <tr>
-        <td class="tableleft">是否批准</td>
+        <td class="tableleft">是否批准*</td>
         <td>
           <select name="approve">
             <option value=""> -----请选择----- </option>

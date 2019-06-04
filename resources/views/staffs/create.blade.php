@@ -27,7 +27,7 @@
               <option value="">----请选择----</option>
               @foreach ($departments as $d)
   <!--             <option disabled="disabled">请选择</option> -->
-              <option value="{{$d->id}}">{{ $d->department_name }}</option>
+              <option value="{{$d->id}}" @if(old('departments') == $d->id) selected @endif > {{ $d->department_name }} </option>
 
               @endforeach
             </select>
@@ -40,7 +40,7 @@
               <option value="">----请选择----</option>
               @foreach ($positions as $p)
   <!--             <option disabled="disabled">请选择</option> -->
-              <option value="{{$p->id}}">{{ $p->position_name }}</option>
+              <option value="{{$p->id}}" @if(old('positions') == $p->id) selected @endif >{{ $p->position_name }}</option>
 
               @endforeach
             </select>
@@ -79,31 +79,69 @@
       <tr>
           <td class="tableleft">应上下班时间*</td>
           <td>
-            <input type="time" name="work_time" value="09:00"/> &nbsp;至&nbsp; <input type="time" name="home_time" value="18:00"/>
+            <input type="time" name="work_time"
+            @if (old('work_time')!=null) value="{{ old('work_time') }}"
+            @else value="09:00"
+            @endif
+           />
+           &nbsp;至&nbsp;
+           <input type="time" name="home_time"
+            @if (old('home_time')!=null) value="{{ old('home_time') }}"
+            @else value="18:00"
+            @endif
+           />
           </td>
       </tr>
       <tr>
           <td class="tableleft">工作日*</td>
           <td>
-            <label for="mon" style="display: inline-block;"><input type="checkbox" name="workdays[0]" value="周一" id="mon"/>周一</label>
+            <label for="mon" style="display: inline-block;"><input type="checkbox" name="workdays[0]" value="周一" id="mon"
+              @if (old('workdays')&&in_array('周一', old('workdays')))
+              checked
+              @endif
+              />周一</label>
             &nbsp;&nbsp;
-            <label for="tue" style="display: inline-block;"><input type="checkbox" name="workdays[1]" value="周二" id="tue"/>周二</label>
+            <label for="tue" style="display: inline-block;"><input type="checkbox" name="workdays[1]" value="周二" id="tue"
+              @if (old('workdays')&&in_array('周二', old('workdays')))
+              checked
+              @endif
+              />周二</label>
             &nbsp;&nbsp;
-            <label for="wed" style="display: inline-block;"><input type="checkbox" name="workdays[2]" value="周三" id="wed"/>周三</label>
+            <label for="wed" style="display: inline-block;"><input type="checkbox" name="workdays[2]" value="周三" id="wed"
+              @if (old('workdays')&&in_array('周三', old('workdays')))
+              checked
+              @endif
+              />周三</label>
             &nbsp;&nbsp;
-            <label for="thu" style="display: inline-block;"><input type="checkbox" name="workdays[3]" value="周四" id="thu"/>周四</label>
+            <label for="thu" style="display: inline-block;"><input type="checkbox" name="workdays[3]" value="周四" id="thu"
+              @if (old('workdays')&&in_array('周四', old('workdays')))
+              checked
+              @endif
+              />周四</label>
             &nbsp;&nbsp;
-            <label for="fri" style="display: inline-block;"><input type="checkbox" name="workdays[4]" value="周五" id="fri"/>周五</label>
+            <label for="fri" style="display: inline-block;"><input type="checkbox" name="workdays[4]" value="周五" id="fri"
+              @if (old('workdays')&&in_array('周五', old('workdays')))
+              checked
+              @endif
+              />周五</label>
             &nbsp;&nbsp;
-            <label for="sat" style="display: inline-block;"><input type="checkbox" name="workdays[5]" value="周六" id="sat"/>周六</label>
+            <label for="sat" style="display: inline-block;"><input type="checkbox" name="workdays[5]" value="周六" id="sat"
+              @if (old('workdays')&&in_array('周六', old('workdays')))
+              checked
+              @endif
+              />周六</label>
             &nbsp;&nbsp;
-            <label for="sun" style="display: inline-block;"><input type="checkbox" name="workdays[6]" value="周日" id="sun"/>周日</label>
+            <label for="sun" style="display: inline-block;"><input type="checkbox" name="workdays[6]" value="周日" id="sun"
+              @if (old('workdays')&&in_array('周日', old('workdays')))
+              checked
+              @endif
+              />周日</label>
             &nbsp;&nbsp;
           </td>
       </tr>
       <tr>
           <td class="tableleft">年假小时数</td>
-          <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算"/></td>
+          <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算" value="{{ old('annual_holiday') }}" /></td>
       </tr>
       <tr>
           <td class="tableleft"></td>
