@@ -39,7 +39,7 @@
                 <a href="{{ route('staffs.show',$staff->id) }}">详情</a> |
                 <a href="{{ route('staffs.edit',$staff->id) }}">编辑</a> |
 
-                <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;" id="leave">
+                <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('PATCH') }}
                   {{ csrf_field() }}
                   <button type="submit" class="btn" type="button" onclick="delcfm();">办理离职</button>

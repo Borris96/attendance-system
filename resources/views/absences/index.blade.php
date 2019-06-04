@@ -45,7 +45,12 @@
             <td>{{ $absence->updated_at }}</td>
             <td>
                 <a href="{{route('absences.edit',$absence->id)}}">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
-                <a href="" onclick="delcfm()">删除</a> <!-- route('staffs.destroy', $staff->id) -->
+
+                <form action="{{ route('absences.destroy', $absence->id) }}" method="POST" style="display: inline-block;">
+                  {{ method_field('DELETE') }}
+                  {{ csrf_field() }}
+                  <button type="submit" class="btn btn-default" type="button" onclick="delcfm();">删除</button>
+                </form>
             </td>
         </tr>
       @endforeach
@@ -56,7 +61,7 @@
 <script>
 
   function delcfm() {
-      if (!confirm("确认要删除？")) {
+      if (!confirm("删除记录将影响考勤结果，确认要删除？")) {
           window.event.returnValue = false;//这句话关键，没有的话，还是会执行下一步的
       }
   }

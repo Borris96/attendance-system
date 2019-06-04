@@ -31,6 +31,26 @@ class AbsencesController extends Controller
         return view('absences.edit',compact('absence','staff'));
     }
 
+    /**
+     * 删除请假时，因为请假相应减少的时间应该加回来
+     *
+     */
+    public function destroy($id) {
+        $absence = Absence::find($id);
+        //被批准的年假记录删除时，年假应相应增加
+        $approve = $absence->approve;
+        if ($approve == true){
+            $duration = $absence->duration;
+            $staff_id = $absence->staff->id;
+            $staff = Staff::find($staff_id);
+            $staff->remaining_annual_holiday += $duration;
+            $staff->save();
+        }
+        $absence->delete();
+        session()->flash('success', '成功删除请假记录！');
+        return back();
+    }
+
     public function store(Request $request)
     {
         $this->validate($request, [

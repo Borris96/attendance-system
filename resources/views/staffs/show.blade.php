@@ -26,13 +26,13 @@
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
-        <th>年假天数</th>
-        <th>剩余天数</th>
+        <th>总年假(小时)</th>
+        <th>剩余小时</th>
     </tr>
     </thead>
     <tr>
         <td>{{ $staff->annual_holiday}}</td>
-        <td>{{ $staff->remaining_holiday}}</td> <!-- 请假管理功能完善之后需要修改 -->
+        <td>{{ $staff->remaining_annual_holiday}}</td> <!-- 请假管理功能完善之后需要修改 -->
     </tr>
 </table>
 
