@@ -53,7 +53,7 @@
           </td>
       </tr>
 
-      <tr>
+<!--       <tr>
           <td class="tableleft">工作经历*</td>
           <td>
             <input type="date" name="work_experiences[0]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[0]"/> <br>
@@ -67,7 +67,7 @@
             <input type="date" name="work_experiences[8]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[8]"/> <br>
             <input type="date" name="work_experiences[9]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[9]"/> <br>
           </td>
-      </tr>
+      </tr> -->
 
 
       <tr>

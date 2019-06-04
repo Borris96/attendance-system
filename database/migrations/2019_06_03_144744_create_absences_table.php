@@ -17,7 +17,7 @@ class CreateAbsencesTable extends Migration
             $table->increments('id');
             $table->string('absence_type')->nullable();
             $table->unsignedInteger('staff_id');
-            $table->foreign('staff_id')->references('id')->on('staffs');
+            // $table->foreign('staff_id')->references('id')->on('staffs');
             $table->dateTime('absence_start_time')->nullable();
             $table->dateTime('absence_end_time')->nullable();
             $table->decimal('duration',5,2)->nullable();

@@ -39,10 +39,10 @@
                 <a href="{{ route('staffs.show',$staff->id) }}">详情</a> |
                 <a href="{{ route('staffs.edit',$staff->id) }}">编辑</a> |
 
-                <form action="{{ route('staffs.destroy', $staff->id) }}" method="POST" style="display: inline-block;" id="myDelete">
+                <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;" id="leave">
+                  {{ method_field('PATCH') }}
                   {{ csrf_field() }}
-                  {{ method_field('DELETE') }}
-                  <a href="" title="删除" onclick="delcfm();document.getElementById('myDelete').submit();return false;">删除</a>
+                  <button type="submit" class="btn" type="button" onclick="delcfm();">办理离职</button>
                 </form>
             </td>
         </tr>
@@ -55,7 +55,7 @@
 <script>
 
   function delcfm() {
-      if (!confirm("确认要删除？")) {
+      if (!confirm("确认操作？")) {
           window.event.returnValue = false;
       }
   }

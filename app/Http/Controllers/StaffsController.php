@@ -10,6 +10,7 @@ use App\Department;
 use App\Position;
 use App\Staffworkday;
 use App\WorkHistory;
+use App\Absence;
 
 class StaffsController extends Controller
 {
@@ -54,12 +55,14 @@ class StaffsController extends Controller
 
 // 任何和该员工有关联的数据都应该删除 （员工ID不是unique的）
 // 但后期此功能需要修改成“离职”，因为员工数据不可以轻易删除
-    public function destroy($id)
+    public function leave($id)
     {
-        Staff::find($id)->delete();
-        Staffworkday::where('staff_id',$id)->delete();
-        session()->flash('warning','删除成功！');
-        return redirect()->back()->withInput();
+        $staff = Staff::find($id);
+        $staff->leave_company = now();
+        if ($staff->save()){
+            session()->flash('warning','员工已离职。');
+            return redirect()->back();
+        }
     }
 
     public function store(Request $request)
@@ -70,6 +73,7 @@ class StaffsController extends Controller
             'englishname'=>'max:50',
             'department'=>'max:50',
             'work_year' => 'required|max:2',
+            'join_company' => 'required',
             'position'=>'max:50',
             'work_time'=>'required',
             'home_time'=>'required',
