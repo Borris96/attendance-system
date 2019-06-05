@@ -19,7 +19,7 @@ class Absence extends Model
      * @return int duration
      */
 
-    public static function calDuration($absence_start_time, $absence_end_time){
+    public function calDuration($absence_start_time, $absence_end_time){
         $str_start = strtotime($absence_start_time); // Convert it to string
         $str_end = strtotime($absence_end_time); // Convert it to sring
         $start_date = date("Y-m-d", $str_start);
@@ -54,5 +54,23 @@ class Absence extends Model
         }
 
         return $duration;
+    }
+
+    /**
+     * 计算起始时间是否和之前的记录重叠
+     * @param timestamp $absence_start_time
+     * @param timestamp $absence_end_time
+     * @param timestamp $old_absence_start_time
+     * @param timestamp $old_absence_end_time
+     * @return boolean
+     */
+
+    public function isCrossing($absence_start_time, $absence_end_time, $old_absence_start_time, $old_absence_end_time)
+    {
+        if ($absence_end_time<=$old_absence_start_time || $old_absence_end_time<=$absence_start_time) { //时间不重叠
+            return true;
+        } else {
+            return false;
+        }
     }
 }

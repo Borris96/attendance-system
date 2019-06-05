@@ -13,7 +13,7 @@ class ExtraWork extends Model
         return $this->belongsTo(Staff::class);
     }
 
-    public static function calDuration($extra_work_start_time, $extra_work_end_time){
+    public function calDuration($extra_work_start_time, $extra_work_end_time){
         $str_start = strtotime($extra_work_start_time); // Convert it to string
         $str_end = strtotime($extra_work_end_time); // Convert it to sring
         if ($extra_work_end_time>$extra_work_start_time){
@@ -23,4 +23,5 @@ class ExtraWork extends Model
         }
         return $duration;
     }
+
 }
