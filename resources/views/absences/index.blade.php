@@ -61,7 +61,7 @@
 <script>
 
   function delcfm() {
-      if (!confirm("删除记录将影响考勤结果，确认要删除？")) {
+      if (!confirm("删除记录可能影响考勤结果，确认要删除？")) {
           window.event.returnValue = false;//这句话关键，没有的话，还是会执行下一步的
       }
   }

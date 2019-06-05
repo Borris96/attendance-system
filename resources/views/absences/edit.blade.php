@@ -43,7 +43,11 @@
     <tr>
         <td class="tableleft">备注*</td>
         <td>
-          <textarea name="note" id="" rows="5" placeholder="请填写修改原因"> {{ $absence->note }} </textarea>
+          @if ($absence->note!=null)
+          <textarea name="note" id="" rows="5"> {{ $absence->note }} </textarea>
+          @else
+          <textarea name="note" id="" rows="5" placeholder="请填写修改原因"></textarea>
+          @endif
         </td>
     </tr>
     <tr>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Staff;
 use App\Absence;
+use App\Lieu;
 
 class AbsencesController extends Controller
 {
@@ -15,7 +16,7 @@ class AbsencesController extends Controller
 
     public function index()
     {
-        $absences = Absence::orderBy('id','desc')->paginate(10);
+        $absences = Absence::orderBy('updated_at','desc')->paginate(10);
         return view('absences/index',compact('absences'));
     }
 
@@ -37,14 +38,15 @@ class AbsencesController extends Controller
      */
     public function destroy($id) {
         $absence = Absence::find($id);
-        //被批准的年假记录删除时，年假应相应增加
-        $approve = $absence->approve;
-        if ($approve == true){
-            $duration = $absence->duration;
-            $staff_id = $absence->staff->id;
-            $staff = Staff::find($staff_id);
-            $staff->remaining_annual_holiday += $duration;
-            $staff->save();
+        if ($absence->absence_type == '年假') {
+            //被批准的年假记录删除时，被扣除的年假应增加
+            $approve = $absence->approve;
+            if ($approve == true){
+                $duration = $absence->duration;
+                $staff = $absence->staff;
+                $staff->remaining_annual_holiday += $duration;
+                $staff->save();
+            }
         }
         $absence->delete();
         session()->flash('success', '成功删除请假记录！');
@@ -80,16 +82,15 @@ class AbsencesController extends Controller
         /** 请假时间不能重复
          * 首先调出该员工请假记录，
          * 再查询他是否有重复请假的情况
-         * 新的开始时间不能在原来表中找到
-         * 旧的开始时间也不能在原来表中找到
+         * 新的开始时间或新的结束时间不能在原来表中找到
          * 有的话，创建失败
          */
 
         $this_absences = Absence::where('staff_id',$absence->staff_id);
-        $result_start = $this_absences->where('absence_start_time', $absence->absence_start_time);
-        $result_end = $this_absences->where('absence_end_time', $absence->absence_end_time);
+        $result_start = $this_absences->where('absence_start_time', $absence->absence_start_time)->get()->toArray();
+        $result_end = $this_absences->where('absence_end_time', $absence->absence_end_time)->get()->toArray();
 
-        if ($result_start == true || $result_end == true) {
+        if (count($result_start) != 0 || count($result_end) != 0) {
             session()->flash('danger', '请假时间重复');
             return redirect()->back()->withInput();
         }
@@ -103,16 +104,41 @@ class AbsencesController extends Controller
         // dump($staff);
         // exit();
 
-        // 只有年假情况remaining
+        // 只有年假，且被批准情况下计算剩余年假
         if ($absence->absence_type == "年假" && $absence->approve == true){
             $staff = Staff::find($absence->staff_id);
-            $remaining = $staff->remaining_annual_holiday;
-            $staff->remaining_annual_holiday = $remaining - $absence->duration;
+            $staff->remaining_annual_holiday -= $absence->duration;
             if ($staff->remaining_annual_holiday<0){
                 session()->flash('danger','年假余额不足，不能请假！');
                 return redirect()->back()->withInput();
             }
-            if (!($staff->save())){
+
+            if ($absence->save() && $staff->save()) {
+                session()->flash('success','保存成功！');
+                return redirect('absences'); //应导向列表
+            } else {
+                session()->flash('danger','年假更新失败！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        if ($absence->absence_type == "调休" && $absence->approve == true){
+            //把这个员工的那一条调休记录调出来！！！
+            $this_lieu = $absence->staff->lieu;
+            if ($this_lieu == null) {
+                session()->flash('danger','调休剩余时间不足！');
+                return redirect()->back()->withInput();
+            }
+            $this_lieu->remaining_time -= $absence->duration;
+            if ($this_lieu->remaining_time<0){
+                session()->flash('danger','调休剩余时间不足，不能请假！');
+                return redirect()->back()->withInput();
+            }
+
+            if ($absence->save() && $this_lieu->save()) {
+                session()->flash('success','保存成功！');
+                return redirect('absences'); //应导向列表
+            } else {
                 session()->flash('danger','年假更新失败！');
                 return redirect()->back()->withInput();
             }
@@ -161,8 +187,11 @@ class AbsencesController extends Controller
 
         $this_absences = Absence::where('staff_id',$absence->staff_id)->get();
         // whereNotIn() 排除正在修改的记录
-        $result_start = $this_absences->whereNotIn('id',[$id])->where('absence_start_time', $absence->absence_start_time);
-        $result_end = $this_absences->whereNotIn('id',[$id])->where('absence_end_time', $absence->absence_end_time);
+        $result_start = $this_absences->whereNotIn('id',[$id])->where('absence_start_time', $absence->absence_start_time)->get()->toArray();
+        $result_end = $this_absences->whereNotIn('id',[$id])->where('absence_end_time', $absence->absence_end_time)->get()->toArray();
+
+// ************* 这个不对，应该判定范围
+
 
         if (count($result_start) != 0 || count($result_end) != 0) {
             session()->flash('danger', '请假时间重复');
@@ -188,7 +217,10 @@ class AbsencesController extends Controller
                 session()->flash('danger','年假余额不足，不能请假！');
                 return redirect()->back()->withInput();
             }
-            if (!($staff->save())){
+            if ($absence->save() && $staff->save()) {
+                session()->flash('success','年假更新成功！');
+                return redirect('absences'); //应导向列表
+            } else {
                 session()->flash('danger','年假更新失败！');
                 return redirect()->back()->withInput();
             }

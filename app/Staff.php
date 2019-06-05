@@ -19,6 +19,14 @@ class Staff extends Model
         return $this->hasMany(Absence::class);
     }
 
+    public function extraWorks(){
+        return $this->hasMany(ExtraWork::class);
+    }
+
+    public function lieu(){
+        return $this->hasOne(Lieu::class);
+    }
+
     // public function hasOneDepartment(){
     //     $this->hasOne('App\Department','id','department_id');
     // }
