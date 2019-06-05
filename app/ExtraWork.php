@@ -24,4 +24,22 @@ class ExtraWork extends Model
         return $duration;
     }
 
+    /**
+     * 计算起始时间是否和之前的记录重叠
+     * @param timestamp $ew_start_time
+     * @param timestamp $ew_end_time
+     * @param timestamp $old_ew_start_time
+     * @param timestamp $old_ew_end_time
+     * @return boolean
+     */
+
+    public function isCrossing($ew_start_time, $ew_end_time, $old_ew_start_time, $old_ew_end_time)
+    {
+        if ($ew_end_time<=$old_ew_start_time || $old_ew_end_time<=$ew_start_time) { //时间不重叠
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

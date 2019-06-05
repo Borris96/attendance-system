@@ -85,20 +85,18 @@ class ExtraWorksController extends Controller
             return redirect()->back()->withInput();
         }
 
-        /** 加班时间不能重复
-         * 首先调出该员工加班记录，
-         * 再查询他是否有重复加班的情况
-         * 新的开始时间或新的结束时间不能在原来表中找到
-         * 有的话，创建失败
-         */
-
-        $this_extra_works = ExtraWork::where('staff_id',$extra_work->staff_id);
-        $result_start = $this_extra_works->where('extra_work_start_time', $extra_work->extra_work_start_time)->get()->toArray();
-        $result_end = $this_extra_works->where('extra_work_end_time', $extra_work->extra_work_end_time)->get()->toArray();
-
-        if (count($result_start) != 0 || count($result_end) != 0) {
-            session()->flash('danger', '加班时间重复');
-            return redirect()->back()->withInput();
+        // 判断新的请假时间是否与该员工原来的某段请假时间重叠，如不重叠才能创建成功。
+        $ew_start_time = strtotime($extra_work->extra_work_start_time);
+        $ew_end_time = strtotime($extra_work->extra_work_end_time);
+        $staff = Staff::find($extra_work->staff_id);
+        $extra_works = $staff->extraWorks;
+        foreach ($extra_works as $ew) {
+            $old_ew_start_time = strtotime($ew->extra_work_start_time);
+            $old_ew_end_time = strtotime($ew->extra_work_end_time);
+            if ($extra_work->isCrossing($ew_start_time, $ew_end_time, $old_ew_start_time, $old_ew_end_time) == false) {
+                session()->flash('danger','请假时间重叠！');
+                return redirect()->back()->withInput();
+            }
         }
 
         $extra_work->approve = $request->get('approve');
@@ -167,26 +165,19 @@ class ExtraWorksController extends Controller
             return redirect()->back()->withInput();
         }
 
-        /** 请假时间不能重复
-         * 首先调出该员工请假记录，
-         * 再查询他是否有重复请假的情况
-         * 新的开始时间不能在原来表中找到
-         * 旧的开始时间也不能在原来表中找到
-         * 有的话，修改失败
-         */
-
-//         $this_extra_works = ExtraWork::where('staff_id',$extra_work->staff_id)->get();
-//         // whereNotIn() 排除正在修改的记录
-//         $result_start = $this_extra_works->whereNotIn('id',[$id])->where('extra_work_start_time', $extra_work->extra_work_start_time)->get()->toArray();
-//         $result_end = $this_extra_works->whereNotIn('id',[$id])->where('extra_work_end_time', $extra_work->extra_work_end_time)->get()->toArray();
-
-// // ************* 这个不对，应该判定范围
-
-
-//         if (count($result_start) != 0 || count($result_end) != 0) {
-//             session()->flash('danger', '请假时间重复');
-//             return redirect()->back()->withInput();
-//         }
+        // 判断编辑的请假时间是否与该员工原来的某段请假时间重叠，如不重叠才能创建成功。
+        $ew_start_time = strtotime($extra_work->extra_work_start_time);
+        $ew_end_time = strtotime($extra_work->extra_work_end_time);
+        $staff = Staff::find($extra_work->staff_id);
+        $extra_works = $staff->extraWorks->whereNotIn('id',[$id]);
+        foreach ($extra_works as $ew) {
+            $old_ew_start_time = strtotime($ew->extra_work_start_time);
+            $old_ew_end_time = strtotime($ew->extra_work_end_time);
+            if ($extra_work->isCrossing($ew_start_time, $ew_end_time, $old_ew_start_time, $old_ew_end_time) == false) {
+                session()->flash('danger','请假时间重叠！');
+                return redirect()->back()->withInput();
+            }
+        }
 
         $extra_work->approve = $request->get('approve');
         $extra_work->note = $request->get('note');

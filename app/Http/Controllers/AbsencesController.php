@@ -175,11 +175,11 @@ class AbsencesController extends Controller
             return redirect()->back()->withInput();
         }
 
-        // 判断新的请假时间是否与该员工原来的某段请假时间重叠，如不重叠才能创建成功。
+        // 判断新的请假时间是否与该员工原来的某段请假时间重叠，如不重叠才能更新成功。
         $absence_start_time = strtotime($absence->absence_start_time);
         $absence_end_time = strtotime($absence->absence_end_time);
         $staff = Staff::find($absence->staff_id);
-        $absences = $staff->absences->whereNotIn('id',[$id]);
+        $absences = $staff->absences->whereNotIn('id',[$id]); // 除去本条记录
         foreach ($absences as $ab) {
             $old_absence_start_time = strtotime($ab->absence_start_time);
             $old_absence_end_time = strtotime($ab->absence_end_time);
