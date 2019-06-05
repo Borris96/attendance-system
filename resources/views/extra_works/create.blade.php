@@ -10,7 +10,6 @@
     <tr>
         <td width="10%" class="tableleft">员工姓名*</td>
         <td>
-
         <select name="staff_id" id="name_select">
           <option value=""> -----请选择----- </option>
           @foreach($staffs as $staff)

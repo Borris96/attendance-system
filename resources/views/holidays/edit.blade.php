@@ -4,7 +4,8 @@
 <div class="container">
 @include('shared._errors')
 @include('shared._messages')
-<form action="{{ route('holidays.store') }}" method="post" class="definewidth m20">
+<form action="{{ route('holidays.update',$holiday->id) }}" method="post" class="definewidth m20">
+  {{ method_field('PATCH') }}
   {{ csrf_field() }}
 <table class="table table-bordered table-hover definewidth m10">
     <tr>
@@ -12,8 +13,8 @@
          <td>
           <select name="holiday_type">
             <option value=""> -----请选择----- </option>
-            <option value='休息' @if(old('holiday_type') == '休息') selected @endif>休息</option>
-            <option value='上班' @if(old('holiday_type') == '上班') selected @endif>上班</option>
+            <option value='休息' @if($holiday->holiday_type == '休息') selected @endif>休息</option>
+            <option value='上班' @if($holiday->holiday_type == '上班') selected @endif>上班</option>
           </select>
         </td>
     </tr>
@@ -21,15 +22,14 @@
         <td class="tableleft">调休日期*</td>
         <td> <!-- 是否需要加范围限制？ -->
           <input type="date" name="date"
-            @if (old('date')!=null) value="{{ date('Y-m-d',strtotime(old('date'))) }}"
-            @endif
+            value="{{$holiday->date}}"
           />
         </td>
     </tr>
     <tr>
         <td class="tableleft">备注*</td>
         <td>
-          <textarea name="note" id="" rows="5" placeholder="请备注节假日名称">{{ old('note') }}</textarea>
+          <textarea name="note" id="" rows="5" placeholder="请备注节假日名称">{{ $holiday->note }}</textarea>
         </td>
     </tr>
     <tr>

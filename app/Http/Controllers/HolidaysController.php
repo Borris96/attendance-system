@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Holiday;
 
 class HolidaysController extends Controller
 {
@@ -13,11 +14,96 @@ class HolidaysController extends Controller
 
     public function index()
     {
-        return view('holidays/index');
+        $holidays = Holiday::orderBy('date','desc')->paginate(10);
+        return view('holidays/index',compact('holidays'));
+    }
+
+    public function destroy($id)
+    {
+        $holiday = Holiday::find($id);
+        $holiday->delete();
+        session()->flash('success', '成功删除节假日调休记录！');
+        return back();
     }
 
     public function create()
     {
         return view('holidays/create');
+    }
+
+    public function edit($id){
+        $holiday = Holiday::find($id);
+        return view('holidays.edit',compact('holiday'));
+    }
+
+
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            'date'=>'required',
+            'holiday_type'=>'required',
+            'note'=>'required|max:140',
+        ]);
+
+        $holiday = new Holiday();
+        $holiday->date = $request->date;
+        $holiday->holiday_type = $request->holiday_type;
+        $holiday->note = $request->note;
+
+        //日期重复检测
+        $current_date = strtotime($holiday->date);
+        $holidays = Holiday::all(); //这个要改，只需遍历当年的日期
+        foreach ($holidays as $h) {
+            $old_date = strtotime($h->date);
+            if ($holiday->isRepeat($current_date, $old_date) == true)
+            {
+                session()->flash('danger','时间已存在！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        if ($holiday->save()) {
+            session()->flash('success','保存成功！');
+            return redirect('holidays'); //应导向列表
+        } else {
+            session()->flash('danger','保存失败！');
+            return redirect()->back()->withInput();
+        }
+
+    }
+
+    public function update(Request $request, $id)
+    {
+        $this->validate($request, [
+            'date'=>'required',
+            'holiday_type'=>'required',
+            'note'=>'required|max:140',
+        ]);
+
+        $holiday = Holiday::find($id);
+        $holiday->date = $request->date;
+        $holiday->holiday_type = $request->holiday_type;
+        $holiday->note = $request->note;
+
+        //日期重复检测
+        $current_date = strtotime($holiday->date);
+        $holidays = Holiday::all()->whereNotIn('id',[$id]); //这个要改，只需遍历当年的日期
+        foreach ($holidays as $h) {
+            $old_date = strtotime($h->date);
+            if ($holiday->isRepeat($current_date, $old_date) == true)
+            {
+                session()->flash('danger','时间已存在！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        if ($holiday->save()) {
+            session()->flash('success','更新成功！');
+            return redirect('holidays'); //应导向列表
+        } else {
+            session()->flash('danger','更新失败！');
+            return redirect()->back()->withInput();
+        }
+
     }
 }

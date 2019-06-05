@@ -49,7 +49,10 @@
       <tr>
           <td class="tableleft" >入职日期</td>
           <td>
-            <input type="date" name="join_company" min="{{ date('Y').'-01-01' }}" max="{{ date('Y-m-d') }}"/>
+            <input type="date" name="join_company" min="{{ date('Y').'-01-01' }}" max="{{ date('Y-m-d') }}"
+              @if (old('join_company')!=null) value="{{ date('Y-m-d',strtotime(old('join_company'))) }}"
+              @endif
+            />
           </td>
       </tr>
 
