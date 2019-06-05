@@ -52,8 +52,11 @@
     </tr>
     @endforeach
 </table>
-<p style="margin: 20px; text-align: right;">总应工作时长：?? 小时</p>
-<a class="btn btn-success" style="margin: 20px" href="{{ route('staffs.edit',$staff->id) }}" role="button">编辑信息</a>
-<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
+<p style="margin: 0px 20px; text-align: right;">总应工作时长：?? 小时</p>
+<div style="margin: 20px">
+  <a class="btn btn-primary"  href="{{ route('staffs.edit',$staff->id) }}" role="button">编辑信息</a>
+  <a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
+</div>
+
 
 @stop

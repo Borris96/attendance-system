@@ -36,13 +36,13 @@
             <td>{{ $staff->annual_holiday }}</td>
             <td>{{ $staff->remaining_annual_holiday }}</td>
             <td>
-                <a href="{{ route('staffs.show',$staff->id) }}">详情</a> |
-                <a href="{{ route('staffs.edit',$staff->id) }}">编辑</a> |
+                <a href="{{ route('staffs.show',$staff->id) }}" class="btn btn-info">详情</a>
+                <a href="{{ route('staffs.edit',$staff->id) }}" class="btn btn-primary">编辑</a>
 
                 <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('PATCH') }}
                   {{ csrf_field() }}
-                  <button type="submit" class="btn" type="button" onclick="delcfm();">办理离职</button>
+                  <button type="submit" class="btn btn-danger" type="button" onclick="delcfm();">办理离职</button>
                 </form>
             </td>
         </tr>

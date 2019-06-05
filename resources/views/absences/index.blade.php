@@ -44,12 +44,12 @@
             <td>{{ $absence->created_at }}</td>
             <td>{{ $absence->updated_at }}</td>
             <td>
-                <a href="{{route('absences.edit',$absence->id)}}">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
+                <a href="{{route('absences.edit',$absence->id)}}" class="btn btn-primary">编辑</a> <!-- route('staffs.edit', $staff->id) -->
 
                 <form action="{{ route('absences.destroy', $absence->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('DELETE') }}
                   {{ csrf_field() }}
-                  <button type="submit" class="btn btn-default" type="button" onclick="delcfm();">删除</button>
+                  <button type="submit" class="btn btn-danger" type="button" onclick="delcfm();">删除</button>
                 </form>
             </td>
         </tr>
