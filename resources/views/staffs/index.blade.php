@@ -21,6 +21,8 @@
         <th>参加工作年数</th>
         <th>年假小时数</th>
         <th>剩余小时</th>
+        <th>调休小时数</th>
+        <th>剩余小时</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -35,6 +37,8 @@
             <td>{{ $staff->work_year }}</td>
             <td>{{ $staff->annual_holiday }}</td>
             <td>{{ $staff->remaining_annual_holiday }}</td>
+            <td>{{ $staff->lieu->total_time }}</td>
+            <td>{{ $staff->lieu->remaining_time }}</td>
             <td>
                 <a href="{{ route('staffs.show',$staff->id) }}" class="btn btn-info">详情</a>
                 <a href="{{ route('staffs.edit',$staff->id) }}" class="btn btn-primary">编辑</a>

@@ -10,6 +10,7 @@
         <th>英文名</th>
         <th>所属部门</th>
         <th>职位</th>
+        <th>入职日期</th>
         <th>参加工作年数</th>
     </tr>
     </thead>
@@ -19,6 +20,7 @@
             <td>{{ $staff->englishname }}</td>
             <td>{{ $staff->department_name }}</td>
             <td>{{ $staff->position_name }}</td>
+            <td>{{ $staff->join_company }}</td>
             <td>{{ $staff->work_year }}</td>
 </table>
 
@@ -28,11 +30,15 @@
     <tr>
         <th>总年假(小时)</th>
         <th>剩余小时</th>
+        <th>总调休(小时)</th>
+        <th>剩余小时</th>
     </tr>
     </thead>
     <tr>
         <td>{{ $staff->annual_holiday}}</td>
-        <td>{{ $staff->remaining_annual_holiday}}</td> <!-- 请假管理功能完善之后需要修改 -->
+        <td>{{ $staff->remaining_annual_holiday}}</td>
+        <td>{{ $staff->lieu->total_time }}</td>
+        <td>{{ $staff->lieu->remaining_time }}</td>
     </tr>
 </table>
 
