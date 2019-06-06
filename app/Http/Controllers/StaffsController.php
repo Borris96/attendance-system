@@ -42,8 +42,8 @@ class StaffsController extends Controller
     {
         $staff = Staff::find($id);
         $staff_id = $staff->id;
-        $workdays = Staffworkday::where('staff_id', $staff_id)->get('workday_name');
-        return view('staffs.show',compact('staff','workdays'));
+        $staffworkdays = $staff->staffworkdays;
+        return view('staffs.show',compact('staff','staffworkdays'));
     }
 
     public function create()
@@ -70,14 +70,14 @@ class StaffsController extends Controller
         $this->validate($request, [
             'id'=>'required|unique:staffs|max:10',
             'staffname'=>'required|max:50',
-            'englishname'=>'max:50',
+            'englishname'=>'required|max:50',
             'department'=>'max:50',
             'work_year' => 'required|max:2',
             'join_company' => 'required',
             'position'=>'max:50',
             'work_time'=>'required',
             'home_time'=>'required',
-            'workdays'=>'required|max:100',
+            // 'workdays'=>'required|max:100',
             'annual_holiday'=>'max:2',
         ]);
 
@@ -96,16 +96,25 @@ class StaffsController extends Controller
         }
         $staff->join_company = $request->get('join_company');
         $staff->work_year = $request->get('work_year');
-        $staff->work_time = $request->get('work_time');
-        $staff->home_time = $request->get('home_time');
-        // $workdaysall = '';
-        // $workdays_array = [0=>'Monday', 1=>'Tuesday'];
-        $workdays_array = $request->input('workdays');
-        $staff->workdays = $staff->getAllWorkdays($workdays_array);
+        // $staff->work_time = $request->get('work_time');
+        // $staff->home_time = $request->get('home_time');
+
+
+        $work_times = $request->input('work_time');
+        $home_times = $request->input('home_time');
+        for ($i=0; $i<=6; $i++){
+            $staffworkday = new Staffworkday();
+            $staffworkday->staff_id = $staff->id;
+            $staffworkday->workday_name = $staffworkday->getWorkdayName($i);
+            $staffworkday->work_time = $work_times[$i];
+            $staffworkday->home_time = $home_times[$i];
+            $staffworkday->save();
+            // dump($staffworkday);
+        }
 
         //Insert work historys into work_historys table
-        $work_experiences_array = $request->get('work_experiences');
-        $leave_experiences_array = $request->get('leave_experiences');
+        // $work_experiences_array = $request->get('work_experiences');
+        // $leave_experiences_array = $request->get('leave_experiences');
 
         // $staff->insertWH($work_experiences_array, $leave_experiences_array, $staff->id);
 
@@ -115,7 +124,7 @@ class StaffsController extends Controller
             $staff->annual_holiday = $staff->getAnnualHolidays($staff->work_year, $staff->join_company);
         }
         $staff->remaining_annual_holiday = $staff->annual_holiday;
-        $staff->insertWorkDays($workdays_array,$staff->id);
+
         if ($staff->save()) {
             // $staff->insertWH($work_experiences_array, $leave_experiences_array, $staff->id);
             session()->flash('success','保存成功！');

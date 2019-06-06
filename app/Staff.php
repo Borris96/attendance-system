@@ -27,6 +27,10 @@ class Staff extends Model
         return $this->hasOne(Lieu::class);
     }
 
+    public function staffworkdays(){
+        return $this->hasMany(Staffworkday::class);
+    }
+
     // public function hasOneDepartment(){
     //     $this->hasOne('App\Department','id','department_id');
     // }

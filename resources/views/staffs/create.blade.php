@@ -13,7 +13,7 @@
           <td><input type="text" name="staffname" value="{{ old('staffname') }}"/></td>
       </tr>
       <tr>
-          <td class="tableleft">英文名</td>
+          <td class="tableleft">英文名*</td>
           <td><input type="text" name="englishname" value="{{ old('englishname') }}"/></td>
       </tr>
       <tr>
@@ -47,7 +47,7 @@
           </td>
       </tr>
       <tr>
-          <td class="tableleft" >入职日期</td>
+          <td class="tableleft" >入职日期*</td>
           <td>
             <input type="date" name="join_company" min="{{ date('Y').'-01-01' }}" max="{{ date('Y-m-d') }}"
               @if (old('join_company')!=null) value="{{ date('Y-m-d',strtotime(old('join_company'))) }}"
@@ -82,66 +82,77 @@
       <tr>
           <td class="tableleft">应上下班时间*</td>
           <td>
-            <input type="time" name="work_time"
-            @if (old('work_time')!=null) value="{{ old('work_time') }}"
+            周一：
+            <input type="time" name="work_time[0]"
+            @if (old('work_time[0]')!=null) value="{{ old('work_time[0]') }}"
             @else value="09:00"
             @endif
            />
            &nbsp;至&nbsp;
-           <input type="time" name="home_time"
-            @if (old('home_time')!=null) value="{{ old('home_time') }}"
+           <input type="time" name="home_time[0]"
+            @if (old('home_time[0]')!=null) value="{{ old('home_time[0]') }}"
             @else value="18:00"
             @endif
+           /> <br>
+            周二：
+            <input type="time" name="work_time[1]"
+            @if (old('work_time[1]')!=null) value="{{ old('work_time[1]') }}"
+            @else value="09:00"
+            @endif
            />
+           &nbsp;至&nbsp;
+           <input type="time" name="home_time[1]"
+            @if (old('home_time[1]')!=null) value="{{ old('home_time[1]') }}"
+            @else value="18:00"
+            @endif
+           /> <br>
+            周三：
+            <input type="time" name="work_time[2]"
+            @if (old('work_time[2]')!=null) value="{{ old('work_time[2]') }}"
+            @else value="09:00"
+            @endif
+           />
+           &nbsp;至&nbsp;
+           <input type="time" name="home_time[2]"
+            @if (old('home_time[2]')!=null) value="{{ old('home_time[2]') }}"
+            @else value="18:00"
+            @endif
+           /> <br>
+            周四：
+            <input type="time" name="work_time[3]"
+            @if (old('work_time[3]')!=null) value="{{ old('work_time[3]') }}"
+            @else value="09:00"
+            @endif
+           />
+           &nbsp;至&nbsp;
+           <input type="time" name="home_time[3]"
+            @if (old('home_time[3]')!=null) value="{{ old('home_time[3]') }}"
+            @else value="18:00"
+            @endif
+           /> <br>
+            周五：
+            <input type="time" name="work_time[4]"
+            @if (old('work_time[4]')!=null) value="{{ old('work_time[4]') }}"
+            @else value="09:00"
+            @endif
+           />
+           &nbsp;至&nbsp;
+           <input type="time" name="home_time[4]"
+            @if (old('home_time[4]')!=null) value="{{ old('home_time[4]') }}"
+            @else value="18:00"
+            @endif
+           /> <br>
+            周六：
+            <input type="time" name="work_time[5]" value="{{ old('work_time[5]') }}"/>
+           &nbsp;至&nbsp;
+           <input type="time" name="home_time[5]" value="{{ old('home_time[5]') }}"/> <br>
+            周日：
+            <input type="time" name="work_time[6]" value="{{ old('work_time[6]') }}"/>
+           &nbsp;至&nbsp;
+           <input type="time" name="home_time[6]" value="{{ old('home_time[6]') }}"/> <br>
           </td>
       </tr>
-      <tr>
-          <td class="tableleft">工作日*</td>
-          <td>
-            <label for="mon" style="display: inline-block;"><input type="checkbox" name="workdays[0]" value="周一" id="mon"
-              @if (old('workdays')&&in_array('周一', old('workdays')))
-              checked
-              @endif
-              />周一</label>
-            &nbsp;&nbsp;
-            <label for="tue" style="display: inline-block;"><input type="checkbox" name="workdays[1]" value="周二" id="tue"
-              @if (old('workdays')&&in_array('周二', old('workdays')))
-              checked
-              @endif
-              />周二</label>
-            &nbsp;&nbsp;
-            <label for="wed" style="display: inline-block;"><input type="checkbox" name="workdays[2]" value="周三" id="wed"
-              @if (old('workdays')&&in_array('周三', old('workdays')))
-              checked
-              @endif
-              />周三</label>
-            &nbsp;&nbsp;
-            <label for="thu" style="display: inline-block;"><input type="checkbox" name="workdays[3]" value="周四" id="thu"
-              @if (old('workdays')&&in_array('周四', old('workdays')))
-              checked
-              @endif
-              />周四</label>
-            &nbsp;&nbsp;
-            <label for="fri" style="display: inline-block;"><input type="checkbox" name="workdays[4]" value="周五" id="fri"
-              @if (old('workdays')&&in_array('周五', old('workdays')))
-              checked
-              @endif
-              />周五</label>
-            &nbsp;&nbsp;
-            <label for="sat" style="display: inline-block;"><input type="checkbox" name="workdays[5]" value="周六" id="sat"
-              @if (old('workdays')&&in_array('周六', old('workdays')))
-              checked
-              @endif
-              />周六</label>
-            &nbsp;&nbsp;
-            <label for="sun" style="display: inline-block;"><input type="checkbox" name="workdays[6]" value="周日" id="sun"
-              @if (old('workdays')&&in_array('周日', old('workdays')))
-              checked
-              @endif
-              />周日</label>
-            &nbsp;&nbsp;
-          </td>
-      </tr>
+
       <tr>
           <td class="tableleft">年假小时数</td>
           <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算" value="{{ old('annual_holiday') }}" /></td>

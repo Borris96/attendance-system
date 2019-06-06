@@ -55,15 +55,24 @@
         <th>应下班时间</th>
     </tr>
     </thead>
-    @foreach($workdays as $workday)
+    @foreach($staffworkdays as $workday)
     <tr>
         <td>{{ $workday->workday_name }}</td>
-        <td>{{ date("H:i",strtotime($staff->work_time)) }}</td>
-        <td>{{ date("H:i",strtotime($staff->home_time)) }}</td>
+        @if ($workday->work_time != null)
+        <td>{{ date("H:i",strtotime($workday->work_time)) }}</td>
+        @else
+        <td>休息</td>
+        @endif
+
+        @if ($workday->home_time != null)
+        <td>{{ date("H:i",strtotime($workday->home_time)) }}</td>
+        @else
+        <td>休息</td>
+        @endif
     </tr>
     @endforeach
 </table>
-<p style="margin: 0px 20px; text-align: right;">总应工作时长：?? 小时</p>
+<p style="margin: 0px 20px; text-align: right;">总应工作时长：?? 小时</p> <!-- 要考虑和午休没有交集，有交集要减去1小时 -->
 <div style="margin: 20px">
   <a class="btn btn-primary"  href="{{ route('staffs.edit',$staff->id) }}" role="button">编辑信息</a>
   <a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
