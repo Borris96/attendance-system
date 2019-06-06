@@ -11,12 +11,15 @@ class PositionsTableSeeder extends Seeder
      */
 
     protected $position_names = [
+        '兼职',
+        '实习生',
+        '助理',
+        '经理',
+        '文员',
         '主任',
         '主管',
         '设计',
-        '经理',
-        '助理',
-        '文员',
+
     ];
 
     public function run()

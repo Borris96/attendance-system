@@ -10,11 +10,11 @@ class DepartmentsTableSeeder extends Seeder
      * @return void
      */
     protected $department_names = [
-        '财务部',
-        '人事行政部',
-        '网课部',
-        '教材部',
         '客服部',
+        '教材部',
+        '网课部',
+        '人事行政部',
+        '财务部',
     ];
 
     public function run()

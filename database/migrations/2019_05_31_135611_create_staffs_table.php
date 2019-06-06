@@ -24,9 +24,9 @@ class CreateStaffsTable extends Migration
             $table->date('join_company')->nullable();
             $table->date('leave_company')->nullable();
             $table->unsignedInteger('work_year')->nullable();
-            $table->time('work_time');
-            $table->time('home_time');
-            $table->string('workdays',100); // Mon,Tue,Wed,Thu,Fri
+            // $table->time('work_time');
+            // $table->time('home_time');
+            // $table->string('workdays',100); // Mon,Tue,Wed,Thu,Fri
             $table->decimal('annual_holiday',5,2)->nullable();
             $table->decimal('remaining_annual_holiday',5,2)->nullable();
             $table->timestamps();
