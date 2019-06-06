@@ -43,7 +43,8 @@ class StaffsController extends Controller
         $staff = Staff::find($id);
         $staff_id = $staff->id;
         $staffworkdays = $staff->staffworkdays;
-        return view('staffs.show',compact('staff','staffworkdays'));
+        $work_historys = $staff->workHistorys;
+        return view('staffs.show',compact('staff','staffworkdays','work_historys'));
     }
 
     public function create()
@@ -159,13 +160,14 @@ class StaffsController extends Controller
         // Insert work historys into work_historys table
         $total_work_year = 0;
         for ($i=0; $i<=9; $i++){
-            $work_history = new WorkHistory();
-            $work_history->staff_id = $staff->id;
-            $work_history->work_experience = $work_experiences_array[$i];
-            $work_history->leave_experience = $work_experiences_array[$i];
-            $work_history->save();
-            $total_work_year += strtotime($leave_experiences_array[$i])-strtotime($work_experiences_array[$i]);
-            // dump($staffworkday);
+            if ($work_experiences_array[$i]!=null && $leave_experiences_array[$i]!=null){ //填写了才录入
+                $work_history = new WorkHistory();
+                $work_history->staff_id = $staff->id;
+                $work_history->work_experience = $work_experiences_array[$i];
+                $work_history->leave_experience = $leave_experiences_array[$i];
+                $work_history->save();
+                $total_work_year += strtotime($leave_experiences_array[$i])-strtotime($work_experiences_array[$i]);
+            }
         }
         $total_work_year = $total_work_year/(31536000); //转换成年
         $staff->work_year = $total_work_year;

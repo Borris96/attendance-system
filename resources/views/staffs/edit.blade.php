@@ -58,12 +58,6 @@
           </td>
       </tr>
       <tr>
-          <td class="tableleft">参加工作年数</td>
-          <td>
-            <input type="text" name="work_year" placeholder="" value="{{$staff->work_year}}" disabled/>
-          </td>
-      </tr>
-      <tr>
           <td class="tableleft">应上下班时间*</td>
           <td>
             周一：
@@ -98,14 +92,7 @@
       </tr>
 
       </tr>
-<!--       <tr>
-          <td class="tableleft">年假天数</td>
-          <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算" value=""/></td>
-      </tr>
-      <tr>
-          <td class="tableleft">剩余年假天数</td>
-          <td><input type="text" name="remaining_annual_holiday" placeholder="如不填写则自动计算" value=""/></td>
-      </tr> -->
+
       <tr>
           <td class="tableleft"></td>
           <td>

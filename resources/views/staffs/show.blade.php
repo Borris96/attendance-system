@@ -48,6 +48,7 @@
 </table>
 
 <table class="table table-bordered table-hover definewidth m10">
+  <h4 style="margin-left: 20px; margin-right: 20px; margin-top: 20px; margin-bottom: 0px;">一周排班</h4>
     <thead>
     <tr>
         <th>星期</th>
@@ -73,6 +74,23 @@
     @endforeach
 </table>
 <p style="margin: 0px 20px; text-align: right;">总应工作时长：?? 小时</p> <!-- 要考虑和午休没有交集，有交集要减去1小时 -->
+
+<table class="table table-bordered table-hover definewidth m10">
+  <h4 style="margin: 0px 20px;">工作经历</h4>
+    <thead>
+    <tr>
+        <th>入职日期</th>
+        <th>离职日期</th>
+    </tr>
+    </thead>
+    @foreach($work_historys as $wh)
+    <tr>
+        <td>{{ $wh->work_experience }}</td>
+        <td>{{ $wh->leave_experience }}</td>
+    </tr>
+    @endforeach
+</table>
+
 <div style="margin: 20px">
   <a class="btn btn-primary"  href="{{ route('staffs.edit',$staff->id) }}" role="button">编辑信息</a>
   <a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
