@@ -84,10 +84,11 @@
           <td>
             周一：
             <input type="time" name="work_time[0]"
-            @if (old('work_time[0]')!=null) value="{{ old('work_time[0]') }}"
+            @if (old('work_time[0]')!=null) value="{{ date('H:i',strtotime(old('work_time[0]'))) }}"
             @else value="09:00"
             @endif
-           />
+           /> <!-- 此处判断条件好像不对啊 -->
+
            &nbsp;至&nbsp;
            <input type="time" name="home_time[0]"
             @if (old('home_time[0]')!=null) value="{{ old('home_time[0]') }}"
