@@ -72,7 +72,7 @@ class StaffsController extends Controller
             'staffname'=>'required|max:50',
             'englishname'=>'required|max:50',
             'department'=>'max:50',
-            'work_year' => 'required|max:2',
+            // 'work_year' => 'required|max:2',
             'join_company' => 'required',
             'position'=>'max:50',
             // 'work_time'=>'required',
@@ -95,15 +95,18 @@ class StaffsController extends Controller
             $staff->position_name = Position::find($staff->position_id)->position_name;
         }
         $staff->join_company = $request->get('join_company');
-        $staff->work_year = $request->get('work_year');
-        // $staff->work_time = $request->get('work_time');
-        // $staff->home_time = $request->get('home_time');
-
 
         $work_times = $request->input('work_time');
         $home_times = $request->input('home_time');
 
+        $work_experiences_array = $request->input('work_experiences');
+        $leave_experiences_array = $request->input('leave_experiences');
+        // dump($work_experiences_array);
+        // dump($leave_experiences_array);
+        // exit();
+
         // 判断填写格式是否正确
+
         for ($i=0; $i<=6; $i++){
             if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
             {
@@ -111,12 +114,63 @@ class StaffsController extends Controller
                 return redirect()->back()->withInput();
             }
 
-            if (strtotime($work_times[0])>strtotime($home_times[0]))
+            if (strtotime($work_times[$i])>strtotime($home_times[$i]))
             {
                 session()->flash('danger','上班时间晚于下班时间！');
                 return redirect()->back()->withInput();
             }
         }
+
+        for ($i=0; $i<=9; $i++){
+            if (($work_experiences_array[$i]!=null && $leave_experiences_array[$i]==null) || ($work_experiences_array[$i]==null && $leave_experiences_array[$i]!=null))
+            {
+                session()->flash('danger','日期填写不完整！');
+                return redirect()->back()->withInput();
+            }
+
+            if (strtotime($work_experiences_array[$i])>strtotime($leave_experiences_array[$i]))
+            {
+                session()->flash('danger','入职日期晚于离职日期！');
+                return redirect()->back()->withInput();
+            }
+
+            // 还要判断前一段时间是否和后一段时间重叠
+                // 判断工作经历是否填写
+            if ($work_experiences_array[$i] != null && $leave_experiences_array[$i]!=null) {
+                if ($i>0) {
+                    $old_start_time = strtotime($work_experiences_array[$i-1]);
+                    $old_end_time = strtotime($leave_experiences_array[$i-1]);
+                } else {
+                    $old_start_time = strtotime($work_experiences_array[$i])-1;
+                    $old_end_time = strtotime($leave_experiences_array[$i])-1;
+                }
+                $start_time = strtotime($work_experiences_array[$i]);
+                $end_time = strtotime($leave_experiences_array[$i]);
+
+////////////有问题???
+                if (WorkHistory::isCrossing($start_time, $end_time, $old_start_time, $old_end_time) == true)
+                {
+                    session()->flash('danger','工作经历重合');
+                    return redirect()->back()->withInput();
+                }
+            }
+        }
+        // 等所有条件都满足才进行录入
+        // Insert work historys into work_historys table
+        $total_work_year = 0;
+        for ($i=0; $i<=9; $i++){
+            $work_history = new WorkHistory();
+            $work_history->staff_id = $staff->id;
+            $work_history->work_experience = $work_experiences_array[$i];
+            $work_history->leave_experience = $work_experiences_array[$i];
+            $work_history->save();
+            $total_work_year += strtotime($leave_experiences_array[$i])-strtotime($work_experiences_array[$i]);
+            // dump($staffworkday);
+        }
+        $total_work_year = $total_work_year/(31536000); //转换成年
+        $staff->work_year = $total_work_year;
+
+
         // 录入staffworkdays表
         for ($i=0; $i<=6; $i++){
             $staffworkday = new Staffworkday();
@@ -127,12 +181,6 @@ class StaffsController extends Controller
             $staffworkday->save();
             // dump($staffworkday);
         }
-
-        //Insert work historys into work_historys table
-        // $work_experiences_array = $request->get('work_experiences');
-        // $leave_experiences_array = $request->get('leave_experiences');
-
-        // $staff->insertWH($work_experiences_array, $leave_experiences_array, $staff->id);
 
         if ($request->get('annual_holiday')!==null){
             $staff->annual_holiday = $request->get('annual_holiday');
@@ -186,7 +234,7 @@ class StaffsController extends Controller
         $work_times = $request->input('work_time');
         $home_times = $request->input('home_time');
 
-            // 判断填写格式是否正确
+        // 判断填写格式是否正确
         for ($i=0; $i<=6; $i++){
             if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
             {
@@ -200,7 +248,8 @@ class StaffsController extends Controller
                 return redirect()->back()->withInput();
             }
         }
-            // 录入staffworkdays表
+
+        // 录入表
         $origin_workdays = $staff->staffworkdays;
         for ($i=0; $i<=6; $i++){
             $origin_workdays[$i]->work_time = $work_times[$i];

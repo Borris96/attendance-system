@@ -8,8 +8,26 @@ class WorkHistory extends Model
 {
     protected $table = 'work_historys';
 
-    // public function staff()
-    // {
-    //     return $this->belongsTo(Staff::class);
-    // }
+    public function staff()
+    {
+        return $this->belongsTo(Staff::class);
+    }
+
+    /**
+     * 计算起始时间是否和之前的记录重叠
+     * @param timestamp $start_time
+     * @param timestamp $end_time
+     * @param timestamp $old_start_time
+     * @param timestamp $old_end_time
+     * @return boolean
+     */
+
+    public static function isCrossing($start_time, $end_time, $old_start_time, $old_end_time)
+    {
+        if ($end_time<=$old_start_time || $old_end_time<=$start_time) { //时间不重叠
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -14,7 +14,10 @@ class CreateWorkHistorysTable extends Migration
     public function up()
     {
         Schema::create('work_historys', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->increments('id');
+            $table->unsignedInteger('staff_id');
+            $table->date('work_experience')->nullable();
+            $table->date('leave_experience')->nullable();
             $table->timestamps();
         });
     }

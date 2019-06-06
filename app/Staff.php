@@ -10,10 +10,10 @@ class Staff extends Model
 {
     protected $table = 'staffs';
 
-    // public function workHistorys()
-    // {
-    //     return $this->hasMany(WorkHistory::class);
-    // }
+    public function workHistorys()
+    {
+        return $this->hasMany(WorkHistory::class);
+    }
 
     public function absences(){
         return $this->hasMany(Absence::class);

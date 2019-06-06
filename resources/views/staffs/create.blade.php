@@ -56,29 +56,6 @@
           </td>
       </tr>
 
-<!--       <tr>
-          <td class="tableleft">工作经历*</td>
-          <td>
-            <input type="date" name="work_experiences[0]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[0]"/> <br>
-            <input type="date" name="work_experiences[1]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[1]"/> <br>
-            <input type="date" name="work_experiences[2]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[2]"/> <br>
-            <input type="date" name="work_experiences[3]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[3]"/> <br>
-            <input type="date" name="work_experiences[4]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[4]"/> <br>
-            <input type="date" name="work_experiences[5]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[5]"/> <br>
-            <input type="date" name="work_experiences[6]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[6]"/> <br>
-            <input type="date" name="work_experiences[7]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[7]"/> <br>
-            <input type="date" name="work_experiences[8]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[8]"/> <br>
-            <input type="date" name="work_experiences[9]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[9]"/> <br>
-          </td>
-      </tr> -->
-
-
-      <tr>
-          <td class="tableleft">参加工作年数*</td>
-          <td>
-            <input type="text" name="work_year" placeholder="" value="{{ old('work_year') }}"/>
-          </td>
-      </tr>
       <tr>
           <td class="tableleft">应上下班时间*</td>
           <td>
@@ -151,6 +128,28 @@
             <input type="time" name="work_time[6]" value="{{ old('work_time[6]') }}"/>
            &nbsp;至&nbsp;
            <input type="time" name="home_time[6]" value="{{ old('home_time[6]') }}"/> <br>
+          </td>
+      </tr>
+
+      <tr>
+          <td class="tableleft">工作经历*</td>
+          <td>
+            <input type="date" name="work_experiences[0]"
+            @if (old('work_experiences[0]')!=null) value="{{ date('Y-m-d',strtotime(old('work_experiences[0]'))) }}"
+            @endif
+            /> &nbsp;至&nbsp; <input type="date" name="leave_experiences[0]"
+            @if (old('leave_experiences[0]')!=null) value="{{ date('Y-m-d',strtotime(old('leave_experiences[0]'))) }}"
+            @endif
+            /> <br>
+            <input type="date" name="work_experiences[1]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[1]"/> <br>
+            <input type="date" name="work_experiences[2]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[2]"/> <br>
+            <input type="date" name="work_experiences[3]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[3]"/> <br>
+            <input type="date" name="work_experiences[4]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[4]"/> <br>
+            <input type="date" name="work_experiences[5]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[5]"/> <br>
+            <input type="date" name="work_experiences[6]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[6]"/> <br>
+            <input type="date" name="work_experiences[7]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[7]"/> <br>
+            <input type="date" name="work_experiences[8]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[8]"/> <br>
+            <input type="date" name="work_experiences[9]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[9]"/> <br>
           </td>
       </tr>
 

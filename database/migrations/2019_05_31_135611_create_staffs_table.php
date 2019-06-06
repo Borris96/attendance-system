@@ -23,7 +23,7 @@ class CreateStaffsTable extends Migration
             $table->string('position_name')->nullable();
             $table->date('join_company')->nullable();
             $table->date('leave_company')->nullable();
-            $table->unsignedInteger('work_year')->nullable();
+            $table->decimal('work_year',5,2)->nullable();
             // $table->time('work_time');
             // $table->time('home_time');
             // $table->string('workdays',100); // Mon,Tue,Wed,Thu,Fri
