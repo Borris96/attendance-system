@@ -40,7 +40,7 @@ class HolidaysController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'date'=>'required',
+            'date'=>'required|unique:holidays',
             'holiday_type'=>'required',
             'note'=>'required|max:140',
         ]);
@@ -50,17 +50,17 @@ class HolidaysController extends Controller
         $holiday->holiday_type = $request->holiday_type;
         $holiday->note = $request->note;
 
-        //日期重复检测
-        $current_date = strtotime($holiday->date);
-        $holidays = Holiday::all(); //这个要改，只需遍历当年的日期
-        foreach ($holidays as $h) {
-            $old_date = strtotime($h->date);
-            if ($holiday->isRepeat($current_date, $old_date) == true)
-            {
-                session()->flash('danger','时间已存在！');
-                return redirect()->back()->withInput();
-            }
-        }
+        //日期重复检测 -> 已经被表单验证代替了
+        // $current_date = strtotime($holiday->date);
+        // $holidays = Holiday::all(); //这个要改，只需遍历当年的日期
+        // foreach ($holidays as $h) {
+        //     $old_date = strtotime($h->date);
+        //     if ($holiday->isRepeat($current_date, $old_date) == true)
+        //     {
+        //         session()->flash('danger','时间已存在！');
+        //         return redirect()->back()->withInput();
+        //     }
+        // }
 
         if ($holiday->save()) {
             session()->flash('success','保存成功！');
@@ -75,7 +75,7 @@ class HolidaysController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'date'=>'required',
+            'date'=>'required|unique:holidays,date,'.$id,
             'holiday_type'=>'required',
             'note'=>'required|max:140',
         ]);
@@ -85,17 +85,17 @@ class HolidaysController extends Controller
         $holiday->holiday_type = $request->holiday_type;
         $holiday->note = $request->note;
 
-        //日期重复检测
-        $current_date = strtotime($holiday->date);
-        $holidays = Holiday::all()->whereNotIn('id',[$id]); //这个要改，只需遍历当年的日期
-        foreach ($holidays as $h) {
-            $old_date = strtotime($h->date);
-            if ($holiday->isRepeat($current_date, $old_date) == true)
-            {
-                session()->flash('danger','时间已存在！');
-                return redirect()->back()->withInput();
-            }
-        }
+        //日期重复检测 ->已经用表单验证代替了
+        // $current_date = strtotime($holiday->date);
+        // $holidays = Holiday::all()->whereNotIn('id',[$id]); //这个要改，只需遍历当年的日期
+        // foreach ($holidays as $h) {
+        //     $old_date = strtotime($h->date);
+        //     if ($holiday->isRepeat($current_date, $old_date) == true)
+        //     {
+        //         session()->flash('danger','时间已存在！');
+        //         return redirect()->back()->withInput();
+        //     }
+        // }
 
         if ($holiday->save()) {
             session()->flash('success','更新成功！');

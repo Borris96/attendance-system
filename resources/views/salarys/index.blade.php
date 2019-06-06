@@ -1,6 +1,7 @@
 @extends('layouts.default')
 @section('title','时薪信息')
 @section('content')
+@include('shared._messages')
 
 <form class="form-inline definewidth m20" action="" method="get">
 <a class="btn btn-success" href="{{ route('salarys.create') }}" role="button">新增时薪</a>
@@ -15,16 +16,23 @@
         <th>操作</th>
     </tr>
     </thead>
+      @foreach ($salarys as $s)
        <tr>
-            <td>001</td>
-            <td>全职</td>
-            <td>50</td>
-            <td>一条备注</td>
+            <td>{{ $s->id }}</td>
+            <td>{{ $s->salary_type }}</td>
+            <td>{{ $s->salary }}</td>
+            <td>{{ $s->note }}</td>
             <td>
-                <a href="">编辑</a> | <!-- route('staffs.edit', $staff->id) -->
-                <a href="" onclick="delcfm()">删除</a> <!-- route('staffs.destroy', $staff->id) -->
+                <a href="{{ route('salarys.edit',$s->id) }}" class="btn btn-primary">编辑</a>
+
+                <form action="{{ route('salarys.destroy', $s->id) }}" method="POST" style="display: inline-block;">
+                  {{ method_field('DELETE') }}
+                  {{ csrf_field() }}
+                  <button type="submit" class="btn btn-danger" type="button" onclick="delcfm();">删除</button>
+                </form>
             </td>
         </tr>
+      @endforeach
 </table>
 
 <script>

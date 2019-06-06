@@ -37,8 +37,13 @@
     <tr>
         <td>{{ $staff->annual_holiday}}</td>
         <td>{{ $staff->remaining_annual_holiday}}</td>
-        <td>{{ $staff->lieu->total_time }}</td>
-        <td>{{ $staff->lieu->remaining_time }}</td>
+        @if ($staff->lieu != null)
+          <td>{{ $staff->lieu->total_time }}</td>
+          <td>{{ $staff->lieu->remaining_time }}</td>
+        @else
+          <td>0.00</td>
+          <td>0.00</td>
+        @endif
     </tr>
 </table>
 

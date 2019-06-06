@@ -30,6 +30,7 @@
         </tr>
       @endforeach
 </table>
+{{ $holidays->links() }}
 
 <script>
 

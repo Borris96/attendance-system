@@ -191,9 +191,19 @@ class ExtraWorksController extends Controller
             if ($origin_approve == true) { //之前批准了，那么减去之前的调休时间，加上新的调休时间
                 $lieu->total_time = $lieu->total_time - $origin_duration + $extra_work->duration;
                 $lieu->remaining_time = $lieu->remaining_time - $origin_duration + $extra_work->duration;
-            } else { //之前未批准，那么直接减去新
-                $lieu->total_time = $lieu->total_time + $extra_work->duration;
-                $lieu->remaining_time = $lieu->remaining_time + $extra_work->duration;
+            } else { //之前未批准，要分类讨论
+                // 对于已创建的用户：直接把新批准的时间加上
+                if ($staff->lieu != null)
+                {
+                    $lieu->total_time = $lieu->total_time + $extra_work->duration;
+                    $lieu->remaining_time = $lieu->remaining_time + $extra_work->duration;
+                } else {
+                    // 对于新建用户：赋值新批准的时间
+                    $lieu = new Lieu();
+                    $lieu->staff_id = $extra_work->staff_id;
+                    $lieu->total_time = $extra_work->duration;
+                    $lieu->remaining_time = $extra_work->duration;
+                }
             }
 
             if ($lieu->remaining_time<0){
