@@ -33,7 +33,7 @@ class StaffsController extends Controller
                 $join_year = (strtotime(date('Y').'-01-01')-strtotime($staff->join_company))/(365*24*3600); // 加入公司的年数
                 $staff->work_year = $staff->origin_work_year + round($join_year,2); // 目前工作年数 = 加入公司前+加入公司后
                 $staff->annual_holiday = $staff->updateAnnualHolidays($updated_at, $annual_holiday, $staff->work_year); // 根据工作年数更新年假
-                $staff->remaining_annual_holiday = $staff->updateAnnualHolidays($updated_at, $remaining_annual_holiday, $staff->work_year); //根据工作年数更新剩余年假
+                $staff->remaining_annual_holiday = $staff->updateAnnualHolidays($updated_at, $remaining_annual_holiday, $staff->work_year); // 根据工作年数更新剩余年假
                 $staff->save();
             }
         }
@@ -63,7 +63,7 @@ class StaffsController extends Controller
         $staff = Staff::find($id);
         $staff->leave_company = now();
         if ($staff->save()){
-            session()->flash('warning','员工已离职。');
+            session()->flash('warning','员工离职成功。');
             return redirect()->back();
         }
     }

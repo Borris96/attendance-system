@@ -118,6 +118,9 @@ class AbsencesController extends Controller
                 session()->flash('danger','年假更新失败！');
                 return redirect()->back()->withInput();
             }
+        } elseif ($absence->absence_type == "年假" && $absence->approve == false) {
+            session()->flash('danger','年假需要批准！');
+            return redirect()->back()->withInput();
         }
 
         if ($absence->absence_type == "调休" && $absence->approve == true){
@@ -137,9 +140,12 @@ class AbsencesController extends Controller
                 session()->flash('success','保存成功！');
                 return redirect('absences'); //应导向列表
             } else {
-                session()->flash('danger','年假更新失败！');
+                session()->flash('danger','调休更新失败！');
                 return redirect()->back()->withInput();
             }
+        } elseif ($absence->absence_type == "调休" && $absence->approve == false) {
+            session()->flash('danger','调休需要批准！');
+            return redirect()->back()->withInput();
         }
 
         if ($absence->save()) {
@@ -196,27 +202,27 @@ class AbsencesController extends Controller
         $absence->duration = $absence->calDuration($absence->absence_start_time, $absence->absence_end_time);
 
         // 只有年假，且被批准情况下计算剩余年假
-        if ($absence->absence_type == "年假" && $absence->approve == true){
-            $staff = $absence->staff;
-            $remaining = $staff->remaining_annual_holiday;
-            if ($origin_approve == true) { //之前批准了，那么恢复之前剩余年假，减去新的时长
-                $staff->remaining_annual_holiday = $remaining + $origin_duration - $absence->duration;
-            } else { //之前未批准，那么直接减去新的时长
-                $staff->remaining_annual_holiday = $remaining - $absence->duration;
-            }
+        // if ($absence->absence_type == "年假" && $absence->approve == true){
+        //     $staff = $absence->staff;
+        //     $remaining = $staff->remaining_annual_holiday;
+        //     if ($origin_approve == true) { //之前批准了，那么恢复之前剩余年假，减去新的时长
+        //         $staff->remaining_annual_holiday = $remaining + $origin_duration - $absence->duration;
+        //     } else { //之前未批准，那么直接减去新的时长
+        //         $staff->remaining_annual_holiday = $remaining - $absence->duration;
+        //     }
 
-            if ($staff->remaining_annual_holiday<0){
-                session()->flash('danger','年假余额不足，不能请假！');
-                return redirect()->back()->withInput();
-            }
-            if ($absence->save() && $staff->save()) {
-                session()->flash('success','年假更新成功！');
-                return redirect('absences'); //应导向列表
-            } else {
-                session()->flash('danger','年假更新失败！');
-                return redirect()->back()->withInput();
-            }
-        }
+        //     if ($staff->remaining_annual_holiday<0){
+        //         session()->flash('danger','年假余额不足，不能请假！');
+        //         return redirect()->back()->withInput();
+        //     }
+        //     if ($absence->save() && $staff->save()) {
+        //         session()->flash('success','年假更新成功！');
+        //         return redirect('absences'); //应导向列表
+        //     } else {
+        //         session()->flash('danger','年假更新失败！');
+        //         return redirect()->back()->withInput();
+        //     }
+        // }
 
         if ($absence->save()) {
             session()->flash('success','更新成功！');
