@@ -128,6 +128,9 @@ class ExtraWorksController extends Controller
                 session()->flash('danger','保存失败！');
                 return redirect()->back()->withInput();
             }
+        } elseif ($extra_work->extra_work_type == "调休" && $extra_work->approve == false) {
+            session()->flash('danger','调休需要批准！');
+            return redirect()->back()->withInput();
         }
 
         if ($extra_work->save()) {
@@ -184,39 +187,43 @@ class ExtraWorksController extends Controller
         // $extra_work->duration = 9;
         $extra_work->duration = $extra_work->calDuration($extra_work->extra_work_start_time, $extra_work->extra_work_end_time);
 
-        // 只有年假，且被批准情况下计算剩余年假
-        if ($extra_work->extra_work_type == "调休" && $extra_work->approve == true){
-            $lieu = $extra_work->staff->lieu;
+        // 只有调休，且被批准情况下计算剩余调休
+        // if ($extra_work->extra_work_type == "调休" && $extra_work->approve == true){
+        //     $lieu = $extra_work->staff->lieu;
 
-            if ($origin_approve == true) { //之前批准了，那么减去之前的调休时间，加上新的调休时间
-                $lieu->total_time = $lieu->total_time - $origin_duration + $extra_work->duration;
-                $lieu->remaining_time = $lieu->remaining_time - $origin_duration + $extra_work->duration;
-            } else { //之前未批准，要分类讨论
-                // 对于已创建的用户：直接把新批准的时间加上
-                if ($staff->lieu != null)
-                {
-                    $lieu->total_time = $lieu->total_time + $extra_work->duration;
-                    $lieu->remaining_time = $lieu->remaining_time + $extra_work->duration;
-                } else {
-                    // 对于新建用户：赋值新批准的时间
-                    $lieu = new Lieu();
-                    $lieu->staff_id = $extra_work->staff_id;
-                    $lieu->total_time = $extra_work->duration;
-                    $lieu->remaining_time = $extra_work->duration;
-                }
-            }
+        //     if ($origin_approve == true) { //之前批准了，那么减去之前的调休时间，加上新的调休时间
+        //         $lieu->total_time = $lieu->total_time - $origin_duration + $extra_work->duration;
+        //         $lieu->remaining_time = $lieu->remaining_time - $origin_duration + $extra_work->duration;
+        //     } else { //之前未批准，要分类讨论
+        //         // 对于已创建的用户：直接把新批准的时间加上
+        //         if ($staff->lieu != null)
+        //         {
+        //             $lieu->total_time = $lieu->total_time + $extra_work->duration;
+        //             $lieu->remaining_time = $lieu->remaining_time + $extra_work->duration;
+        //         } else {
+        //             // 对于新建用户：赋值新批准的时间
+        //             $lieu = new Lieu();
+        //             $lieu->staff_id = $extra_work->staff_id;
+        //             $lieu->total_time = $extra_work->duration;
+        //             $lieu->remaining_time = $extra_work->duration;
+        //         }
+        //     }
 
-            if ($lieu->remaining_time<0){
-                session()->flash('danger','剩余调休时间不足，请增加加班时间！');
-                return redirect()->back()->withInput();
-            }
-            if ($extra_work->save() && $lieu->save()) {
-                session()->flash('success','调休加班更新成功！');
-                return redirect('extra_works'); //应导向列表
-            } else {
-                session()->flash('danger','调休加班更新失败！');
-                return redirect()->back()->withInput();
-            }
+        //     if ($lieu->remaining_time<0){
+        //         session()->flash('danger','剩余调休时间不足，请增加加班时间！');
+        //         return redirect()->back()->withInput();
+        //     }
+        //     if ($extra_work->save() && $lieu->save()) {
+        //         session()->flash('success','调休加班更新成功！');
+        //         return redirect('extra_works'); //应导向列表
+        //     } else {
+        //         session()->flash('danger','调休加班更新失败！');
+        //         return redirect()->back()->withInput();
+        //     }
+        // } else
+        if ($extra_work->extra_work_type == "调休" && $extra_work->approve == false) {
+            session()->flash('danger','调休需要批准！');
+            return redirect()->back()->withInput();
         }
 
         if ($extra_work->save()) {

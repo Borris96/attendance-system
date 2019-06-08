@@ -223,6 +223,15 @@ class AbsencesController extends Controller
         //         return redirect()->back()->withInput();
         //     }
         // }
+        if ($absence->absence_type == "调休" && $absence->approve == false) {
+            session()->flash('danger','调休需要批准！');
+            return redirect()->back()->withInput();
+        }
+
+        if ($absence->absence_type == "年假" && $absence->approve == false) {
+            session()->flash('danger','年假需要批准！');
+            return redirect()->back()->withInput();
+        }
 
         if ($absence->save()) {
             session()->flash('success','更新成功！');
