@@ -36,9 +36,9 @@ class ExtraWork extends Model
     public function isCrossing($ew_start_time, $ew_end_time, $old_ew_start_time, $old_ew_end_time)
     {
         if ($ew_end_time<=$old_ew_start_time || $old_ew_end_time<=$ew_start_time) { //时间不重叠
-            return true;
-        } else {
             return false;
+        } else {
+            return true;
         }
     }
 

@@ -74,33 +74,17 @@ class Staff extends Model
      * @return int $annual_holiday
      */
     public function updateAnnualHolidays($updated_at, $annual_holiday, $work_year){
-
-        if ($updated_at->isLastYear() ){
-            if ($work_year<10 && $work_year>0){
-                $default_holiday = 5*8;
-            } elseif ($work_year>=10 && $work_year<20){
-                $default_holiday = 10*8;
-            } elseif ($work_year>=20){
-                $default_holiday = 15*8;
-            } else {
-                $default_holiday = 0;
-            }
-            $annual_holiday += $default_holiday;
+        if ($work_year<10 && $work_year>0){
+            $default_holiday = 5*8;
+        } elseif ($work_year>=10 && $work_year<20){
+            $default_holiday = 10*8;
+        } elseif ($work_year>=20){
+            $default_holiday = 15*8;
+        } else {
+            $default_holiday = 0;
         }
+        $annual_holiday += $default_holiday;
         return $annual_holiday;
     }
 
-    public function insertWH($work_experiences_array, $leave_experiences_array, $staffid){ //实在不行重写数据表
-        $length = max(count($work_experiences_array), count($leave_experiences_array));
-        for ($i=0; $i<$length; $i++) {
-            DB::table('work_historys')->insert([
-                'staff_id'=>$staffid,
-                'work_experience'=>$work_experiences_array[$i],
-                'leave_experience'=>$leave_experiences_array[$i],
-                'created_at' => date('Y-m-d H:i:s',time()),
-                'updated_at' => date('Y-m-d H:i:s',time()),
-            ]);
-        }
-        return;
-    }
 }

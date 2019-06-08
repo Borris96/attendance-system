@@ -87,7 +87,7 @@ class AbsencesController extends Controller
         foreach ($absences as $ab) {
             $old_absence_start_time = strtotime($ab->absence_start_time);
             $old_absence_end_time = strtotime($ab->absence_end_time);
-            if ($absence->isCrossing($absence_start_time, $absence_end_time, $old_absence_start_time, $old_absence_end_time) == false) {
+            if ($absence->isCrossing($absence_start_time, $absence_end_time, $old_absence_start_time, $old_absence_end_time) == true) {
                 session()->flash('danger','请假时间重叠！');
                 return redirect()->back()->withInput();
             }
@@ -183,7 +183,7 @@ class AbsencesController extends Controller
         foreach ($absences as $ab) {
             $old_absence_start_time = strtotime($ab->absence_start_time);
             $old_absence_end_time = strtotime($ab->absence_end_time);
-            if ($absence->isCrossing($absence_start_time, $absence_end_time, $old_absence_start_time, $old_absence_end_time) == false) {
+            if ($absence->isCrossing($absence_start_time, $absence_end_time, $old_absence_start_time, $old_absence_end_time) == true) {
                 session()->flash('danger','请假时间重叠！');
                 return redirect()->back()->withInput();
             }

@@ -23,15 +23,17 @@ class StaffsController extends Controller
     {
         $staffs = Staff::paginate(10);
         foreach ($staffs as $staff) {
-            //主要是为了自动更新年假。如果下一年到了，自动加上年假天数。
-            $work_year = $staff->work_year;
-            $updated_at = $staff->updated_at;
-            $annual_holiday = $staff->annual_holiday;
-            $remaining_annual_holiday = $staff->remaining_annual_holiday;
-            $staff->work_year = $staff->updateWorkYears($updated_at, $work_year);
-            $staff->annual_holiday = $staff->updateAnnualHolidays($updated_at, $annual_holiday, $staff->work_year);
-            $staff->remaining_annual_holiday = $staff->updateAnnualHolidays($updated_at, $remaining_annual_holiday, $staff->work_year);
-            if ($staff->workyear!=$work_year && $staff->annual_holiday!=$annual_holiday){
+            //每年更新一次
+            $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
+            //以每天时间为准，更新参加工作年数
+            if ($updated_at->isLastYear())
+            {
+                $annual_holiday = $staff->annual_holiday; //原来的年假
+                $remaining_annual_holiday = $staff->remaining_annual_holiday;
+                $join_year = (strtotime(date('Y').'-01-01')-strtotime($staff->join_company))/(365*24*3600); // 加入公司的年数
+                $staff->work_year = $staff->origin_work_year + round($join_year,2); // 目前工作年数 = 加入公司前+加入公司后
+                $staff->annual_holiday = $staff->updateAnnualHolidays($updated_at, $annual_holiday, $staff->work_year); // 根据工作年数更新年假
+                $staff->remaining_annual_holiday = $staff->updateAnnualHolidays($updated_at, $remaining_annual_holiday, $staff->work_year); //根据工作年数更新剩余年假
                 $staff->save();
             }
         }
@@ -142,13 +144,16 @@ class StaffsController extends Controller
                     $old_start_time = strtotime($work_experiences_array[$i-1]);
                     $old_end_time = strtotime($leave_experiences_array[$i-1]);
                 } else {
-                    $old_start_time = strtotime($work_experiences_array[$i])-1;
-                    $old_end_time = strtotime($leave_experiences_array[$i])-1;
+                    $old_start_time = strtotime('1970-01-02'); //这两个时间要设置得足够早
+                    $old_end_time = strtotime('1970-01-03');
                 }
                 $start_time = strtotime($work_experiences_array[$i]);
                 $end_time = strtotime($leave_experiences_array[$i]);
 
-////////////有问题???
+                if ($end_time<$old_start_time) {
+                    session()->flash('warning','请按照顺序填写工作经历');
+                    return redirect()->back()->withInput();
+                }
                 if (WorkHistory::isCrossing($start_time, $end_time, $old_start_time, $old_end_time) == true)
                 {
                     session()->flash('danger','工作经历重合');
@@ -171,6 +176,7 @@ class StaffsController extends Controller
         }
         $total_work_year = $total_work_year/(31536000); //转换成年
         $staff->work_year = $total_work_year;
+        $staff->origin_work_year = $total_work_year;
 
 
         // 录入staffworkdays表
@@ -187,7 +193,7 @@ class StaffsController extends Controller
         if ($request->get('annual_holiday')!==null){
             $staff->annual_holiday = $request->get('annual_holiday');
         } else {
-            $staff->annual_holiday = $staff->getAnnualHolidays($staff->work_year, $staff->join_company);
+            $staff->annual_holiday = $staff->getAnnualHolidays($staff->origin_work_year, $staff->join_company);
         }
         $staff->remaining_annual_holiday = $staff->annual_holiday;
 

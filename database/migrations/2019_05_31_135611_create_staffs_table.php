@@ -23,10 +23,8 @@ class CreateStaffsTable extends Migration
             $table->string('position_name')->nullable();
             $table->date('join_company')->nullable();
             $table->date('leave_company')->nullable();
-            $table->decimal('work_year',5,2)->nullable();
-            // $table->time('work_time');
-            // $table->time('home_time');
-            // $table->string('workdays',100); // Mon,Tue,Wed,Thu,Fri
+            $table->decimal('origin_work_year',5,2)->nullable(); // 只是之前参加工作的年数
+            $table->decimal('work_year',5,2)->nullable(); // 总的参加工作年数
             $table->decimal('annual_holiday',5,2)->nullable();
             $table->decimal('remaining_annual_holiday',5,2)->nullable();
             $table->timestamps();

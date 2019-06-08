@@ -93,7 +93,7 @@ class ExtraWorksController extends Controller
         foreach ($extra_works as $ew) {
             $old_ew_start_time = strtotime($ew->extra_work_start_time);
             $old_ew_end_time = strtotime($ew->extra_work_end_time);
-            if ($extra_work->isCrossing($ew_start_time, $ew_end_time, $old_ew_start_time, $old_ew_end_time) == false) {
+            if ($extra_work->isCrossing($ew_start_time, $ew_end_time, $old_ew_start_time, $old_ew_end_time) == true) {
                 session()->flash('danger','请假时间重叠！');
                 return redirect()->back()->withInput();
             }
@@ -173,7 +173,7 @@ class ExtraWorksController extends Controller
         foreach ($extra_works as $ew) {
             $old_ew_start_time = strtotime($ew->extra_work_start_time);
             $old_ew_end_time = strtotime($ew->extra_work_end_time);
-            if ($extra_work->isCrossing($ew_start_time, $ew_end_time, $old_ew_start_time, $old_ew_end_time) == false) {
+            if ($extra_work->isCrossing($ew_start_time, $ew_end_time, $old_ew_start_time, $old_ew_end_time) == true) {
                 session()->flash('danger','请假时间重叠！');
                 return redirect()->back()->withInput();
             }

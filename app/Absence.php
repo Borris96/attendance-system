@@ -68,9 +68,9 @@ class Absence extends Model
     public function isCrossing($absence_start_time, $absence_end_time, $old_absence_start_time, $old_absence_end_time)
     {
         if ($absence_end_time<=$old_absence_start_time || $old_absence_end_time<=$absence_start_time) { //时间不重叠
-            return true;
-        } else {
             return false;
+        } else {
+            return true;
         }
     }
 }
