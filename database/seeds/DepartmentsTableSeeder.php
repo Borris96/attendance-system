@@ -15,6 +15,7 @@ class DepartmentsTableSeeder extends Seeder
         '网课部',
         '人事行政部',
         '财务部',
+        '其他',
     ];
 
     public function run()

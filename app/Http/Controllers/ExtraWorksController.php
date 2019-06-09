@@ -24,7 +24,7 @@ class ExtraWorksController extends Controller
 
     public function create()
     {
-        $staffs = Staff::all();
+        $staffs = Staff::where('status',true)->get();
         return view('extra_works/create',compact('staffs'));
     }
 

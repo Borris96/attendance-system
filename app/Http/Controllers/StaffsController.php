@@ -11,6 +11,7 @@ use App\Position;
 use App\Staffworkday;
 use App\WorkHistory;
 use App\Absence;
+use App\LeaveStaff;
 
 class StaffsController extends Controller
 {
@@ -21,7 +22,7 @@ class StaffsController extends Controller
 
     public function index()
     {
-        $staffs = Staff::paginate(10);
+        $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(15);
         foreach ($staffs as $staff) {
             //每年更新一次
             $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
@@ -62,6 +63,7 @@ class StaffsController extends Controller
     {
         $staff = Staff::find($id);
         $staff->leave_company = now();
+        $staff->status = false;
         if ($staff->save()){
             session()->flash('warning','员工离职成功。');
             return redirect()->back();
@@ -197,6 +199,7 @@ class StaffsController extends Controller
         }
         $staff->remaining_annual_holiday = $staff->annual_holiday;
 
+        $staff->status = true;
         if ($staff->save()) {
             // $staff->insertWH($work_experiences_array, $leave_experiences_array, $staff->id);
             session()->flash('success','保存成功！');

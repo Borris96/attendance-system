@@ -23,6 +23,8 @@ Route::resource('/staffs','StaffsController');
 
 Route::patch('/staffs/{staff}/leave', 'StaffsController@leave')->name('staffs.leave');
 
+Route::resource('/leave_staffs','LeaveStaffsController');
+
 Route::resource('/absences','AbsencesController');
 
 Route::resource('/extra_works','ExtraWorksController');

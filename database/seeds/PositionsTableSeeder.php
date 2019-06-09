@@ -19,6 +19,7 @@ class PositionsTableSeeder extends Seeder
         '主任',
         '主管',
         '设计',
+        '其他',
 
     ];
 

@@ -22,7 +22,7 @@ class AbsencesController extends Controller
 
     public function create()
     {
-        $staffs = Staff::all();
+        $staffs = Staff::where('status',true)->get();
         return view('absences/create',compact('staffs'));
     }
 

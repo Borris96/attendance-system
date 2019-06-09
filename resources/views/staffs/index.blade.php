@@ -51,7 +51,7 @@
                 <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('PATCH') }}
                   {{ csrf_field() }}
-                  <button type="submit" class="btn btn-danger" type="button" onclick="delcfm();">办理离职</button>
+                  <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">办理离职</button>
                 </form>
             </td>
         </tr>
@@ -60,6 +60,7 @@
 
 {{ $staffs->links() }} <!-- show paginate -->
 
+<a href="{{route('leave_staffs.index')}}" class="btn btn-info" style="margin:20px;">查看离职员工</a>
 
 <script>
 
