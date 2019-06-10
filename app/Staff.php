@@ -37,21 +37,26 @@ class Staff extends Model
      * @return int $annual_holiday
      */
 
-    public function getAnnualHolidays($work_year, $join_company){
+    public function getAnnualHolidays($work_year, $join_company, $position_name){
+        if ($position_name != '兼职')
+        {
+            if ($work_year<10 && $work_year>=0){
+                $default_holiday = 5*8;
+            } elseif ($work_year>=10 && $work_year<20){
+                $default_holiday = 10*8;
+            } elseif ($work_year>=20){
+                $default_holiday = 15*8;
+            } else {
+                $default_holiday = 0;
+            }
 
-        if ($work_year<10 && $work_year>0){
-            $default_holiday = 5*8;
-        } elseif ($work_year>=10 && $work_year<20){
-            $default_holiday = 10*8;
-        } elseif ($work_year>=20){
-            $default_holiday = 15*8;
+            $end_date = strtotime("December 31");
+            $join_company = strtotime($join_company);
+            $annual_holiday = $default_holiday*($end_date-$join_company)/(365*24*60*60); //入职年剩余年假等于 百分比（入职时该年还剩下的天数除以365）乘以该年应得年假小时数
         } else {
-            $default_holiday = 0;
+            $annual_holiday = 0;
         }
 
-        $end_date = strtotime("December 31");
-        $join_company = strtotime($join_company);
-        $annual_holiday = $default_holiday*($end_date-$join_company)/(365*24*60*60); //入职年剩余年假等于 百分比（入职时该年还剩下的天数除以365）乘以该年应得年假小时数
         return $annual_holiday;
     }
 

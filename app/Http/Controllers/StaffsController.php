@@ -79,10 +79,9 @@ class StaffsController extends Controller
             'department'=>'max:50',
             // 'work_year' => 'required|max:2',
             'join_company' => 'required',
-            'position'=>'max:50',
+            // 'positions'=>'required',
             // 'work_time'=>'required',
             // 'home_time'=>'required',
-            // 'workdays'=>'required|max:100',
             'annual_holiday'=>'max:2',
         ]);
 
@@ -106,6 +105,7 @@ class StaffsController extends Controller
 
         $work_experiences_array = $request->input('work_experiences');
         $leave_experiences_array = $request->input('leave_experiences');
+
         // dump($work_experiences_array);
         // dump($leave_experiences_array);
         // exit();
@@ -195,7 +195,7 @@ class StaffsController extends Controller
         if ($request->get('annual_holiday')!==null){
             $staff->annual_holiday = $request->get('annual_holiday');
         } else {
-            $staff->annual_holiday = $staff->getAnnualHolidays($staff->origin_work_year, $staff->join_company);
+            $staff->annual_holiday = $staff->getAnnualHolidays($staff->origin_work_year, $staff->join_company, $staff->position_name);
         }
         $staff->remaining_annual_holiday = $staff->annual_holiday;
 

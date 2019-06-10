@@ -132,7 +132,7 @@
       </tr>
 
       <tr>
-          <td class="tableleft">工作经历*</td>
+          <td class="tableleft">工作经历</td>
           <td>
             <input type="date" name="work_experiences[0]"
             @if (old('work_experiences[0]')!=null) value="{{ date('Y-m-d',strtotime(old('work_experiences[0]'))) }}"
