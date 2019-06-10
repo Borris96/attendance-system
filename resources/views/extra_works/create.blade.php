@@ -25,7 +25,7 @@
          <td>
           <select name="extra_work_type">
             <option value=""> -----请选择----- </option>
-            <option value='正常'' @if(old('extra_work_type') == '正常') selected @endif>正常</option>
+            <option value='带薪'' @if(old('extra_work_type') == '带薪') selected @endif>带薪</option>
             <option value='调休' @if(old('extra_work_type') == '调休') selected @endif>调休</option>
           </select>
         </td>
