@@ -16,7 +16,7 @@ class Absence extends Model
     /**
      * 计算请假时长（小时）
      * @param datetime $absence_start_time, datetime $absence_end_time
-     * @return int duration
+     * @return double duration
      */
 
     public function calDuration($absence_start_time, $absence_end_time){

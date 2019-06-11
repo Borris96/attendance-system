@@ -58,7 +58,7 @@
     </thead>
     @foreach($staffworkdays as $workday)
     <tr>
-        <td>{{ $workday->workday_name }}</td>
+        <td>周{{ $workday->workday_name }}</td>
         @if ($workday->work_time != null)
         <td>{{ date("H:i",strtotime($workday->work_time)) }}</td>
         @else

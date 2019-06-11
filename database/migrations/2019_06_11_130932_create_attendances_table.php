@@ -16,16 +16,21 @@ class CreateAttendancesTable extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedInteger('staff_id');
-            $table->string('work_day_type')->nullable();
+            $table->string('workday_type')->nullable();
             $table->unsignedInteger('year')->nullable();
             $table->unsignedInteger('month')->nullable();
             $table->unsignedInteger('date')->nullable();
             $table->string('day')->nullable();
+            $table->time('should_work_time')->nullable();
+            $table->time('should_home_time')->nullable();
             $table->time('actual_work_time')->nullable();
             $table->time('actual_home_time')->nullable();
             $table->unsignedInteger('late_work')->nullable();
+            $table->boolean('is_late')->nullable();
             $table->unsignedInteger('early_home')->nullable();
-            $table->decimal('total_time',5,2)->nullable();
+            $table->boolean('is_early')->nullable();
+            $table->decimal('should_duration',5,2)->nullable();
+            $table->decimal('actual_duration',5,2)->nullable();
             $table->boolean('abnormal')->nullable();
             $table->timestamps();
         });

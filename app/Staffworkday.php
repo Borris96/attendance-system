@@ -16,31 +16,31 @@ class Staffworkday extends Model
     public function getWorkdayName($i){
         switch ($i) {
             case '0':
-                $workday_name = '周一';
+                $workday_name = '一';
                 return $workday_name;
                 break;
             case '1':
-                $workday_name = '周二';
+                $workday_name = '二';
                 return $workday_name;
                 break;
             case '2':
-                $workday_name = '周三';
+                $workday_name = '三';
                 return $workday_name;
                 break;
             case '3':
-                $workday_name = '周四';
+                $workday_name = '四';
                 return $workday_name;
                 break;
             case '4':
-                $workday_name = '周五';
+                $workday_name = '五';
                 return $workday_name;
                 break;
             case '5':
-                $workday_name = '周六';
+                $workday_name = '六';
                 return $workday_name;
                 break;
             case '6':
-                $workday_name = '周日';
+                $workday_name = '日';
                 return $workday_name;
                 break;
 

@@ -31,6 +31,10 @@ class Staff extends Model
         return $this->hasMany(Staffworkday::class);
     }
 
+    public function attendances(){
+        return $this->hasMany(Attendance::class);
+    }
+
     /**
      * 计算年假
      * @param int $work_year, date $join_company
