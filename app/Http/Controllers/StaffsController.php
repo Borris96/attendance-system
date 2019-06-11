@@ -73,9 +73,9 @@ class StaffsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'id'=>'required|unique:staffs|max:10',
+            'id'=>'numeric|required|unique:staffs|max:10',
             'staffname'=>'required|max:50',
-            'englishname'=>'required|max:50',
+            'englishname'=>'required|max:50|unique:staffs',
             'department'=>'max:50',
             // 'work_year' => 'required|max:2',
             'join_company' => 'required',
