@@ -22,7 +22,7 @@ class StaffsController extends Controller
 
     public function index()
     {
-        $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(15);
+        $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(10);
         foreach ($staffs as $staff) {
             //每年更新一次
             $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新

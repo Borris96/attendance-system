@@ -5,8 +5,11 @@
 <form class="form-inline definewidth m20" action="{{ route('staffs.index') }}" method="get">
     员工姓名：
     <input type="text" name="staffname" id="staffname"class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
-    <button type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp; <a class="btn btn-success" href="{{ route('staffs.create') }}" role="button">新增员工</a>
-
+    <button type="submit" class="btn btn-primary">查询</button>
+    &nbsp;&nbsp;
+    <a class="btn btn-success" href="{{ route('staffs.create') }}" role="button">新增员工</a>
+    &nbsp;&nbsp;
+    <a href="{{route('leave_staffs.index')}}" class="btn btn-info">查看离职员工</a>
 </form>
 
 <table class="table table-bordered table-hover definewidth m10">
@@ -58,9 +61,8 @@
       @endforeach
 </table>
 
-{{ $staffs->links() }} <!-- show paginate -->
+  {{ $staffs->links() }} <!-- show paginate -->
 
-<a href="{{route('leave_staffs.index')}}" class="btn btn-info" style="margin:20px;">查看离职员工</a>
 
 <script>
 

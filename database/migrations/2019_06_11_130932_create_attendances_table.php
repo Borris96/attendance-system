@@ -25,9 +25,9 @@ class CreateAttendancesTable extends Migration
             $table->time('should_home_time')->nullable();
             $table->time('actual_work_time')->nullable();
             $table->time('actual_home_time')->nullable();
-            $table->unsignedInteger('late_work')->nullable();
+            $table->decimal('late_work',5,2)->nullable();
             $table->boolean('is_late')->nullable();
-            $table->unsignedInteger('early_home')->nullable();
+            $table->decimal('early_home',5,2)->nullable();
             $table->boolean('is_early')->nullable();
             $table->decimal('should_duration',5,2)->nullable();
             $table->decimal('actual_duration',5,2)->nullable();
