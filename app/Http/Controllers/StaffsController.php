@@ -73,7 +73,7 @@ class StaffsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'id'=>'numeric|required|unique:staffs|max:10',
+            'id'=>'integer|required|unique:staffs',
             'staffname'=>'required|max:50',
             'englishname'=>'required|max:50|unique:staffs',
             'department'=>'max:50',

@@ -84,6 +84,7 @@ class AttendancesController extends Controller
 
                     for ($r = 12; $r <= $highest_row; $r++ )
                     {
+                        $attendance = new Attendance();
                         $date_and_day = explode(' ', $worksheet->getCellByColumnAndRow($c,$r)->getValue());
                         $date = $date_and_day[0];
                         $day = $date_and_day[1];
