@@ -1,9 +1,10 @@
 @extends('layouts.default')
 @section('title','考勤信息')
 @section('content')
-
+@include('shared._messages')
+@include('shared._errors')
 <form class="form-inline definewidth m20" action="{{ route('attendances.index') }}" method="get">
-    员工姓名：
+    员工姓名
     <input type="text" name="staffname" id="staffname"class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
 
     <select name="name" id="name_select">
@@ -15,6 +16,14 @@
     <button type="submit" class="btn btn-primary">查询</button>
 
 </form>
+
+<form class="form-inline definewidth m20" method="POST" action="{{ route('attendances.import') }}" enctype="multipart/form-data">
+    {{ csrf_field() }}
+    选择表格
+    <input id="file" type="file" class="form-control" name="select_file" accept="">
+    <button type="submit" class="btn btn-success">上传表格</button>
+</form>
+
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>

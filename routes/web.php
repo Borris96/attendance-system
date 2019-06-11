@@ -31,6 +31,8 @@ Route::resource('/extra_works','ExtraWorksController');
 
 Route::resource('/attendances','AttendancesController');
 
+Route::post('/attendances/import','AttendancesController@import')->name('attendances.import');
+
 Route::get('showf', 'AttendancesController@showf')->name('fakeshow');
 
 Route::resource('/holidays','HolidaysController');
@@ -40,4 +42,5 @@ Route::resource('/salarys','SalarysController');
 Route::get('login','SessionsController@create')->name('login');
 Route::post('login','SessionsController@store')->name('login');
 Route::delete('logout','SessionsController@destroy')->name('logout');
+
 

@@ -156,11 +156,18 @@ class StaffsController extends Controller
                     session()->flash('warning','请按照顺序填写工作经历');
                     return redirect()->back()->withInput();
                 }
+
                 if (WorkHistory::isCrossing($start_time, $end_time, $old_start_time, $old_end_time) == true)
                 {
                     session()->flash('danger','工作经历重合');
                     return redirect()->back()->withInput();
                 }
+
+                // if ($end_time < strtotime($staff->join_company))
+                // {
+                //     session()->flash('danger','最后一项离职日期早于入职公司日期');
+                //     return redirect()->back()->withInput();
+                // }
             }
         }
         // 等所有条件都满足才进行录入
