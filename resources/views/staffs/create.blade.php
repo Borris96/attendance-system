@@ -50,8 +50,7 @@
           <td class="tableleft" >入职日期*</td>
           <td>
             <input type="date" name="join_company"
-              @if (old('join_company')!=null) value="{{ date('Y-m-d',strtotime(old('join_company'))) }}"
-              @endif
+              @if (old('join_company')!=null) value="{{ old('join_company') }}" @endif
             />
           </td>
       </tr>
@@ -78,7 +77,8 @@
           <td class="tableleft">工作经历</td>
           <td>
             @for($i=0;$i<=9;$i++)
-              <input type="date" name="work_experiences[{{$i}}]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[{{$i}}]"/> <br>
+              <input type="date" name="work_experiences[{{$i}}]"
+              /> &nbsp;至&nbsp; <input type="date" name="leave_experiences[{{$i}}]"/> <br>
             @endfor
           </td>
       </tr>

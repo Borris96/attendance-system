@@ -45,7 +45,7 @@ class StaffsController extends Controller
     {
         $staff = Staff::find($id);
         $staff_id = $staff->id;
-        $staffworkdays = $staff->staffworkdays;
+        $staffworkdays = Staffworkday::where('staff_id',$staff_id)->orderBy('id','asc')->get();
         $work_historys = $staff->workHistorys;
         return view('staffs.show',compact('staff','staffworkdays','work_historys'));
     }
