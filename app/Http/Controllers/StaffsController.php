@@ -162,14 +162,15 @@ class StaffsController extends Controller
                     session()->flash('danger','工作经历重合');
                     return redirect()->back()->withInput();
                 }
-
-                // if ($end_time < strtotime($staff->join_company))
-                // {
-                //     session()->flash('danger','最后一项离职日期早于入职公司日期');
-                //     return redirect()->back()->withInput();
-                // }
             }
         }
+        // 判断最后一段离职日期是否早于本公司入职日期
+        if (max($leave_experiences_array)>$staff->join_company)
+        {
+            session()->flash('danger','最后一项离职日期晚于入职公司日期');
+            return redirect()->back()->withInput();
+        }
+
         // 等所有条件都满足才进行录入
         // Insert work historys into work_historys table
         $total_work_year = 0;
@@ -195,6 +196,12 @@ class StaffsController extends Controller
             $staffworkday->workday_name = $staffworkday->getWorkdayName($i);
             $staffworkday->work_time = $work_times[$i];
             $staffworkday->home_time = $home_times[$i];
+            if ($work_times[$i] != null && $home_times[$i] != null){
+                $staffworkday->is_work = true;
+            }
+            else {
+                $staffworkday->is_work = false;
+            }
             $staffworkday->save();
             // dump($staffworkday);
         }
@@ -272,6 +279,12 @@ class StaffsController extends Controller
         for ($i=0; $i<=6; $i++){
             $origin_workdays[$i]->work_time = $work_times[$i];
             $origin_workdays[$i]->home_time = $home_times[$i];
+            if ($work_times[$i] != null && $home_times[$i] != null){
+                $origin_workdays[$i]->is_work = true;
+            }
+            else {
+                $origin_workdays[$i]->is_work = false;
+            }
             $origin_workdays[$i]->save();
         }
 

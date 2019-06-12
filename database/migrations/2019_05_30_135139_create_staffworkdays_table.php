@@ -17,6 +17,7 @@ class CreateStaffworkdaysTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('staff_id');
             $table->string('workday_name',10);
+            $table->boolean('is_work');
             $table->time('work_time')->nullable();
             $table->time('home_time')->nullable();
             $table->timestamps();
