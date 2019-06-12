@@ -54,7 +54,8 @@ class StaffsController extends Controller
     {
         $departments = Department::all();
         $positions = Position::all();
-        return view('staffs/create',compact('departments','positions'));
+        $days = ['一','二','三','四','五','六','日'];
+        return view('staffs/create',compact('departments','positions','days'));
     }
 
 // 任何和该员工有关联的数据都应该删除 （员工ID不是unique的）
@@ -76,13 +77,9 @@ class StaffsController extends Controller
             'id'=>'integer|required|unique:staffs',
             'staffname'=>'required|max:50',
             'englishname'=>'required|max:50|unique:staffs',
-            'department'=>'max:50',
-            // 'work_year' => 'required|max:2',
             'join_company' => 'required',
-            // 'positions'=>'required',
-            // 'work_time'=>'required',
-            // 'home_time'=>'required',
-            'annual_holiday'=>'max:2',
+            'positions'=>'required',
+            'annual_holiday'=>'max:6',
         ]);
 
         $staff = new Staff();
@@ -115,59 +112,60 @@ class StaffsController extends Controller
         for ($i=0; $i<=6; $i++){
             if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
             {
-                session()->flash('danger','时间填写不完整！');
+                session()->flash('warning','时间填写不完整！');
                 return redirect()->back()->withInput();
             }
 
             if (strtotime($work_times[$i])>strtotime($home_times[$i]))
             {
-                session()->flash('danger','上班时间晚于下班时间！');
+                session()->flash('warning','上班时间晚于下班时间！');
                 return redirect()->back()->withInput();
             }
         }
 
         for ($i=0; $i<=9; $i++){
-            if (($work_experiences_array[$i]!=null && $leave_experiences_array[$i]==null) || ($work_experiences_array[$i]==null && $leave_experiences_array[$i]!=null))
-            {
-                session()->flash('danger','日期填写不完整！');
-                return redirect()->back()->withInput();
-            }
-
-            if (strtotime($work_experiences_array[$i])>strtotime($leave_experiences_array[$i]))
-            {
-                session()->flash('danger','入职日期晚于离职日期！');
-                return redirect()->back()->withInput();
-            }
-
-            // 还要判断前一段时间是否和后一段时间重叠
-                // 判断工作经历是否填写
+            // 两个时间都非空时
             if ($work_experiences_array[$i] != null && $leave_experiences_array[$i]!=null) {
-                if ($i>0) {
-                    $old_start_time = strtotime($work_experiences_array[$i-1]);
-                    $old_end_time = strtotime($leave_experiences_array[$i-1]);
-                } else {
-                    $old_start_time = strtotime('1970-01-02'); //这两个时间要设置得足够早
-                    $old_end_time = strtotime('1970-01-03');
-                }
-                $start_time = strtotime($work_experiences_array[$i]);
-                $end_time = strtotime($leave_experiences_array[$i]);
-
-                if ($end_time<$old_start_time) {
-                    session()->flash('warning','请按照顺序填写工作经历');
-                    return redirect()->back()->withInput();
-                }
-
-                if (WorkHistory::isCrossing($start_time, $end_time, $old_start_time, $old_end_time) == true)
+                // 入职不能晚于离职
+                if ($work_experiences_array[$i]>$leave_experiences_array[$i])
                 {
-                    session()->flash('danger','工作经历重合');
+                    session()->flash('warning','日期顺序错误！');
                     return redirect()->back()->withInput();
+                }
+                else {
+                    // 要求工作经历按从远到近的时间顺序填写
+                    if ($i>0) {
+                        $old_start_time = $work_experiences_array[$i-1];
+                        $old_end_time = $leave_experiences_array[$i-1];
+                    } else {
+                        $old_start_time = '1970-01-02'; //这两个时间要设置得足够早
+                        $old_end_time = '1970-01-03';
+                    }
+                    $start_time = $work_experiences_array[$i];
+                    $end_time = $leave_experiences_array[$i];
+
+                    if ($end_time<$old_start_time) {
+                        session()->flash('warning','请按照顺序填写工作经历');
+                        return redirect()->back()->withInput();
+                    } elseif (WorkHistory::isCrossing($start_time, $end_time, $old_start_time, $old_end_time))
+                    {
+                        session()->flash('warning','工作经历重合');
+                        return redirect()->back()->withInput();
+                    }
                 }
             }
+            // 有一个空时，报错
+            elseif (($work_experiences_array[$i]!=null && $leave_experiences_array[$i]==null) || ($work_experiences_array[$i]==null && $leave_experiences_array[$i]!=null))
+            {
+                session()->flash('warning','日期填写不完整！');
+                return redirect()->back()->withInput();
+            } // 全空就不用管了
         }
-        // 判断最后一段离职日期是否早于本公司入职日期
+        // 判断最后一个离职日期是否早于本公司入职日期
+
         if (max($leave_experiences_array)>$staff->join_company)
         {
-            session()->flash('danger','最后一项离职日期晚于入职公司日期');
+            session()->flash('warning','最后一个离职日期晚于入职公司日期');
             return redirect()->back()->withInput();
         }
 
@@ -228,19 +226,17 @@ class StaffsController extends Controller
     public function edit($id) {
         $staff = Staff::find($id);
         $workdays = $staff->staffworkdays;
+        $work_historys = $staff->workHistorys;
+        $count = count($work_historys);
         $departments = Department::all();
         $positions = Position::all();
-        return view('staffs.edit',compact('staff','workdays','departments','positions'));
+        $days = ['一','二','三','四','五','六','日'];
+        return view('staffs.edit',compact('staff','workdays','departments','positions','work_historys','count','days'));
     }
 
     public function update(Request $request, $id) {
         $this->validate($request, [
-            'department'=>'max:50',
-            'position'=>'max:50',
-            // 'work_time'=>'required',
-            // 'home_time'=>'required',
-            // 'workdays'=>'required|max:100',
-            // 'annual_holiday'=>'max:10',
+            'positions'=>'required',
         ]);
 
         $staff = Staff::find($id);
@@ -255,23 +251,71 @@ class StaffsController extends Controller
             $staff->position_name = Position::find($staff->position_id)->position_name;
         }
 
-        // 更新工作日
+        // 获取工作日，工作经历
         $work_times = $request->input('work_time');
         $home_times = $request->input('home_time');
+
+        $work_experiences_array = $request->input('work_experiences');
+        $leave_experiences_array = $request->input('leave_experiences');
 
         // 判断填写格式是否正确
         for ($i=0; $i<=6; $i++){
             if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
             {
-                session()->flash('danger','时间填写不完整！');
+                session()->flash('warning','时间填写不完整！');
                 return redirect()->back()->withInput();
             }
 
             if (strtotime($work_times[0])>strtotime($home_times[0]))
             {
-                session()->flash('danger','上班时间晚于下班时间！');
+                session()->flash('warning','上班时间晚于下班时间！');
                 return redirect()->back()->withInput();
             }
+        }
+
+        for ($i=0; $i<=9; $i++){
+            // 两个时间都非空时
+            if ($work_experiences_array[$i] != null && $leave_experiences_array[$i]!=null) {
+                // 入职不能晚于离职
+                if ($work_experiences_array[$i]>$leave_experiences_array[$i])
+                {
+                    session()->flash('warning','日期顺序错误！');
+                    return redirect()->back()->withInput();
+                }
+                else {
+                    // 要求工作经历按从远到近的时间顺序填写
+                    if ($i>0) {
+                        $old_start_time = $work_experiences_array[$i-1];
+                        $old_end_time = $leave_experiences_array[$i-1];
+                    } else {
+                        $old_start_time = '1970-01-02'; //这两个时间要设置得足够早
+                        $old_end_time = '1970-01-03';
+                    }
+                    $start_time = $work_experiences_array[$i];
+                    $end_time = $leave_experiences_array[$i];
+
+                    if ($end_time<$old_start_time) {
+                        session()->flash('warning','请按照顺序填写工作经历');
+                        return redirect()->back()->withInput();
+                    } elseif (WorkHistory::isCrossing($start_time, $end_time, $old_start_time, $old_end_time))
+                    {
+                        session()->flash('warning','工作经历重合');
+                        return redirect()->back()->withInput();
+                    }
+                }
+            }
+            // 有一个空时，报错
+            elseif (($work_experiences_array[$i]!=null && $leave_experiences_array[$i]==null) || ($work_experiences_array[$i]==null && $leave_experiences_array[$i]!=null))
+            {
+                session()->flash('warning','日期填写不完整！');
+                return redirect()->back()->withInput();
+            } // 全空就不用管了
+        }
+        // 判断最后一个离职日期是否早于本公司入职日期
+        if (max($leave_experiences_array)>$staff->join_company)
+        {
+            session()->flash('warning','最后一个离职日期晚于入职公司日期');
+            return redirect()->back()->withInput();
         }
 
         // 录入表
@@ -287,7 +331,38 @@ class StaffsController extends Controller
             }
             $origin_workdays[$i]->save();
         }
+        // 之前存在的 work history，更新
+        $origin_work_historys = $staff->workHistorys;
+        $count = count($origin_work_historys);
+        $total_work_year = 0;
+        for ($i=0; $i<$count; $i++){
+            if ($work_experiences_array[$i]!=null && $leave_experiences_array[$i]!=null){ //填写了才录入
+                $origin_work_historys[$i]->work_experience = $work_experiences_array[$i];
+                $origin_work_historys[$i]->leave_experience = $leave_experiences_array[$i];
+                $origin_work_historys[$i]->save();
+                $total_work_year += strtotime($leave_experiences_array[$i])-strtotime($work_experiences_array[$i]);
+            }
+        }
 
+        // 新增的，则新增记录
+        for ($i=$count; $i<=9; $i++){
+            if ($work_experiences_array[$i]!=null && $leave_experiences_array[$i]!=null){ //填写了才录入
+                $work_history = new WorkHistory();
+                $work_history->staff_id = $staff->id;
+                $work_history->work_experience = $work_experiences_array[$i];
+                $work_history->leave_experience = $leave_experiences_array[$i];
+                $work_history->save();
+                $total_work_year += strtotime($leave_experiences_array[$i])-strtotime($work_experiences_array[$i]);
+            }
+        }
+
+        $total_work_year = $total_work_year/(31536000); //转换成年
+        $staff->work_year = $total_work_year;
+        $staff->origin_work_year = $total_work_year;
+        $old_annual_holiday = $staff->annual_holiday;
+        $old_remaining_annual_holiday = $staff->remaining_annual_holiday;
+        $staff->annual_holiday = $staff->getAnnualHolidays($staff->origin_work_year, $staff->join_company, $staff->position_name);
+        $staff->remaining_annual_holiday = $old_remaining_annual_holiday-$old_annual_holiday+$staff->annual_holiday;
         // if ($request->get('annual_holiday')!=null){
         //     $staff->annual_holiday = $request->get('annual_holiday');
         // } else {

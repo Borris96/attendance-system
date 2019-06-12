@@ -15,10 +15,10 @@ class WorkHistory extends Model
 
     /**
      * 计算起始时间是否和之前的记录重叠
-     * @param timestamp $start_time
-     * @param timestamp $end_time
-     * @param timestamp $old_start_time
-     * @param timestamp $old_end_time
+     * @param date $start_time
+     * @param date $end_time
+     * @param date $old_start_time
+     * @param date $old_end_time
      * @return boolean
      */
 

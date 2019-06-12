@@ -37,7 +37,7 @@
           </td>
       </tr>
       <tr>
-          <td class="tableleft">当前职位</td>
+          <td class="tableleft">当前职位*</td>
            <td>
             <select name="positions">
               <option value="">----请选择----</option>
@@ -60,37 +60,26 @@
       <tr>
           <td class="tableleft">应上下班时间*</td>
           <td>
-            周一：
-            <input type="time" name="work_time[0]" value="{{ $workdays[0]->work_time }}" />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[0]" value="{{ $workdays[0]->home_time }}"/> <br>
-            周二：
-            <input type="time" name="work_time[1]" value="{{ $workdays[1]->work_time }}" />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[1]" value="{{ $workdays[1]->home_time }}"/> <br>
-            周三：
-            <input type="time" name="work_time[2]" value="{{ $workdays[2]->work_time }}" />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[2]" value="{{ $workdays[2]->home_time }}"/> <br>
-            周四：
-            <input type="time" name="work_time[3]" value="{{ $workdays[3]->work_time }}" />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[3]" value="{{ $workdays[3]->home_time }}"/> <br>
-            周五：
-            <input type="time" name="work_time[4]" value="{{ $workdays[4]->work_time }}" />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[4]" value="{{ $workdays[4]->home_time }}"/> <br>
-            周六：
-            <input type="time" name="work_time[5]" value="{{ $workdays[5]->work_time }}" />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[5]" value="{{ $workdays[5]->home_time }}"/> <br>
-            周日：
-            <input type="time" name="work_time[6]" value="{{ $workdays[6]->work_time }}" />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[6]" value="{{ $workdays[6]->home_time }}"/> <br>
+            @for($i=0;$i<=6;$i++)
+            周{{$days[$i]}}：
+              <input type="time" name="work_time[{{$i}}]" value="{{ $workdays[$i]->work_time }}"/>
+             &nbsp;至&nbsp;
+             <input type="time" name="home_time[{{$i}}]" value="{{ $workdays[$i]->home_time }}"/> <br>
+            @endfor
           </td>
       </tr>
 
+      <tr>
+          <td class="tableleft">工作经历</td>
+          <td>
+            @for($i=0;$i<=9;$i++)
+              @if ($i<$count)
+              <input type="date" name="work_experiences[{{$i}}]" value="{{ $work_historys[$i]->work_experience }}"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[{{$i}}]" value="{{ $work_historys[$i]->leave_experience }}"/> <br>
+              @else
+              <input type="date" name="work_experiences[{{$i}}]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[{{$i}}]"/> <br>
+              @endif
+            @endfor
+          </td>
       </tr>
 
       <tr>

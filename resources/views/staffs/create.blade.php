@@ -34,7 +34,7 @@
           </td>
       </tr>
       <tr>
-          <td class="tableleft">当前职位</td>
+          <td class="tableleft">当前职位*</td>
            <td>
             <select name="positions">
               <option value="">----请选择----</option>
@@ -57,99 +57,29 @@
       </tr>
 
       <tr>
-          <td class="tableleft">应上下班时间*</td>
+          <td class="tableleft">应上下班时间</td>
           <td>
-            周一：
-            <input type="time" name="work_time[0]"
-            @if (old('work_time[0]')!=null) value="{{ date('H:i',strtotime(old('work_time[0]'))) }}"
-            @else value="09:00"
-            @endif
-           /> <!-- 此处判断条件好像不对啊 -->
-
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[0]"
-            @if (old('home_time[0]')!=null) value="{{ old('home_time[0]') }}"
-            @else value="18:00"
-            @endif
-           /> <br>
-            周二：
-            <input type="time" name="work_time[1]"
-            @if (old('work_time[1]')!=null) value="{{ old('work_time[1]') }}"
-            @else value="09:00"
-            @endif
-           />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[1]"
-            @if (old('home_time[1]')!=null) value="{{ old('home_time[1]') }}"
-            @else value="18:00"
-            @endif
-           /> <br>
-            周三：
-            <input type="time" name="work_time[2]"
-            @if (old('work_time[2]')!=null) value="{{ old('work_time[2]') }}"
-            @else value="09:00"
-            @endif
-           />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[2]"
-            @if (old('home_time[2]')!=null) value="{{ old('home_time[2]') }}"
-            @else value="18:00"
-            @endif
-           /> <br>
-            周四：
-            <input type="time" name="work_time[3]"
-            @if (old('work_time[3]')!=null) value="{{ old('work_time[3]') }}"
-            @else value="09:00"
-            @endif
-           />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[3]"
-            @if (old('home_time[3]')!=null) value="{{ old('home_time[3]') }}"
-            @else value="18:00"
-            @endif
-           /> <br>
-            周五：
-            <input type="time" name="work_time[4]"
-            @if (old('work_time[4]')!=null) value="{{ old('work_time[4]') }}"
-            @else value="09:00"
-            @endif
-           />
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[4]"
-            @if (old('home_time[4]')!=null) value="{{ old('home_time[4]') }}"
-            @else value="18:00"
-            @endif
-           /> <br>
-            周六：
-            <input type="time" name="work_time[5]" value="{{ old('work_time[5]') }}"/>
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[5]" value="{{ old('home_time[5]') }}"/> <br>
-            周日：
-            <input type="time" name="work_time[6]" value="{{ old('work_time[6]') }}"/>
-           &nbsp;至&nbsp;
-           <input type="time" name="home_time[6]" value="{{ old('home_time[6]') }}"/> <br>
+            @for($i=0;$i<=4;$i++)
+            周{{$days[$i]}}：
+              <input type="time" name="work_time[{{$i}}]" value="09:00"/>
+             &nbsp;至&nbsp;
+             <input type="time" name="home_time[{{$i}}]" value="18:00"/> <br>
+            @endfor
+            @for($i=5;$i<=6;$i++)
+            周{{$days[$i]}}：
+              <input type="time" name="work_time[{{$i}}]" value=""/>
+             &nbsp;至&nbsp;
+             <input type="time" name="home_time[{{$i}}]" value=""/> <br>
+            @endfor
           </td>
       </tr>
 
       <tr>
           <td class="tableleft">工作经历</td>
           <td>
-            <input type="date" name="work_experiences[0]"
-            @if (old('work_experiences[0]')!=null) value="{{ date('Y-m-d',strtotime(old('work_experiences[0]'))) }}"
-            @endif
-            /> &nbsp;至&nbsp; <input type="date" name="leave_experiences[0]"
-            @if (old('leave_experiences[0]')!=null) value="{{ date('Y-m-d',strtotime(old('leave_experiences[0]'))) }}"
-            @endif
-            /> <br>
-            <input type="date" name="work_experiences[1]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[1]"/> <br>
-            <input type="date" name="work_experiences[2]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[2]"/> <br>
-            <input type="date" name="work_experiences[3]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[3]"/> <br>
-            <input type="date" name="work_experiences[4]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[4]"/> <br>
-            <input type="date" name="work_experiences[5]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[5]"/> <br>
-            <input type="date" name="work_experiences[6]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[6]"/> <br>
-            <input type="date" name="work_experiences[7]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[7]"/> <br>
-            <input type="date" name="work_experiences[8]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[8]"/> <br>
-            <input type="date" name="work_experiences[9]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[9]"/> <br>
+            @for($i=0;$i<=9;$i++)
+              <input type="date" name="work_experiences[{{$i}}]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[{{$i}}]"/> <br>
+            @endfor
           </td>
       </tr>
 

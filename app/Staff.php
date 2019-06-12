@@ -42,7 +42,7 @@ class Staff extends Model
      */
 
     public function getAnnualHolidays($work_year, $join_company, $position_name){
-        if ($position_name != '兼职')
+        if ($position_name != '兼职' && $position_name != '实习生')
         {
             if ($work_year<10 && $work_year>=0){
                 $default_holiday = 5*8;
