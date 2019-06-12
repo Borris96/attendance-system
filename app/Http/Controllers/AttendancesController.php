@@ -24,7 +24,7 @@ class AttendancesController extends Controller
 
     public function index()
     {
-        $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(10);
+        $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(15);
         return view('attendances/index',compact('staffs'));
     }
 
