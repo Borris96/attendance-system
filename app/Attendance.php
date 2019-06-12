@@ -10,7 +10,17 @@ class Attendance extends Model
 
     public function staff()
     {
-        $this->belongsTo(Staff::class);
+        return $this->belongsTo(Staff::class);
+    }
+
+    public function absence()
+    {
+        return $this->hasOne(Absence::class);
+    }
+
+    public function extraWork()
+    {
+        return $this->belongsTo(ExtraWork::class);
     }
 
     /**

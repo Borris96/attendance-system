@@ -68,7 +68,7 @@ class StaffsTableSeeder extends Seeder
         DB::table('staffs')->insert([
             'id'=>'2017070301',
             'staffname'=>'张琳',
-            'englishname'=>'AmyZhang',
+            'englishname'=>'AmiZhang',
             'department_id'=>'2',
             'position_id'=>'3',
             'department_name'=>'教材部',

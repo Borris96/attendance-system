@@ -33,7 +33,7 @@ Route::resource('/attendances','AttendancesController');
 
 Route::post('/attendances/import','AttendancesController@import')->name('attendances.import');
 
-Route::get('showf', 'AttendancesController@showf')->name('fakeshow');
+// Route::get('showf', 'AttendancesController@showf')->name('attendances.');
 
 Route::resource('/holidays','HolidaysController');
 

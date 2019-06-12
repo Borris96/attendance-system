@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PositionsTableSeeder::class);
         $this->call(StaffsTableSeeder::class);
         $this->call(StaffworkdaysTableSeeder::class);
+        $this->call(ExtraWorksTableSeeder::class);
         Model::reguard();
     }
 

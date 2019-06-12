@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
 class ExtraWork extends Model
@@ -12,6 +13,10 @@ class ExtraWork extends Model
     public function staff(){
         return $this->belongsTo(Staff::class);
     }
+
+    // public function attendance(){
+    //     return $this->belongsTo(Attendance::class);
+    // }
 
     public function calDuration($extra_work_start_time, $extra_work_end_time){
         $str_start = strtotime($extra_work_start_time); // Convert it to string

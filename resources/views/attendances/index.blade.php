@@ -45,12 +45,13 @@
         <th>操作</th>
     </tr>
     </thead>
+      @foreach ($staffs as $staff)
        <tr>
-            <td>001</td>
-            <td>张三</td>
-            <td>Jack</td>
-            <td>教材部</td>
-            <td>文员</td>
+            <td>{{ $staff->id }}</td>
+            <td>{{ $staff->staffname }}</td>
+            <td>{{ $staff->englishname }}</td>
+            <td>{{ $staff->department_name }}</td>
+            <td>{{ $staff->position_name }}</td>
             <td>160小时</td>
             <td>150小时</td>
             <td>148小时</td>
@@ -62,9 +63,12 @@
             <td>否</td>
             <td>5000.00元</td>
             <td>
-                <a href="{{ route('fakeshow') }}">查看</a> <!-- route('staffs.edit', $staff->id) -->
+                <a href="{{ route('attendances.show',$staff->id) }}">查看</a> <!-- route('staffs.edit', $staff->id) -->
             </td>
         </tr>
+      @endforeach
 </table>
+
+{{ $staffs->links() }}
 
 @stop
