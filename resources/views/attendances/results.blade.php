@@ -46,7 +46,7 @@
             <td>还没算</td>
             <td>还没算</td>
             <td>
-                <a href="{{ route('attendances.show',$ta->staff->id) }}">查看</a> <!-- route('staffs.edit', $staff->id) -->
+                <a href="{{ route('attendances.show',$ta->id) }}">查看</a> <!-- route('staffs.edit', $staff->id) -->
             </td>
         </tr>
       @endforeach

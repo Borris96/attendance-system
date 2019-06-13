@@ -38,13 +38,15 @@ class AttendancesController extends Controller
         {
             $year = $request->get('year');
             $month = $request->get('month');
+            $staff_id = $request->get('staff_id');
             $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(15);
-            return view('attendances/results',compact('total_attendances','year','month'));
+            return view('attendances/results',compact('total_attendances','year','month','staff_id'));
 
         }
         else
         {
-            return view('attendances/index');
+            $staffs = Staff::all();
+            return view('attendances/index',compact('staffs'));
         }
 
 
@@ -52,10 +54,9 @@ class AttendancesController extends Controller
 
     public function show($id)
     {
-        $year = 2019;
-        $month = 3;
-        $staff = Staff::find($id);
-        $attendances = $staff->attendances->where('year',$year)->where('month',$month);
+        $total_attendance = TotalAttendance::find($id); // 这个show的id是属于total attendance的，不是staff!!!
+        $staff = $total_attendance->staff;
+        $attendances = $total_attendance->attendances;
         return view('attendances.show',compact('staff','attendances'));
     }
     /**
@@ -315,9 +316,19 @@ class AttendancesController extends Controller
                                 $total_attendance->total_early_home = $total_early_home ;
                                 $total_attendance->should_attend = $should_attend ;
                                 $total_attendance->actual_attend = $actual_attend ;
-                                $total_attendance->total_extra_work_duration = $total_extra_work_duration ;
+                                $total_attendance->total_extra_work_duration = $total_extra_work_duration;
 
                                 $total_attendance->save();
+
+                                $total_attendance_id = $total_attendance->id;
+
+                                // 当该员工当月考勤汇总计算好之后，应当为当月每一天的考勤加入汇总数据的关联
+                                foreach ($attendances as $at)
+                                {
+                                    $at->total_attendance_id = $total_attendance_id;
+                                    $at->save();
+                                }
+
                             }
                             else {
                                 session()->flash('danger','该员工该月记录已存在！');
