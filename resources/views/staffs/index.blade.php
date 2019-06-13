@@ -61,7 +61,7 @@
       @endforeach
 </table>
 
-  {{ $staffs->links() }} <!-- show paginate -->
+  {!! $staffs->render() !!} <!-- show paginate -->
 
 
 <script>
