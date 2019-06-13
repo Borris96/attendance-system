@@ -109,4 +109,7 @@
             <td>1000元</td>
 </table>
 
+<div style="margin: 20px">
+  <input class="btn btn-success" type="button" name="Submit" onclick="javascript:history.back(-1);" value="返回上一页">
+</div>
 @stop
