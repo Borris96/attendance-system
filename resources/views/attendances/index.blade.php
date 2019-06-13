@@ -44,6 +44,7 @@
         <br><br>
         年份：
           <select name="year" id="year">
+            <option value=""> -----请选择----- </option>
             @for ($i=2010; $i<=2030; $i++)
               <option value="{{$i}}" @if (date('Y') == $i) selected @endif>{{$i}}</option>
             @endfor
@@ -51,6 +52,7 @@
           <br>
         月份：
           <select name="month" id="month">
+            <option value=""> -----请选择----- </option>
             @for ($i=1; $i<=12; $i++)
               <option value="{{ $i }}" @if (date('m') == $i) selected @endif>{{$i}}月</option>
             @endfor
