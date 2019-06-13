@@ -8,12 +8,18 @@ use App\Staff;
 use App\Holiday;
 use App\ExtraWork;
 use App\Absence;
+use App\TotalAttendance;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use Illuminate\Support\Carbon;
+
+function returnYear($year)
+{
+    return $year;
+}
 
 class AttendancesController extends Controller
 {
@@ -22,16 +28,34 @@ class AttendancesController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(15);
-        return view('attendances/index',compact('staffs'));
+        // $this->_year = $year;
+        // dump($this->_year);
+        // $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(15);
+        // $staff_ids = array_unique(Attendance::where('year',$year)->where('month',$month)->pluck('staff_id')->toArray());
+        if ($request->get('month') != null && $request->get('year') != null)
+        {
+            $year = $request->get('year');
+            $month = $request->get('month');
+            $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(15);
+            return view('attendances/results',compact('total_attendances','year','month'));
+
+        }
+        else
+        {
+            return view('attendances/index');
+        }
+
+
     }
 
     public function show($id)
     {
+        $year = 2019;
+        $month = 3;
         $staff = Staff::find($id);
-        $attendances = $staff->attendances;
+        $attendances = $staff->attendances->where('year',$year)->where('month',$month);
         return view('attendances.show',compact('staff','attendances'));
     }
     /**
@@ -94,7 +118,9 @@ class AttendancesController extends Controller
                         {
                             $find = Attendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month); // 查询一下是否有该年该月的数据，防止导入重复的数据
                             if (count($find->get()) == 0)
-                            {
+                            { // 如果记录是新导入的，先把该员工当月每天的出勤记录导入，储存完成后，计算该员工当月的汇总记录。
+
+                                // 导入该月每天数据
                                 for ($r = 12; $r <= $highest_row; $r++ )
                                 {
                                     $attendance = new Attendance();
@@ -117,6 +143,8 @@ class AttendancesController extends Controller
                                         foreach ($holidays as $h) {
                                             if ($ymd == $h->date){
                                                 $attendance->workday_type = $h->holiday_type;
+
+                                            //*********** 此处：员工应该上下班时间也需要赋值！！！
                                             }
                                             else {
                                                 // 否则寻找这一天是该员工休息日还是工作日
@@ -182,7 +210,7 @@ class AttendancesController extends Controller
                                         $attendance->late_work = ($awt-$swt)/60; // 转换成分钟
                                         if (($awt-$swt)>0){ // 迟到是实际上班晚于应该上班
                                             // 后续还需要考虑到是否请假！！！！！
-                                            if ($attendance->late_work > 15) //迟到15分钟以上算迟到
+                                            if ($attendance->late_work > 5) //迟到5分钟以上算迟到
                                             {
                                                 $attendance->is_late = true;
                                             }
@@ -201,7 +229,7 @@ class AttendancesController extends Controller
                                         $attendance->early_home = ($sht-$aht)/60;
                                         if (($sht-$aht)>0){ // 早退是实际下班早于应该下班
                                             // 后续还需要考虑到是否请假！！！！！
-                                            if ($attendance->early_home > 15) // 早退15分钟以上算早退
+                                            if ($attendance->early_home > 5) // 早退5分钟以上算早退
                                             {
                                                 $attendance->is_early = true;
                                             }
@@ -226,11 +254,76 @@ class AttendancesController extends Controller
                                     $attendance->extra_work_id = $extra_work_id;
                                     $attendance->save();
                                 }
+
+                                // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表
+                                $total_attendance = new TotalAttendance();
+                                $total_attendance->staff_id = $staff->id;
+                                $total_attendance->year = $year;
+                                $total_attendance->month = $month;
+                                $attendances = $staff->attendances->where('year',$year)->where('month',$month);
+                                $total_should_duration = 0;
+                                $total_actual_duration = 0;
+                                $total_is_late = 0;
+                                $total_is_early = 0;
+                                $total_late_work = 0;
+                                $total_early_home = 0;
+                                $should_attend = 0;
+                                $actual_attend = 0;
+                                $total_extra_work_duration = 0;
+
+                                foreach ($attendances as $at)
+                                {
+                                    if ($at->should_duration != null)
+                                    {
+                                        $total_should_duration += $at->should_duration;
+                                        $should_attend += 1;
+                                    }
+
+                                    if ($at->actual_duration != null)
+                                    {
+                                        $total_actual_duration += $at->actual_duration;
+                                        $actual_attend += 1;
+                                    }
+
+                                    $total_is_late += $at->is_late;
+                                    $total_is_early += $at->is_early;
+                                    if ($at->late_work>0)
+                                    {
+                                        $total_late_work += $at->late_work;
+                                    }
+
+                                    if ($at->early_home>0)
+                                    {
+                                        $total_early_home += $at->early_home;
+                                    }
+
+                                    if ($at->abnormal == true)
+                                    {
+                                        $abnormal = true;
+                                    }
+
+                                    if ($at->extra_work_id != null)
+                                    {
+                                        $total_extra_work_duration += $at->extraWork->duration;
+                                    }
+                                }
+                                $total_attendance->total_should_duration = $total_should_duration ;
+                                $total_attendance->total_actual_duration = $total_actual_duration;
+                                $total_attendance->total_is_late = $total_is_late ;
+                                $total_attendance->total_is_early = $total_is_early ;
+                                $total_attendance->total_late_work = $total_late_work ;
+                                $total_attendance->total_early_home = $total_early_home ;
+                                $total_attendance->should_attend = $should_attend ;
+                                $total_attendance->actual_attend = $actual_attend ;
+                                $total_attendance->total_extra_work_duration = $total_extra_work_duration ;
+
+                                $total_attendance->save();
                             }
                             else {
                                 session()->flash('danger','该员工该月记录已存在！');
                                 return redirect()->back();
                             }
+
                         }
                     }
                 }
@@ -239,4 +332,13 @@ class AttendancesController extends Controller
         session()->flash('success','表格导入成功！');
         return redirect()->back();
     }
+
+    // public function results(Request $request)
+    // {
+    //     if ($request->get('month') != null)
+    //     {
+
+    //         return view('attendances.results');
+    //     }
+    // }
 }

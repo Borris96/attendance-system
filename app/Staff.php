@@ -35,6 +35,9 @@ class Staff extends Model
         return $this->hasMany(Attendance::class);
     }
 
+    public function totalAttendances(){
+        return $this->hasMany(TotalAttendance::class);
+    }
     /**
      * 计算年假
      * @param int $work_year, date $join_company
