@@ -8,13 +8,13 @@
   {{ csrf_field() }}
 <table class="table table-bordered table-hover definewidth m10">
     <tr>
-        <td width="10%" class="tableleft">员工姓名*</td>
+        <td width="10%" class="tableleft">员工英文名*</td>
         <td>
 
         <select name="staff_id" id="name_select">
           <option value=""> -----请选择----- </option>
           @foreach($staffs as $staff)
-            <option value="{{ $staff->id }} " @if(old('staff_id') == $staff->id) selected @endif> {{ $staff->staffname }} </option>
+            <option value="{{ $staff->id }} " @if(old('staff_id') == $staff->id) selected @endif> {{ $staff->englishname }} </option>
           @endforeach
         </select>
 

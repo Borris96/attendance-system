@@ -52,8 +52,16 @@
             <td>{{ $attendance->should_home_time }}</td>
             <td>{{ $attendance->actual_work_time }}</td>
             <td>{{ $attendance->actual_home_time }}</td>
+            @if ($attendance->late_work>0)
             <td>{{ $attendance->late_work }}</td>
+            @else
+            <td>0.00</td>
+            @endif
+            @if ($attendance->early_home>0)
             <td>{{ $attendance->early_home }}</td>
+            @else
+            <td>0.00</td>
+            @endif
             <td>事假，16:00-18:00</td>
             @if ($attendance->extraWork != null)
             <td>{{ $attendance->extraWork->extra_work_type }},

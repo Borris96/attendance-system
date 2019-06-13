@@ -3,8 +3,8 @@
 @section('content')
 @include('shared._messages')
 <form class="form-inline definewidth m20" action="{{ route('staffs.index') }}" method="get">
-    员工姓名：
-    <input type="text" name="staffname" id="staffname"class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
+    员工英文名
+    <input type="text" name="englishname" id="englishname"class="abc input-default" placeholder="" value="{{ old('englishname') }}">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>
     &nbsp;&nbsp;
     <a class="btn btn-success" href="{{ route('staffs.create') }}" role="button">新增员工</a>

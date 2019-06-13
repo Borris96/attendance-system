@@ -179,43 +179,39 @@ class AttendancesController extends Controller
 
                                     if ($attendance->should_work_time != null && $attendance->should_home_time != null && $attendance->actual_work_time != null && $attendance->actual_home_time != null)
                                     {
-                                            if (($awt-$swt)>0){ // 迟到是实际上班晚于应该上班
-                                                $attendance->late_work = ($awt-$swt)/60; // 转换成分钟
-                                                // 后续还需要考虑到是否请假！！！！！
-                                                if ($attendance->late_work > 15) //迟到15分钟以上算迟到
-                                                {
-                                                    $attendance->is_late = true;
-                                                }
-                                                else {
-                                                    $attendance->late_work = 0;
-                                                    $attendance->is_late = false;
-                                                }
+                                        $attendance->late_work = ($awt-$swt)/60; // 转换成分钟
+                                        if (($awt-$swt)>0){ // 迟到是实际上班晚于应该上班
+                                            // 后续还需要考虑到是否请假！！！！！
+                                            if ($attendance->late_work > 15) //迟到15分钟以上算迟到
+                                            {
+                                                $attendance->is_late = true;
                                             }
                                             else {
-                                                $attendance->late_work = 0;
                                                 $attendance->is_late = false;
-                                                // dump($attendance->is_late);
                                             }
-                                            // // dump($sht);
-                                            // // dump($aht);
-                                            // // dump($sht-$aht);
-                                            // // exit();
-                                            if (($sht-$aht)>0){ // 早退是实际下班早于应该下班
-                                                $attendance->early_home = ($sht-$aht)/60;
-                                                // 后续还需要考虑到是否请假！！！！！
-                                                if ($attendance->early_home > 15) // 早退15分钟以上算早退
-                                                {
-                                                    $attendance->is_early = true;
-                                                }
-                                                else {
-                                                    $attendance->early_home = 0;
-                                                    $attendance->is_early = false;
-                                                }
+                                        }
+                                        else {
+                                            $attendance->is_late = false;
+                                            // dump($attendance->is_late);
+                                        }
+                                        // dump($sht);
+                                        // dump($aht);
+                                        // dump($sht-$aht);
+                                        // exit();
+                                        $attendance->early_home = ($sht-$aht)/60;
+                                        if (($sht-$aht)>0){ // 早退是实际下班早于应该下班
+                                            // 后续还需要考虑到是否请假！！！！！
+                                            if ($attendance->early_home > 15) // 早退15分钟以上算早退
+                                            {
+                                                $attendance->is_early = true;
                                             }
                                             else {
-                                                $attendance->early_home = 0;
                                                 $attendance->is_early = false;
                                             }
+                                        }
+                                        else {
+                                            $attendance->is_early = false;
+                                        }
 
                                     }
                                     // 异常计算还需要获取当天加班、请假的时间，所以还是比较复杂的。 异常判断标准还需明确一下。

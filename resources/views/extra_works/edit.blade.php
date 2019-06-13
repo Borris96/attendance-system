@@ -9,9 +9,9 @@
   {{ csrf_field() }}
 <table class="table table-bordered table-hover definewidth m10">
     <tr>
-        <td width="10%" class="tableleft">员工姓名*</td>
+        <td width="10%" class="tableleft">员工英文名*</td>
         <td>
-          <input type="text" value="{{ $staff->staffname }}" disabled>
+          <input type="text" value="{{ $staff->englishname }}" disabled>
         </td>
     </tr>
 

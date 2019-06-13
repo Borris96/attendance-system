@@ -20,9 +20,22 @@ class StaffsController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(20);
+        if ($request->get('englishname') == null)
+        {
+            $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(20);
+        }
+        else {
+            $englishname = $request->get('englishname');
+            //查询这个员工
+            $staffs = Staff::where('status',true)->where('englishname',$englishname)->paginate(20);
+            if (count($staffs) == 0)
+            {
+                session()->flash('warning', '员工不存在！');
+                return redirect()->back()->withInput();
+            }
+        }
         foreach ($staffs as $staff) {
             //每年更新一次
             $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
