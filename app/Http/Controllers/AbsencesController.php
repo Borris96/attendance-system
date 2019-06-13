@@ -14,9 +14,23 @@ class AbsencesController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $absences = Absence::orderBy('updated_at','desc')->paginate(10);
+        if ($request->get('englishname') == null)
+        {
+            $absences = Absence::orderBy('updated_at','desc')->paginate(15);
+        }
+        else {
+            $englishname = $request->get('englishname');
+            // 只能返回第一个有类似英文名的员工id
+            $staff_id = Staff::where('englishname','like',$englishname.'%')->value('id');
+            $absences = Absence::where('staff_id',$staff_id)->orderBy('updated_at','desc')->paginate(15);
+            if (count($absences) == 0)
+            {
+                session()->flash('warning', '加班记录不存在！');
+                return redirect()->back()->withInput();
+            }
+        }
         return view('absences/index',compact('absences'));
     }
 

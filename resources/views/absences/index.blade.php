@@ -5,8 +5,9 @@
 
 <form class="form-inline definewidth m20" action="{{ route('absences.index') }}" method="get">
     员工姓名：
-    <input type="text" name="staffname" id="staffname"class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
-    <button type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp; <a class="btn btn-success" href="{{ route('absences.create') }}" role="button">新增请假</a>
+    <input type="text" name="englishname" id="englishname"class="abc input-default" placeholder="" value="{{ old('englishname') }}">&nbsp;&nbsp;
+    <button type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;
+    <a class="btn btn-success" href="{{ route('absences.create') }}" role="button">新增请假</a>
 
 </form>
 <table class="table table-bordered table-hover definewidth m10">

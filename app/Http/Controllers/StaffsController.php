@@ -25,30 +25,30 @@ class StaffsController extends Controller
         if ($request->get('englishname') == null)
         {
             $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(20);
+            foreach ($staffs as $staff) {
+                //每年更新一次
+                $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
+                //以每天时间为准，更新参加工作年数
+                if ($updated_at->isLastYear())
+                {
+                    $annual_holiday = $staff->annual_holiday; //原来的年假
+                    $remaining_annual_holiday = $staff->remaining_annual_holiday;
+                    $join_year = (strtotime(date('Y').'-01-01')-strtotime($staff->join_company))/(365*24*3600); // 加入公司的年数
+                    $staff->work_year = $staff->origin_work_year + round($join_year,2); // 目前工作年数 = 加入公司前+加入公司后
+                    $staff->annual_holiday = $staff->updateAnnualHolidays($updated_at, $annual_holiday, $staff->work_year); // 根据工作年数更新年假
+                    $staff->remaining_annual_holiday = $staff->updateAnnualHolidays($updated_at, $remaining_annual_holiday, $staff->work_year); // 根据工作年数更新剩余年假
+                    $staff->save();
+                }
+            }
         }
         else {
             $englishname = $request->get('englishname');
             //查询这个员工
-            $staffs = Staff::where('status',true)->where('englishname',$englishname)->paginate(20);
+            $staffs = Staff::where('status',true)->where('englishname','like',$englishname.'%')->paginate(20);
             if (count($staffs) == 0)
             {
                 session()->flash('warning', '员工不存在！');
                 return redirect()->back()->withInput();
-            }
-        }
-        foreach ($staffs as $staff) {
-            //每年更新一次
-            $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
-            //以每天时间为准，更新参加工作年数
-            if ($updated_at->isLastYear())
-            {
-                $annual_holiday = $staff->annual_holiday; //原来的年假
-                $remaining_annual_holiday = $staff->remaining_annual_holiday;
-                $join_year = (strtotime(date('Y').'-01-01')-strtotime($staff->join_company))/(365*24*3600); // 加入公司的年数
-                $staff->work_year = $staff->origin_work_year + round($join_year,2); // 目前工作年数 = 加入公司前+加入公司后
-                $staff->annual_holiday = $staff->updateAnnualHolidays($updated_at, $annual_holiday, $staff->work_year); // 根据工作年数更新年假
-                $staff->remaining_annual_holiday = $staff->updateAnnualHolidays($updated_at, $remaining_annual_holiday, $staff->work_year); // 根据工作年数更新剩余年假
-                $staff->save();
             }
         }
         return view('staffs/index',compact('staffs'));
