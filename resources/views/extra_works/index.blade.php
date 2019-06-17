@@ -3,7 +3,7 @@
 @section('content')
 @include('shared._messages')
 <form class="form-inline definewidth m20" action="{{ route('extra_works.index') }}" method="get">
-    员工英文名：
+    员工英文名
     <input type="text" name="englishname" id="englishname"class="abc input-default" placeholder="" value="{{ old('englishname') }}">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;
     <a class="btn btn-success" href="{{ route('extra_works.create') }}" role="button">新增加班</a>
