@@ -62,6 +62,10 @@ class AbsencesController extends Controller
                 $staff->save();
             }
         }
+
+        // 此处调休假删除，调休剩余时间要增加。
+
+
         $absence->delete();
         session()->flash('success', '成功删除请假记录！');
         return back();

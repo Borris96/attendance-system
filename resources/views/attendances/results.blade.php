@@ -40,7 +40,7 @@
             <td>{{ $ta->total_extra_work_duration }}小时</td>
             <td>{{ $ta->total_late_work }}分,{{ $ta->total_is_late }}次</td>
             <td>{{ $ta->total_early_home }}分,{{ $ta->total_is_early }}次</td>
-            <td>事假:2小时,年假:8小时</td>
+            <td>还没算</td>
             <td>应:{{ $ta->should_attend }}天/实:{{ $ta->actual_attend }}天</td>
             <td>还没算</td>
             <td>还没算</td>

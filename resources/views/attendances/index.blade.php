@@ -54,7 +54,7 @@
           <select name="month" id="month">
             <option value=""> -----请选择----- </option>
             @for ($i=1; $i<=12; $i++)
-              <option value="{{ $i }}" @if (date('m') == $i) selected @endif>{{$i}}月</option>
+              <option value="{{ $i }}" @if (date('m')-1 == $i) selected @endif>{{$i}}月</option>
             @endfor
           </select>
           <br>

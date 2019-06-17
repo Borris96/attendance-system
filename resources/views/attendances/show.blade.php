@@ -62,7 +62,7 @@
             @else
             <td>0.00</td>
             @endif
-            <td>事假，16:00-18:00</td>
+            <td>还没算</td>
             @if ($attendance->extraWork != null)
             <td>{{ $attendance->extraWork->extra_work_type }},
               {{ date("H:i", strtotime($attendance->extraWork->extra_work_start_time)) }}-

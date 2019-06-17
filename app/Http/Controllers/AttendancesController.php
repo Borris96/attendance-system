@@ -38,10 +38,23 @@ class AttendancesController extends Controller
         {
             $year = $request->get('year');
             $month = $request->get('month');
-            $staff_id = $request->get('staff_id');
-            $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(15);
-            return view('attendances/results',compact('total_attendances','year','month','staff_id'));
-
+            if ($request->get('staff_id') != null)
+            {
+                $staff_id = $request->get('staff_id');
+                $total_attendances = TotalAttendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(30);
+            }
+            else
+            {
+                $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(30);
+            }
+            if (count($total_attendances) == 0)
+            {
+                session()->flash('warning','该记录不存在。');
+                return redirect()->back()->withInput();            }
+            else
+            {
+                return view('attendances/results',compact('total_attendances','year','month','staff_id'));
+            }
         }
         else
         {

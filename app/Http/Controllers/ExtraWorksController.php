@@ -61,7 +61,7 @@ class ExtraWorksController extends Controller
         if ($approve == true){
             $duration = $extra_work->duration;
             $lieu = $extra_work->staff->lieu;
-            $lieu->remaining_time += $duration;
+            $lieu->total_time -= $duration;
             $lieu->save();
         }
         $extra_work->delete();
@@ -241,7 +241,13 @@ class ExtraWorksController extends Controller
             return redirect()->back()->withInput();
         }
 
+        // 重新计算总调休时间和总调休剩余
+        $extra_work->staff->lieu->remaining_time = $extra_work->staff->lieu->remaining_time-$extra_work->staff->lieu->total_time+$extra_work->duration;
+        $extra_work->staff->lieu->total_time = $extra_work->duration;
+
+
         if ($extra_work->save()) {
+            $extra_work->staff->lieu->save();
             session()->flash('success','更新成功！');
             return redirect('extra_works'); //应导向列表
         } else {

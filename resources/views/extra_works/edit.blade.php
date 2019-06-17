@@ -9,14 +9,14 @@
   {{ csrf_field() }}
 <table class="table table-bordered table-hover definewidth m10">
     <tr>
-        <td width="10%" class="tableleft">员工英文名*</td>
+        <td width="10%" class="tableleft">员工英文名</td>
         <td>
           <input type="text" value="{{ $staff->englishname }}" disabled>
         </td>
     </tr>
 
     <tr>
-        <td class="tableleft">加班类型*</td>
+        <td class="tableleft">加班类型</td>
          <td>
           <input type="text" value="{{ $extra_work->extra_work_type }}" disabled>
         </td>
@@ -43,7 +43,7 @@
         </td>
     </tr>
     <tr>
-        <td class="tableleft">备注</td>
+        <td class="tableleft">备注*</td>
         <td>
           @if ($extra_work->note!=null)
           <textarea name="note" id="" rows="5"> {{ $extra_work->note }} </textarea>
