@@ -73,7 +73,7 @@
     </tr>
     @endforeach
 </table>
-<p style="margin: 0px 20px; text-align: right;">总应工作时长：?? 小时</p> <!-- 要考虑和午休没有交集，有交集要减去1小时 -->
+<p style="margin: 0px 20px; text-align: right;">本周应工作时长：{{ $total_duration }} 小时</p> <!-- 要考虑和午休没有交集，有交集要减去1小时 -->
 
 <table class="table table-bordered table-hover definewidth m10">
   <h4 style="margin: 0px 20px;">工作经历</h4>

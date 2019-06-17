@@ -59,8 +59,13 @@ class StaffsController extends Controller
         $staff = Staff::find($id);
         $staff_id = $staff->id;
         $staffworkdays = Staffworkday::where('staff_id',$staff_id)->orderBy('id','asc')->get();
+        // 计算一周总工作时长
+        $total_duration = 0;
+        foreach ($staffworkdays as $workday) {
+            $total_duration += $workday->duration;
+        }
         $work_historys = $staff->workHistorys;
-        return view('staffs.show',compact('staff','staffworkdays','work_historys'));
+        return view('staffs.show',compact('staff','staffworkdays','work_historys','total_duration'));
     }
 
     public function create()
