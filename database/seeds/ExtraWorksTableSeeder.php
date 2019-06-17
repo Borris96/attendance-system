@@ -25,7 +25,7 @@ class ExtraWorksTableSeeder extends Seeder
         DB::table('extra_works')->insert([
             'staff_id'=>'2016031601',
             'extra_work_type'=>'带薪',
-            'extra_work_start_time'=>'2019-03-23 09:00:00',
+            'extra_work_start_time'=>'2019-03-13 09:00:00',
             'extra_work_end_time'=>'2019-03-13 18:00:00',
             'duration'=>'8.00',
             'approve'=>true,

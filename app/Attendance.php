@@ -30,24 +30,27 @@ class Attendance extends Model
 
     /**
      * 计算上班时长（小时）
-     * @param timestamp $work_time,
-     * @param timestamp $home_time
+     * @param timestamp $start_time,
+     * @param timestamp $end_time
      * @return double duration
      */
-    public function calDuration($work_time, $home_time)
+    public function calDuration($start_time, $end_time)
     {
-        if ($home_time>$work_time) {
-            if (date('H:i',$work_time)<='12:00')
+        if ($end_time>$start_time) {
+            if (date('H:i',$start_time)<'12:00')
             {
-                if (date('H:i',$home_time)<='13:00')
+                if (date('H:i',$end_time)<='13:00')
                 {
-                    return ($home_time-$work_time)/(60*60);
+                    return ($end_time-$start_time)/(60*60);
                 }
-                else {
-                    return ($home_time-$work_time)/(60*60)-1;
+                else
+                {
+                    return ($end_time-$start_time)/(60*60)-1;
                 }
-            } else {
-                return ($home_time-$work_time)/(60*60);
+            }
+            else
+            {
+                return ($end_time-$start_time)/(60*60);
             }
         }
         else {
