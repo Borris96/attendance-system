@@ -213,6 +213,7 @@ class StaffsController extends Controller
             else {
                 $staffworkday->is_work = false;
             }
+            $staffworkday->duration = $staffworkday->calDuration($work_times[$i],$home_times[$i]);
             $staffworkday->save();
             // dump($staffworkday);
         }
@@ -342,6 +343,7 @@ class StaffsController extends Controller
             else {
                 $origin_workdays[$i]->is_work = false;
             }
+            $origin_workdays[$i]->duration = $staffworkday->calDuration($work_times[$i],$home_times[$i]);
             $origin_workdays[$i]->save();
         }
         // 之前存在的 work history，更新

@@ -20,6 +20,7 @@ class CreateStaffworkdaysTable extends Migration
             $table->boolean('is_work');
             $table->time('work_time')->nullable();
             $table->time('home_time')->nullable();
+            $table->decimal('duration',5,2)->nullable();
             $table->timestamps();
         });
     }

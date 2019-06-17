@@ -95,15 +95,58 @@ class AbsencesController extends Controller
             return redirect()->back()->withInput();
         }
 
-        if (strtotime($absence->absence_start_time)>strtotime(date("Y-m-d", strtotime($absence->absence_start_time)).' 18:00') || strtotime($absence->absence_end_time)<strtotime(date("Y-m-d", strtotime($absence->absence_end_time)).' 9:00')){
-            session()->flash('danger','日期超出范围！');
+        $absence_start_time = strtotime($absence->absence_start_time);
+        $absence_end_time = strtotime($absence->absence_end_time);
+
+        // 开始查找该员工的工作日上下班数据
+        $weekarray=array("日","一","二","三","四","五","六");
+        $absence_start_day = $weekarray[date('w', $absence_start_time)]; // 请假开始那天是周几
+        $absence_end_day = $weekarray[date('w', $absence_end_time)]; // 请假结束那天是周几
+
+        ////// 判断请假的天数中是否有该员工的假期
+
+
+        $staff = Staff::find($absence->staff_id);
+        // 获取请假开始日下班时间
+        $workdays = $staff->staffworkdays->where('workday_name',$absence_start_day);
+        foreach ($workdays as $wd) { // 其实只有一个值
+            $first_day_home_time = $wd->home_time;
+            $first_day_work_time = $wd->work_time;
+        }
+
+        if (date('H:i:s',$absence_start_time)>$first_day_home_time)
+        {
+            session()->flash('danger','请假开始时间晚于下班时间！');
+            return redirect()->back()->withInput();
+        }
+
+        if (date('H:i:s',$absence_start_time)<$first_day_work_time)
+        {
+            session()->flash('danger','请假开始时间早于上班时间！');
+            return redirect()->back()->withInput();
+        }
+
+        // 获取请假结束日上班时间
+        $workdays = $staff->staffworkdays->where('workday_name',$absence_end_day);
+        foreach ($workdays as $wd) { // 其实只有一个值
+            $last_day_home_time = $wd->home_time;
+            $last_day_work_time = $wd->work_time;
+            $work_duration = $wd->duration;
+        }
+
+        if (date('H:i:s',$absence_end_time)<$last_day_work_time)
+        {
+            session()->flash('danger','请假结束时间早于上班时间！');
+            return redirect()->back()->withInput();
+        }
+
+        if (date('H:i:s',$absence_end_time)>$last_day_home_time)
+        {
+            session()->flash('danger','请假结束时间晚于下班时间！');
             return redirect()->back()->withInput();
         }
 
         // 判断新的请假时间是否与该员工原来的某段请假时间重叠，如不重叠才能创建成功。
-        $absence_start_time = strtotime($absence->absence_start_time);
-        $absence_end_time = strtotime($absence->absence_end_time);
-        $staff = Staff::find($absence->staff_id);
         $absences = $staff->absences;
         foreach ($absences as $ab) {
             $old_absence_start_time = strtotime($ab->absence_start_time);
@@ -117,11 +160,7 @@ class AbsencesController extends Controller
         $absence->approve = $request->get('approve');
         $absence->note = $request->get('note');
         // $absence->duration = 0.9;
-        $absence->duration = $absence->calDuration($absence->absence_start_time, $absence->absence_end_time);
-
-        // $now = $staff->absences()->value('duration'); //取在staffscontroller里duration的值，此处用不上。
-        // dump($staff);
-        // exit();
+        $absence->duration = $absence->calDuration($first_day_home_time, $last_day_work_time, $work_duration, $absence->absence_start_time, $absence->absence_end_time);
 
         // 只有年假，且被批准情况下计算剩余年假
         if ($absence->absence_type == "年假" && $absence->approve == true){
@@ -195,16 +234,56 @@ class AbsencesController extends Controller
             return redirect()->back()->withInput();
         }
 
-        if (strtotime($absence->absence_start_time)>strtotime(date("Y-m-d", strtotime($absence->absence_start_time)).' 18:00') || strtotime($absence->absence_end_time)<strtotime(date("Y-m-d", strtotime($absence->absence_end_time)).' 9:00')){
-        // 开始时间不能是18点以后，结束时间不能是9点以前
-            session()->flash('danger','日期超出范围！');
-            return redirect()->back()->withInput();
-        }
-
         // 判断新的请假时间是否与该员工原来的某段请假时间重叠，如不重叠才能更新成功。
         $absence_start_time = strtotime($absence->absence_start_time);
         $absence_end_time = strtotime($absence->absence_end_time);
+
+
+        // 开始查找该员工的工作日上下班数据
+        $weekarray=array("日","一","二","三","四","五","六");
+        $absence_start_day = $weekarray[date('w', $absence_start_time)]; // 请假开始那天是周几
+        $absence_end_day = $weekarray[date('w', $absence_end_time)]; // 请假结束那天是周几
+
         $staff = Staff::find($absence->staff_id);
+        // 获取请假开始日下班时间
+        $workdays = $staff->staffworkdays->where('workday_name',$absence_start_day);
+        foreach ($workdays as $wd) { // 其实只有一个值
+            $first_day_home_time = $wd->home_time;
+            $first_day_work_time = $wd->work_time;
+        }
+
+        if (date('H:i:s',$absence_start_time)>$first_day_home_time)
+        {
+            session()->flash('danger','请假开始时间晚于下班时间！');
+            return redirect()->back()->withInput();
+        }
+
+        if (date('H:i:s',$absence_start_time)<$first_day_work_time)
+        {
+            session()->flash('danger','请假开始时间早于上班时间！');
+            return redirect()->back()->withInput();
+        }
+
+        // 获取请假结束日上班时间
+        $workdays = $staff->staffworkdays->where('workday_name',$absence_end_day);
+        foreach ($workdays as $wd) { // 其实只有一个值
+            $last_day_home_time = $wd->home_time;
+            $last_day_work_time = $wd->work_time;
+            $work_duration = $wd->duration;
+        }
+
+        if (date('H:i:s',$absence_end_time)<$last_day_work_time)
+        {
+            session()->flash('danger','请假结束时间早于上班时间！');
+            return redirect()->back()->withInput();
+        }
+
+        if (date('H:i:s',$absence_end_time)>$last_day_home_time)
+        {
+            session()->flash('danger','请假结束时间晚于下班时间！');
+            return redirect()->back()->withInput();
+        }
+
         $absences = $staff->absences->whereNotIn('id',[$id]); // 除去本条记录
         foreach ($absences as $ab) {
             $old_absence_start_time = strtotime($ab->absence_start_time);
@@ -218,8 +297,8 @@ class AbsencesController extends Controller
 
         $absence->approve = $request->get('approve');
         $absence->note = $request->get('note');
-        // $absence->duration = 9;
-        $absence->duration = $absence->calDuration($absence->absence_start_time, $absence->absence_end_time);
+
+        $absence->duration = $absence->calDuration($first_day_home_time, $last_day_work_time, $work_duration, $absence->absence_start_time, $absence->absence_end_time);
 
         if ($absence->absence_type == "调休" && $absence->approve == false) {
             session()->flash('danger','调休需要批准！');

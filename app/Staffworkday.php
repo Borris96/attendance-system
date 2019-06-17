@@ -48,4 +48,28 @@ class Staffworkday extends Model
                 break;
         }
     }
+
+    public function calDuration($start_time, $end_time)
+    {
+        if ($end_time>$start_time) {
+            if (date('H:i',$start_time)<'12:00')
+            {
+                if (date('H:i',$end_time)<='13:00')
+                {
+                    return ($end_time-$start_time)/(60*60);
+                }
+                else
+                {
+                    return ($end_time-$start_time)/(60*60)-1;
+                }
+            }
+            else
+            {
+                return ($end_time-$start_time)/(60*60);
+            }
+        }
+        else {
+            return 0;
+        }
+    }
 }

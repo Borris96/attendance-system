@@ -16,7 +16,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018050701',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -26,7 +26,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018050701',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -35,7 +35,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018050701',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -45,7 +45,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018050701',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -55,7 +55,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018050701',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -86,7 +86,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2011110101',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -96,7 +96,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2011110101',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -106,7 +106,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2011110101',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -116,7 +116,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2011110101',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -126,7 +126,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2011110101',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -158,7 +158,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2016031601',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -168,7 +168,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2016031601',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -178,7 +178,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2016031601',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -188,7 +188,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2016031601',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -198,7 +198,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2016031601',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -230,7 +230,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070301',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -240,7 +240,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070301',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -250,7 +250,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070301',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -260,7 +260,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070301',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -270,7 +270,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070301',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -302,7 +302,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070101',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -312,7 +312,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070101',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -322,7 +322,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070101',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -332,7 +332,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070101',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -342,7 +342,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017070101',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -373,7 +373,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018070101',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -383,7 +383,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018070101',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -393,7 +393,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018070101',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -403,7 +403,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018070101',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -413,7 +413,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018070101',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -445,7 +445,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030101',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'6.00',
             'work_time'=>'09:00:00',
             'home_time'=>'16:00:00',
             'created_at'=>now(),
@@ -455,7 +455,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030101',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'6.00',
             'work_time'=>'09:00:00',
             'home_time'=>'16:00:00',
             'created_at'=>now(),
@@ -465,7 +465,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030101',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'6.00',
             'work_time'=>'09:00:00',
             'home_time'=>'16:00:00',
             'created_at'=>now(),
@@ -475,7 +475,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030101',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'6.00',
             'work_time'=>'09:00:00',
             'home_time'=>'16:00:00',
             'created_at'=>now(),
@@ -485,7 +485,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030101',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'6.00',
             'work_time'=>'09:00:00',
             'home_time'=>'16:00:00',
             'created_at'=>now(),
@@ -517,7 +517,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018060401',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -527,7 +527,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018060401',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -537,7 +537,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018060401',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -547,7 +547,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018060401',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -557,7 +557,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018060401',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -589,7 +589,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030102',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -599,7 +599,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030102',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -609,7 +609,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030102',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -619,7 +619,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030102',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -629,7 +629,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017030102',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -660,7 +660,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018090101',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -670,7 +670,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018090101',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -680,7 +680,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018090101',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -690,7 +690,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018090101',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -700,7 +700,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018090101',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -731,7 +731,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018112601',
             'workday_name'=>'一',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -741,7 +741,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018112601',
             'workday_name'=>'二',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -751,7 +751,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018112601',
             'workday_name'=>'三',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -761,7 +761,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018112601',
             'workday_name'=>'四',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),
@@ -771,7 +771,7 @@ class StaffworkdaysTableSeeder extends Seeder
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2018112601',
             'workday_name'=>'五',
-            'is_work'=>true,
+            'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
             'home_time'=>'18:00:00',
             'created_at'=>now(),

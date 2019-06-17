@@ -25,16 +25,12 @@ class Absence extends Model
      * @param datetime $absence_end_time
      * @return double duration
      */
-    public function calDuration($absence_start_time, $absence_end_time)
+    public function calDuration($first_day_home_time, $last_day_work_time, $work_duration, $absence_start_time, $absence_end_time)
     {
         $start_time = strtotime($absence_start_time); // Convert it to string
         $end_time = strtotime($absence_end_time); // Convert it to sring
         $start_date = date("Y-m-d", $start_time);
         $end_date = date("Y-m-d", $end_time);
-
-        $last_day_work_time = '09:00';
-        $first_day_home_time = '18:00';
-        $work_duration = 8;
 
         if ($end_time > $start_time)
         {
@@ -62,6 +58,7 @@ class Absence extends Model
                 $cstart = strtotime("+1 day",strtotime($start_date)); // 完整的一个假期第一天
                 $cend = strtotime("-1 day",strtotime($end_date)); // 完整的一个假期最后一天
                 $cabsence = ($cend - $cstart)/(60*60*24) + 1; // 完整的假期总天数
+                ////////// 如果每一天工作时长不一样，这里就会有问题了。
                 $cabsence_hours = $cabsence*$work_duration; // 完整的假期小时数
 
                 // 计算第一天小时数
