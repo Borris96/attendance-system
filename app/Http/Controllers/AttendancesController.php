@@ -326,28 +326,11 @@ class AttendancesController extends Controller
                                                 $first_day_home_time = $twd->work_time;
                                                 $last_day_work_time = $twd->home_time;
                                             }
-                                            // // 先测测看
-                                            // $first_day_home_time = '18:00';
-                                            // $last_day_work_time = '09:00';
-                                            // 存着起止两天的时长
-                                                // dump($first_day_home_time);
-                                                // dump($last_day_work_time);
-                                                // dump($staff->id);
-                                                // exit();
                                             $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array);
-
-                                            // dump($duration_array);
-                                            // dump($date_day);
-                                            // exit();
-                                            // 这是一天的情况：：：：：
                                             foreach ($date_day as $day => $date) {
                                                 // 找到这个日期的考勤
+                                                // 考勤表中年月日时分开的
                                                 $y_m_d = explode('-', $date);
-                                                // dump($y_m_d);
-
-                                                // dump($staff->id);
-                                                // exit();
-
                                                 $this_attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
                                                 // dump($this_attendance);
                                                 // exit();
@@ -358,6 +341,47 @@ class AttendancesController extends Controller
                                                     $at->save();
                                                 }
                                             }
+                                        }
+                                        elseif (count($date_day) >1) // 请假天数大于一天
+                                        {
+                                            // 先录入起止日的请假数据
+                                            $first_absence_day_name = $weekarray[date('w',strtotime($first_day))];
+                                            $first_absence_day = $staff->staffworkdays->where('workday_name',$first_absence_day_name);
+
+                                            $last_absence_day_name = $weekarray[date('w',strtotime($last_day))];
+                                            $last_absence_day = $staff->staffworkdays->where('workday_name',$last_absence_day_name);
+                                            foreach ($first_absence_day as $fad) {
+                                                $first_day_home_time = $fad->home_time;
+                                            }
+                                            foreach ($last_absence_day as $lad) {
+                                                $last_day_work_time = $lad->work_time;
+                                            }
+                                            $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array);
+                                            // 找到起止日的考勤
+                                            // 起
+                                            $f_y_m_d = explode('-', $first_day);
+                                            $first_absence_day_attendance = Attendance::where('staff_id',$staff->id)->where('year',$f_y_m_d[0])->where('month',$f_y_m_d[1])->where('date',$f_y_m_d[2])->get();
+                                            // dump($this_attendance);
+                                            // exit();
+                                            foreach ($first_absence_day_attendance as $at) {
+                                                $at->absence_id = $absence_id;
+                                                $at->absence_duration = $duration_array[0];
+                                                $at->absence_type = $absence_type;
+                                                $at->save();
+                                            }
+
+                                            // 止
+                                            $l_y_m_d = explode('-', $last_day);
+                                            $last_absence_day_attendance = Attendance::where('staff_id',$staff->id)->where('year',$l_y_m_d[0])->where('month',$l_y_m_d[1])->where('date',$l_y_m_d[2])->get();
+                                            // dump($this_attendance);
+                                            // exit();
+                                            foreach ($last_absence_day_attendance as $at) {
+                                                $at->absence_id = $absence_id;
+                                                $at->absence_duration = $duration_array[0];
+                                                $at->absence_type = $absence_type;
+                                                $at->save();
+                                            }
+
                                         }
                                     }
                                 }
