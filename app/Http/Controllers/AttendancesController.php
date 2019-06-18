@@ -327,7 +327,7 @@ class AttendancesController extends Controller
                                                 $last_day_work_time = $twd->home_time;
                                             }
                                             $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array);
-                                            foreach ($date_day as $day => $date) {
+                                            foreach ($date_day as $date) {
                                                 // 找到这个日期的考勤
                                                 // 考勤表中年月日时分开的
                                                 $y_m_d = explode('-', $date);
@@ -361,8 +361,7 @@ class AttendancesController extends Controller
                                             // 起
                                             $f_y_m_d = explode('-', $first_day);
                                             $first_absence_day_attendance = Attendance::where('staff_id',$staff->id)->where('year',$f_y_m_d[0])->where('month',$f_y_m_d[1])->where('date',$f_y_m_d[2])->get();
-                                            // dump($this_attendance);
-                                            // exit();
+
                                             foreach ($first_absence_day_attendance as $at) {
                                                 $at->absence_id = $absence_id;
                                                 $at->absence_duration = $duration_array[0];
@@ -373,23 +372,38 @@ class AttendancesController extends Controller
                                             // 止
                                             $l_y_m_d = explode('-', $last_day);
                                             $last_absence_day_attendance = Attendance::where('staff_id',$staff->id)->where('year',$l_y_m_d[0])->where('month',$l_y_m_d[1])->where('date',$l_y_m_d[2])->get();
-                                            // dump($this_attendance);
-                                            // exit();
+
                                             foreach ($last_absence_day_attendance as $at) {
                                                 $at->absence_id = $absence_id;
-                                                $at->absence_duration = $duration_array[0];
+                                                $at->absence_duration = $duration_array[1];
                                                 $at->absence_type = $absence_type;
                                                 $at->save();
                                             }
 
+                                            // 录入中间日期的请假时长
+                                            $count = count($date_day)-2; // 减去了起止日期
+                                            for ($j=1; $j<=$count; $j++)
+                                            {
+                                                $workday_name = $weekarray[date('w',strtotime($date_day[$j]))];
+                                                // 寻找这一天（星期）的该员工工作时长
+                                                $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                                                foreach ($this_workday as $twd) {
+                                                    $absence_duration = $twd->duration;
+                                                }
+                                                $y_m_d = explode('-', $date_day[$j]);
+                                                $this_attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
+                                                dump($this_attendance);
+                                                foreach ($this_attendance as $at) {
+                                                    $at->absence_id = $absence_id;
+                                                    $at->absence_duration = $absence_duration;
+                                                    $at->absence_type = $absence_type;
+                                                    $at->save();
+                                                }
+                                                // exit();
+                                            }
                                         }
                                     }
                                 }
-
-
-
-
-
                                 // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表
                                 $total_attendance = new TotalAttendance();
                                 $total_attendance->staff_id = $staff->id;

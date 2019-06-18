@@ -11,16 +11,16 @@ class AbsencesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('absences')->insert([
-            'staff_id'=>'2016031601',
-            'absence_type'=>'调休',
-            'absence_start_time'=>'2019-03-15 10:00:00',
-            'absence_end_time'=>'2019-03-15 17:00:00',
-            'duration'=>'6.00',
-            'approve'=>true,
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            ]);
+        // DB::table('absences')->insert([
+        //     'staff_id'=>'2016031601',
+        //     'absence_type'=>'调休',
+        //     'absence_start_time'=>'2019-03-15 10:00:00',
+        //     'absence_end_time'=>'2019-03-15 17:00:00',
+        //     'duration'=>'6.00',
+        //     'approve'=>true,
+        //     'created_at'=>now(),
+        //     'updated_at'=>now(),
+        //     ]);
 
         DB::table('absences')->insert([
             'staff_id'=>'2016031601',
@@ -36,9 +36,9 @@ class AbsencesTableSeeder extends Seeder
         DB::table('absences')->insert([
             'staff_id'=>'2016031601',
             'absence_type'=>'事假',
-            'absence_start_time'=>'2019-03-13 9:00:00',
-            'absence_end_time'=>'2019-03-14 18:00',
-            'duration'=>'16.00',
+            'absence_start_time'=>'2019-03-13 10:00:00',
+            'absence_end_time'=>'2019-03-15 17:00',
+            'duration'=>'22.00',
             'approve'=>true,
             'created_at'=>now(),
             'updated_at'=>now(),
