@@ -97,7 +97,11 @@
 
             <td>{{ $attendance->should_duration }}</td>
             <td>{{ $attendance->actual_duration }}</td>
+            @if ($attendance->abnormal == false)
             <td>否</td>
+            @else
+            <td>是</td>
+            @endif
             <td>
                 <a href="">编辑工时</a> | <!-- route('staffs.edit', $staff->id) -->
                 <a href="">编辑请假</a> |

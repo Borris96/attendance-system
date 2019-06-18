@@ -404,6 +404,43 @@ class AttendancesController extends Controller
                                         }
                                     }
                                 }
+
+                                // 计算每一条attendance是否异常
+                                $staff_attendances = $staff->attendances->where('year',$year)->where('month',$month);
+                                foreach ($staff_attendances as $s_a) {
+                                    // 只要四项有一项是空的，直接报异常 （因为实际上下班必须对应应该上下班）
+                                    if ($s_a->should_work_time == null || $s_a->should_home_time == null || $s_a->actual_work_time == null || $s_a->actual_home_time == null)
+                                    {
+                                        $s_a->abnormal = true;
+                                    }
+                                    else
+                                    {
+                                        if ($s_a->extraWork == null)
+                                        {
+                                            $extrawork_duration = 0;
+                                        }
+                                        else
+                                        {
+                                            $extrawork_duration = $s_a->extraWork->duration;
+                                        }
+                                        $cal_duration = $s_a->actual_duration-$extrawork_duration+$s_a->absence_duration; // 实际工时-加班+请假 >= (应该工时-5分钟)
+                                        if ($cal_duration>=($s_a->should_duration-5/60))
+                                        {
+                                            $s_a->abnormal = false;
+                                        }
+                                        else
+                                        {
+                                            $s_a->abnormal = true;
+                                        }
+                                    }
+                                    // 如果全空，说明是休息日，不报异常
+                                    if ($s_a->should_work_time == null && $s_a->should_home_time == null && $s_a->actual_work_time == null && $s_a->actual_home_time == null)
+                                    {
+                                        $s_a->abnormal = false;
+                                    }
+                                    $s_a->save();
+                                }
+
                                 // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表
                                 $total_attendance = new TotalAttendance();
                                 $total_attendance->staff_id = $staff->id;
@@ -472,6 +509,15 @@ class AttendancesController extends Controller
                                 $total_attendance->actual_attend = $actual_attend ;
                                 $total_attendance->total_extra_work_duration = $total_extra_work_duration;
                                 $total_attendance->total_absence_duration = $total_absence_duration;
+                                if ($abnormal == null)
+                                {
+                                    $total_attendance->abnormal = false;
+                                }
+                                else
+                                {
+                                    $total_attendance->abnormal = $abnormal;
+                                }
+
                                 $total_attendance->save();
 
                                 $total_attendance_id = $total_attendance->id;

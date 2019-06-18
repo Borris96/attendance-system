@@ -43,7 +43,11 @@
             <td>{{ $ta->total_absence_duration }}</td>
             <td>应:{{ $ta->should_attend }}天/实:{{ $ta->actual_attend }}天</td>
             <td>还没算</td>
-            <td>还没算</td>
+            @if ($ta->abnormal == false)
+            <td>否</td>
+            @else
+            <td>是</td>
+            @endif
             <td>还没算</td>
             <td>
                 <a href="{{ route('attendances.show',$ta->id) }}">查看</a> <!-- route('staffs.edit', $staff->id) -->
