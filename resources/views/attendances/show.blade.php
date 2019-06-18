@@ -55,12 +55,12 @@
             @if ($attendance->late_work>0)
             <td>{{ $attendance->late_work }}</td>
             @else
-            <td>0.00</td>
+            <td></td>
             @endif
             @if ($attendance->early_home>0)
             <td>{{ $attendance->early_home }}</td>
             @else
-            <td>0.00</td>
+            <td></td>
             @endif
             <td>还没算</td>
             @if ($attendance->extraWork != null)
@@ -73,7 +73,7 @@
               未批准
               @endif
             @else
-            <td>无</td>
+            <td></td>
             @endif
             </td>
             <td>{{ $attendance->should_duration }}</td>

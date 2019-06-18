@@ -14,6 +14,7 @@ class HolidaysTableSeeder extends Seeder
         DB::table('holidays')->insert([
             'date'=>'2019-03-03',
             'holiday_type'=>'上班',
+            'workday_name'=>'一',
             'note'=>'',
             'created_at'=>now(),
             'updated_at'=>now(),

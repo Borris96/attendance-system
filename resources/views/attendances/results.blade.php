@@ -37,7 +37,7 @@
             <td>{{ $ta->total_should_duration }}</td>
             <td>{{ $ta->total_actual_duration }}</td>
             <td>还没填</td>
-            <td>{{ $ta->total_extra_work_duration }}小时</td>
+            <td>{{ $ta->total_extra_work_duration }}</td>
             <td>{{ $ta->total_late_work }}分,{{ $ta->total_is_late }}次</td>
             <td>{{ $ta->total_early_home }}分,{{ $ta->total_is_early }}次</td>
             <td>还没算</td>

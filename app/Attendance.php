@@ -23,6 +23,11 @@ class Attendance extends Model
         return $this->belongsTo(ExtraWork::class);
     }
 
+    public function absence()
+    {
+        return $this->belongsTo(Absence::class);
+    }
+
     public function totalAttendance()
     {
         return $this->belongsTo(TotalAttendance::class);

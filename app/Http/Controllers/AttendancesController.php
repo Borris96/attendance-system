@@ -30,10 +30,6 @@ class AttendancesController extends Controller
 
     public function index(Request $request)
     {
-        // $this->_year = $year;
-        // dump($this->_year);
-        // $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(15);
-        // $staff_ids = array_unique(Attendance::where('year',$year)->where('month',$month)->pluck('staff_id')->toArray());
         if ($request->get('month') != null && $request->get('year') != null)
         {
             $year = $request->get('year');
@@ -119,7 +115,7 @@ class AttendancesController extends Controller
                     $year = $this_month[0];
                     $month = $this_month[1];
                     // 查询这个月的节假日调休，接下来使用这个集合进行遍历
-                    $holidays = Holiday::where('date','<=',$year.'-'.$month.'-31')->where('date','>=',$year.'-'.$month.'-01')->get();
+                    $get_holidays = Holiday::where('date','<=',$year.'-'.$month.'-31')->where('date','>=',$year.'-'.$month.'-01')->get();
                     for ($c = 1; $c < $highest_column_index; $c += 15)
                     {
                         $englishname = $worksheet->getCellByColumnAndRow($c+9,3)->getValue();
@@ -151,45 +147,101 @@ class AttendancesController extends Controller
                                     $attendance->day = $day;
                                     $ymd = $year.'-'.$month.'-'.$date;
                                     // 判断这一天是上班还是休息，录入该日期的类型
-                                    if (count($holidays) != 0)
+                                    if (count($get_holidays)!=0)
                                     {
-                                        // 如果节假日调休管理中有特殊的日子，那么优先以其为准
-                                        foreach ($holidays as $h) {
-                                            if ($ymd == $h->date){
-                                                $attendance->workday_type = $h->holiday_type;
+                                        $holidays = Holiday::where('date','<=',$year.'-'.$month.'-31')->where('date','>=',$year.'-'.$month.'-01');
+                                        // 如果在holidays找到了这个日子，这个日子以holidays里的那个为准
+                                        $find_holiday = $holidays->where('date', date('Y-m-d',strtotime($ymd)))->get();
 
-                                            //*********** 此处：员工应该上下班时间也需要赋值！！！
-                                            }
-                                            else {
-                                                // 否则寻找这一天是该员工休息日还是工作日
-                                                $this_workday = $staff->staffworkdays->where('workday_name',$day);
-                                                foreach ($this_workday as $twd) {
-                                                    $attendance->should_work_time = $twd->work_time;
-                                                    $attendance->should_home_time = $twd->home_time;
+                                        if (count($find_holiday)!=0)
+                                        {
+                                            foreach ($find_holiday as $h) {
+                                                $attendance->workday_type = $h->holiday_type;
+                                                $workday_name = $h->workday_name;
+                                                $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                                                // 如果节假日调休了，需要找到调上班那天应上下班时间
+                                                if ($attendance->workday_type == '上班')
+                                                {
+                                                    foreach ($this_workday as $twd) {
+                                                        $should_work_time = $twd->work_time;
+                                                        $should_home_time = $twd->home_time;
+                                                    }
                                                 }
-                                                if (count($this_workday->where('work_time',!null)) != 0) { // work_time非null，上班
-                                                    $attendance->workday_type = '上班';
+                                                if ($attendance->workday_type == '休息')
+                                                {
+                                                    $should_work_time = null;
+                                                    $should_home_time = null;
                                                 }
-                                                else {
-                                                    $attendance->workday_type = '休息';
-                                                }
+                                                // if ($r == 15)
+                                                // {
+                                                //     echo '第0处';
+                                                //     dump($attendance->date);
+                                                //     dump($should_work_time);
+                                                //     dump($should_home_time);
+                                                //     // dump($attendance->should_work_time);
+                                                //     // dump($attendance->should_home_time);
+                                                //     exit();
+                                                // }
                                             }
                                         }
-                                    }
-                                    else {
-                                            // 直接判断这一天是该员工休息日还是工作日
+                                        // 否则以员工的为准
+                                        else {
+                                            // 否则寻找这一天是该员工休息日还是工作日
                                             $this_workday = $staff->staffworkdays->where('workday_name',$day);
                                             foreach ($this_workday as $twd) {
-                                                $attendance->should_work_time = $twd->work_time;
-                                                $attendance->should_home_time = $twd->home_time;
+                                                $should_work_time = $twd->work_time;
+                                                $should_home_time = $twd->home_time;
                                             }
-                                            if (count($this_workday->where('work_time',!null)) != 0) { // work_time非null，上班
+                                            if (count($this_workday->where('work_time',!null)) != 0 && $attendance->workday_type == null) { // work_time非null，上班
                                                 $attendance->workday_type = '上班';
                                             }
-                                            else {
+                                            elseif ($attendance->workday_type == null) {
                                                 $attendance->workday_type = '休息';
                                             }
+                                        }
+                                        $attendance->should_work_time = $should_work_time;
+                                        $attendance->should_home_time = $should_home_time;
                                     }
+                                    // if ($r == 14)
+                                    // {
+                                    //     echo '第A处';
+                                    //     dump($attendance->date);
+                                    //     dump($should_work_time);
+                                    //     dump($should_home_time);
+                                    //     // dump($attendance->should_work_time);
+                                    //     // dump($attendance->should_home_time);
+                                    //     // exit();
+                                    // }
+                                    else
+                                    {
+                                        // 直接判断这一天是该员工休息日还是工作日
+                                        $this_workday = $staff->staffworkdays->where('workday_name',$day);
+                                        foreach ($this_workday as $twd) {
+                                            $should_work_time = $twd->work_time;
+                                            $should_home_time = $twd->home_time;
+                                        }
+                                        if (count($this_workday->where('work_time',!null)) != 0) { // work_time非null，上班
+                                            $attendance->workday_type = '上班';
+                                        }
+                                        else {
+                                            $attendance->workday_type = '休息';
+                                        }
+                                        $attendance->should_work_time = $should_work_time;
+                                        $attendance->should_home_time = $should_home_time;
+                                    }
+                                    // if ($r == 15)
+                                    // {
+                                    //     echo '第B处';
+                                    //     dump($attendance->date);
+                                    //     dump($should_work_time);
+                                    //     dump($should_home_time);
+                                    //     // dump($attendance->should_work_time);
+                                    //     // dump($attendance->should_home_time);
+                                    //     exit();
+                                    // }
+
+                                    // $attendance->should_work_time = $should_work_time;
+                                    // $attendance->should_home_time = $should_home_time;
                                     // 录入实际上下班时间
                                     // 默认工作日休息日读取的列不同
                                     if ($day == '日' || $day == '六') {
@@ -224,7 +276,7 @@ class AttendancesController extends Controller
                                         $attendance->late_work = ($awt-$swt)/60; // 转换成分钟
                                         if (($awt-$swt)>0){ // 迟到是实际上班晚于应该上班
                                             // 后续还需要考虑到是否请假！！！！！
-                                            if ($attendance->late_work > 5) //迟到5分钟以上算迟到
+                                            if ($attendance->late_work > 5 && $attendance->actual_duration<$attendance->should_duration) //迟到5分钟以上，并且没有补上工时算迟到
                                             {
                                                 $attendance->is_late = true;
                                             }
@@ -243,7 +295,7 @@ class AttendancesController extends Controller
                                         $attendance->early_home = ($sht-$aht)/60;
                                         if (($sht-$aht)>0){ // 早退是实际下班早于应该下班
                                             // 后续还需要考虑到是否请假！！！！！
-                                            if ($attendance->early_home > 5) // 早退5分钟以上算早退
+                                            if ($attendance->early_home > 5 && $attendance->actual_duration<$attendance->should_duration) // 早退5分钟以上算早退
                                             {
                                                 $attendance->is_early = true;
                                             }
@@ -266,7 +318,23 @@ class AttendancesController extends Controller
                                     // 无论有没有批准都记录进去。
                                     $extra_work_id = ExtraWork::where('staff_id',$staff->id)->where('extra_work_start_time','>=',$look_for_start_time)->where('extra_work_end_time','<=',$look_for_end_time)->value('id');
                                     $attendance->extra_work_id = $extra_work_id;
+                                    // if ($r == 14)
+                                    // {
+                                    //     echo '第五处';
+                                    //     dump($attendance->date);
+                                    //     dump($attendance->workday_type);
+                                    //     dump($attendance->should_work_time);
+                                    //     dump($attendance->should_home_time);
+                                    //     // exit();
+                                    // }
                                     $attendance->save();
+                                    // if ($r == 14)
+                                    // {
+                                    //     echo '第六处';
+                                    //     dump($attendance->date);
+                                    //     dump($attendance->should_home_time);
+                                    //     // exit();
+                                    // }
                                 }
 
                                 // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表

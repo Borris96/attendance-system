@@ -10,6 +10,7 @@
     <tr>
         <th>日期</th>
         <th>类型</th>
+        <th>调上班</th>
         <th>备注</th>
         <th>操作</th>
     </tr>
@@ -18,7 +19,8 @@
        <tr>
             <td>{{ $h->date }}</td>
             <td>{{ $h->holiday_type }}</td>
-            <td> {{ $h->note }}</td>
+            <td>{{ $h->workday_name }}</td>
+            <td>{{ $h->note }}</td>
             <td>
                 <a href="{{route('holidays.edit',$h->id)}}" class="btn btn-primary">编辑</a>
                 <form action="{{ route('holidays.destroy', $h->id) }}" method="POST" style="display: inline-block;">

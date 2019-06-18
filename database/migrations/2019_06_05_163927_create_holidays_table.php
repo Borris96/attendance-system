@@ -17,6 +17,7 @@ class CreateHolidaysTable extends Migration
             $table->increments('id');
             $table->date('date');
             $table->string('holiday_type')->nullable();
+            $table->string('workday_name')->nullable(); // 调为周几的班
             $table->text('note',140)->nullable();
             $table->timestamps();
         });

@@ -28,12 +28,14 @@ class HolidaysController extends Controller
 
     public function create()
     {
-        return view('holidays/create');
+        $workdays = ['日','一','二','三','四','五','六'];
+        return view('holidays/create',compact('workdays'));
     }
 
     public function edit($id){
         $holiday = Holiday::find($id);
-        return view('holidays.edit',compact('holiday'));
+        $workdays = ['日','一','二','三','四','五','六'];
+        return view('holidays.edit',compact('holiday','workdays'));
     }
 
 
@@ -48,6 +50,16 @@ class HolidaysController extends Controller
         $holiday = new Holiday();
         $holiday->date = $request->date;
         $holiday->holiday_type = $request->holiday_type;
+
+        if ($holiday->holiday_type == '上班')
+        {
+            $holiday->workday_name = $request->workday;
+            if ($holiday->workday_name == null)
+            {
+                session()->flash('warning','请填写调上周几的班！');
+                return redirect()->back()->withInput();
+            }
+        }
         $holiday->note = $request->note;
 
         //日期重复检测 -> 已经被表单验证代替了
@@ -84,6 +96,16 @@ class HolidaysController extends Controller
         $holiday->date = $request->date;
         $holiday->holiday_type = $request->holiday_type;
         $holiday->note = $request->note;
+
+        if ($holiday->holiday_type == '上班')
+        {
+            $holiday->workday_name = $request->workday;
+            if ($holiday->workday_name == null)
+            {
+                session()->flash('warning','请填写调上周几的班！');
+                return redirect()->back()->withInput();
+            }
+        }
 
         //日期重复检测 ->已经用表单验证代替了
         // $current_date = strtotime($holiday->date);

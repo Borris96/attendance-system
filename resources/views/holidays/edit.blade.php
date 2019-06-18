@@ -27,6 +27,17 @@
         </td>
     </tr>
     <tr>
+        <td class="tableleft">调上周几的班<br>(调休类型为上班时必填)</td>
+          <td>
+            <select name="workday">
+              <option value=""> -----请选择----- </option>
+              @foreach($workdays as $key => $workday)
+              <option value='{{ $key }}' @if($workday == $holiday->workday_name) selected @endif>周{{ $workday }}</option>
+              @endforeach
+            </select>
+          </td>
+    </tr>
+    <tr>
         <td class="tableleft">备注*</td>
         <td>
           <textarea name="note" id="" rows="5" placeholder="请备注节假日名称">{{ $holiday->note }}</textarea>
