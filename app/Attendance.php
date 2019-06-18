@@ -15,17 +15,12 @@ class Attendance extends Model
 
     public function absence()
     {
-        return $this->hasOne(Absence::class);
+        return $this->belongsTo(Absence::class);
     }
 
     public function extraWork()
     {
         return $this->belongsTo(ExtraWork::class);
-    }
-
-    public function absence()
-    {
-        return $this->belongsTo(Absence::class);
     }
 
     public function totalAttendance()
@@ -61,5 +56,27 @@ class Attendance extends Model
         else {
             return 0;
         }
+    }
+
+    /**
+     * 拆分请假天
+     * @param datetime $absence_start_time
+     * @param datetime $absence_end_time
+     * @param array $date_day
+     * @return array $date_day
+     */
+    public static function separateAbsence($absence_start_time, $absence_end_time, $date_day)
+    {
+        $absence_start_date = date('Y-m-d',strtotime($absence_start_time));
+        $absence_end_date = date('Y-m-d',strtotime($absence_end_time));
+        $ts_absence_start_date = strtotime($absence_start_date);
+        $ts_absence_end_date = strtotime($absence_end_date);
+        // 总天数
+        $count = ($ts_absence_end_date - $ts_absence_start_date)/(24*3600)+1;
+        for ($i=0; $i<$count; $i++)
+        {
+            $date_day[] = date('Y-m-d', $ts_absence_start_date+3600*24*$i);
+        }
+        return $date_day;
     }
 }

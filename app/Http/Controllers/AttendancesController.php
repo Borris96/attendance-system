@@ -75,10 +75,10 @@ class AttendancesController extends Controller
      */
     public function import(Request $request)
     {
-         $this->validate($request, [
-          'select_file'  => 'required|mimes:xls,xlsx'
-         ]);
-
+        $this->validate($request, [
+            'select_file'  => 'required|mimes:xls,xlsx'
+        ]);
+        $weekarray=array("日","一","二","三","四","五","六");
         if ($request->isMethod('POST')){
             $file = $request->file('select_file');
             // 判断文件是否上传成功
@@ -121,8 +121,6 @@ class AttendancesController extends Controller
                         $englishname = $worksheet->getCellByColumnAndRow($c+9,3)->getValue();
                         $staff = Staff::where('status',true)->where('englishname',$englishname);
                         $staff_id = $staff->value('id');
-                        // $staff_id = $worksheet->getCellByColumnAndRow($c+9,4)->getValue();
-                        // dump($englishname);
                         // 如果这个人存在于在职员工数据库中，那么我才读取他的数据。这样可以避免读取没有必要的数据。
                         if (count($staff->get()) != 0)
                         {
@@ -202,16 +200,6 @@ class AttendancesController extends Controller
                                         $attendance->should_work_time = $should_work_time;
                                         $attendance->should_home_time = $should_home_time;
                                     }
-                                    // if ($r == 14)
-                                    // {
-                                    //     echo '第A处';
-                                    //     dump($attendance->date);
-                                    //     dump($should_work_time);
-                                    //     dump($should_home_time);
-                                    //     // dump($attendance->should_work_time);
-                                    //     // dump($attendance->should_home_time);
-                                    //     // exit();
-                                    // }
                                     else
                                     {
                                         // 直接判断这一天是该员工休息日还是工作日
@@ -229,19 +217,7 @@ class AttendancesController extends Controller
                                         $attendance->should_work_time = $should_work_time;
                                         $attendance->should_home_time = $should_home_time;
                                     }
-                                    // if ($r == 15)
-                                    // {
-                                    //     echo '第B处';
-                                    //     dump($attendance->date);
-                                    //     dump($should_work_time);
-                                    //     dump($should_home_time);
-                                    //     // dump($attendance->should_work_time);
-                                    //     // dump($attendance->should_home_time);
-                                    //     exit();
-                                    // }
 
-                                    // $attendance->should_work_time = $should_work_time;
-                                    // $attendance->should_home_time = $should_home_time;
                                     // 录入实际上下班时间
                                     // 默认工作日休息日读取的列不同
                                     if ($day == '日' || $day == '六') {
@@ -318,24 +294,77 @@ class AttendancesController extends Controller
                                     // 无论有没有批准都记录进去。
                                     $extra_work_id = ExtraWork::where('staff_id',$staff->id)->where('extra_work_start_time','>=',$look_for_start_time)->where('extra_work_end_time','<=',$look_for_end_time)->value('id');
                                     $attendance->extra_work_id = $extra_work_id;
-                                    // if ($r == 14)
-                                    // {
-                                    //     echo '第五处';
-                                    //     dump($attendance->date);
-                                    //     dump($attendance->workday_type);
-                                    //     dump($attendance->should_work_time);
-                                    //     dump($attendance->should_home_time);
-                                    //     // exit();
-                                    // }
                                     $attendance->save();
-                                    // if ($r == 14)
-                                    // {
-                                    //     echo '第六处';
-                                    //     dump($attendance->date);
-                                    //     dump($attendance->should_home_time);
-                                    //     // exit();
-                                    // }
                                 }
+
+                                // 录入请假记录分割多天的请假记录到每一天，以便计算每天请假的小时数
+                                // 取出这个月的该员工所有请假 （如果涉及跨月还查不到，需要修改）
+                                $absences = Absence::where('staff_id',$staff->id)->where('absence_start_time','>=',$year.'-'.$month.'-01 0:00:00')->where('absence_end_time','<=',$year.'-'.$month.'-31 24:00:00')->get();
+                                if (count($absences) != 0)
+                                {
+                                    foreach ($absences as $absence) {
+                                        // 分别对每一段请假记录进行拆分
+                                        $date_day = [];
+                                        // 存起止日的工作时长
+                                        $duration_array = [];
+                                        // 以下都是赋值给一条请假的
+                                        $absence_id = $absence->id;
+                                        $absence_type = $absence->absence_type;
+                                        $absence_start_time = $absence->absence_start_time;
+                                        $absence_end_time = $absence->absence_end_time;
+                                        // 第一天到最后一天，日期及星期返回至数组(key为星期,value为日期)
+                                        $date_day = Attendance::separateAbsence($absence_start_time, $absence_end_time, $date_day);
+
+                                        $last_day = end($date_day);
+                                        $first_day = reset($date_day);
+
+                                        if (count($date_day) == 1) // 只请了一天的假
+                                        {
+                                            $workday_name = $weekarray[date('w',strtotime($date_day[0]))];
+                                            $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                                            foreach ($this_workday as $twd) {
+                                                $first_day_home_time = $twd->work_time;
+                                                $last_day_work_time = $twd->home_time;
+                                            }
+                                            // // 先测测看
+                                            // $first_day_home_time = '18:00';
+                                            // $last_day_work_time = '09:00';
+                                            // 存着起止两天的时长
+                                                // dump($first_day_home_time);
+                                                // dump($last_day_work_time);
+                                                // dump($staff->id);
+                                                // exit();
+                                            $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array);
+
+                                            // dump($duration_array);
+                                            // dump($date_day);
+                                            // exit();
+                                            // 这是一天的情况：：：：：
+                                            foreach ($date_day as $day => $date) {
+                                                // 找到这个日期的考勤
+                                                $y_m_d = explode('-', $date);
+                                                // dump($y_m_d);
+
+                                                // dump($staff->id);
+                                                // exit();
+
+                                                $this_attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
+                                                // dump($this_attendance);
+                                                // exit();
+                                                foreach ($this_attendance as $at) {
+                                                    $at->absence_id = $absence_id;
+                                                    $at->absence_duration = $duration_array[0];
+                                                    $at->absence_type = $absence_type;
+                                                    $at->save();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+
+
+
 
                                 // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表
                                 $total_attendance = new TotalAttendance();
@@ -425,12 +454,4 @@ class AttendancesController extends Controller
         return redirect()->back();
     }
 
-    // public function results(Request $request)
-    // {
-    //     if ($request->get('month') != null)
-    //     {
-
-    //         return view('attendances.results');
-    //     }
-    // }
 }

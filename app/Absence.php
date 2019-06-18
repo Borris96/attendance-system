@@ -21,6 +21,9 @@ class Absence extends Model
      * 完整天数乘以工时（8小时）;
      * 开始的那一天用下班时间减开始，结束的那一天用结束减上班时间，根据情况判定是否减午饭时间
      *
+     * @param time $first_day_home_time
+     * @param time $last_day_work_time
+     * @param double $work_duration
      * @param datetime $absence_start_time
      * @param datetime $absence_end_time
      * @return double duration
@@ -102,6 +105,100 @@ class Absence extends Model
             return 0;
         }
         return $duration;
+    }
+
+
+    /**
+     *
+     * 将一段请假时间每天时长作为数组返回
+     *
+     * @param time $first_day_home_time
+     * @param time $last_day_work_time
+     * @param datetime $absence_start_time
+     * @param datetime $absence_end_time
+     * @param array $duration_array
+     * @return array $duration_array 若有多天，第一个元素为第一天时长，第二个元素为最后一天时长，完整天的时长等于当日工时
+     */
+    public function separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array)
+    {
+        $start_time = strtotime($absence_start_time);
+        $end_time = strtotime($absence_end_time);
+        $start_date = date("Y-m-d", $start_time);
+        $end_date = date("Y-m-d", $end_time);
+
+        if ($end_time > $start_time)
+        {
+            if ($start_date == $end_date) // 请假起止在同一天
+            {
+                if (date('H:i',$start_time)<'12:00')
+                {
+                    if (date('H:i',$end_time)<='13:00')
+                    {
+                        $duration =  ($end_time-$start_time)/(60*60);
+                    }
+                    else {
+                        $duration = ($end_time-$start_time)/(60*60)-1;
+                    }
+                }
+                else
+                {
+                    $duration = ($end_time-$start_time)/(60*60);
+                }
+                // 数组里只存一个时长
+                $duration_array[] = $duration;
+                // echo '这是一';
+                // dump($duration_array);
+            }
+            else // 请假起止不在同一天
+            {
+                $cstart = strtotime("+1 day",strtotime($start_date)); // 完整的一个假期第一天
+                $cend = strtotime("-1 day",strtotime($end_date)); // 完整的一个假期最后一天
+
+                // 计算第一天小时数
+                if (date('H:i',$start_time)<'12:00')
+                {
+                    if ($first_day_home_time<='13:00')
+                    {
+                        $crest_start = (strtotime($start_date.' '.$first_day_home_time)-$start_time)/(60*60);
+                    }
+                    else {
+                        $crest_start = (strtotime($start_date.' '.$first_day_home_time)-$start_time)/(60*60)-1;
+                    }
+                }
+                else
+                {
+                    $crest_start = (strtotime($start_date.' '.$first_day_home_time)-$start_time)/(60*60);
+                }
+
+                $duration_array[] = $crest_start;
+                // echo '这是二';
+                // dump($duration_array);
+                // 计算最后一天小时数
+                if ($last_day_work_time<'12:00')
+                {
+                    if (date('H:i',$end_time)<='13:00')
+                    {
+                        $crest_end = ($end_time-strtotime($end_date.' '.$last_day_work_time))/(60*60);
+                    }
+                    else {
+                        $crest_end = ($end_time-strtotime($end_date.' '.$last_day_work_time))/(60*60)-1;
+                    }
+                }
+                else
+                {
+                    $crest_end = ($end_time-strtotime($end_date.' '.$last_day_work_time))/(60*60);
+                }
+
+                $duration_array[] = $crest_end;
+                // echo '这是三';
+                // dump($duration_array);
+            }
+        }
+        else
+        {
+            return false;
+        }
+        return $duration_array;
     }
 
     /**
