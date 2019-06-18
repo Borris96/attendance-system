@@ -62,20 +62,39 @@
             @else
             <td></td>
             @endif
-            <td>还没算</td>
+
+            @if ($attendance->absence_id != null)
+            <td>
+              {{ $attendance->absence_type }},
+              @if ($attendance->absence->approve)
+              批准
+              @else
+              未批准
+              @endif
+              <br>
+              {{ date("Y-m-d H:i", strtotime($attendance->absence->absence_start_time)) }}~{{ date("Y-m-d H:i", strtotime($attendance->absence->absence_end_time)) }}
+              <br>
+              当日时长:{{ $attendance->absence_duration }}
+            </td>
+            @else
+            <td></td>
+            @endif
+
             @if ($attendance->extraWork != null)
-            <td>{{ $attendance->extraWork->extra_work_type }},
-              {{ date("H:i", strtotime($attendance->extraWork->extra_work_start_time)) }}-
-              {{ date("H:i", strtotime($attendance->extraWork->extra_work_end_time)) }},
+            <td>
+              {{ $attendance->extraWork->extra_work_type }},
               @if ($attendance->extraWork->approve)
               批准
               @else
               未批准
               @endif
+              <br>
+              {{ date("H:i", strtotime($attendance->extraWork->extra_work_start_time)) }}~{{ date("H:i", strtotime($attendance->extraWork->extra_work_end_time)) }}
+            </td>
             @else
             <td></td>
             @endif
-            </td>
+
             <td>{{ $attendance->should_duration }}</td>
             <td>{{ $attendance->actual_duration }}</td>
             <td>否</td>

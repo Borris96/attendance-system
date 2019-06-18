@@ -419,6 +419,7 @@ class AttendancesController extends Controller
                                 $should_attend = 0;
                                 $actual_attend = 0;
                                 $total_extra_work_duration = 0;
+                                $total_absence_duration = 0;
 
                                 foreach ($attendances as $at)
                                 {
@@ -455,6 +456,11 @@ class AttendancesController extends Controller
                                     {
                                         $total_extra_work_duration += $at->extraWork->duration;
                                     }
+
+                                    if ($at->absence_id != null)
+                                    {
+                                        $total_absence_duration += $at->absence_duration;
+                                    }
                                 }
                                 $total_attendance->total_should_duration = $total_should_duration ;
                                 $total_attendance->total_actual_duration = $total_actual_duration;
@@ -465,7 +471,7 @@ class AttendancesController extends Controller
                                 $total_attendance->should_attend = $should_attend ;
                                 $total_attendance->actual_attend = $actual_attend ;
                                 $total_attendance->total_extra_work_duration = $total_extra_work_duration;
-
+                                $total_attendance->total_absence_duration = $total_absence_duration;
                                 $total_attendance->save();
 
                                 $total_attendance_id = $total_attendance->id;
