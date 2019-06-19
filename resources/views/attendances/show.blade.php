@@ -100,7 +100,7 @@
             @if ($attendance->abnormal == false)
             <td>否</td>
             @else
-            <td>是</td>
+            <td style="color: red;">是</td>
             @endif
             <td>
                 <form action="{{ route('attendances.changeAbnormal', $attendance->id) }}" method="POST" style="display: inline-block;">
@@ -112,9 +112,7 @@
                   <button type="submit" class="btn btn-success" type="button">补打卡</button>
                 </form>
                 <form action="" method="POST" style="display: inline-block;">
-                  {{ method_field('PATCH') }}
-                  {{ csrf_field() }}
-                  <button type="submit" class="btn btn-info" type="button">增加工时</button>
+                  <button type="submit" class="btn btn-info" type="button">增补工时</button>
                 </form>
             </td>
         </tr>
@@ -144,6 +142,7 @@
 
 <div style="margin: 20px">
   <input class="btn btn-success" type="button" name="Submit" onclick="javascript:history.back(-1);" value="返回上一页">
+  <a class="btn btn-success" href="{{ route('attendances.results') }}" role="button">返回查询界面</a>
 </div>
 
 <script>

@@ -46,7 +46,7 @@
             @if ($ta->abnormal == false)
             <td>否</td>
             @else
-            <td>是</td>
+            <td style="color: red;">是</td>
             @endif
             <td>还没算</td>
             <td>

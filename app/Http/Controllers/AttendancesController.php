@@ -181,8 +181,127 @@ class AttendancesController extends Controller
                 $attendance->is_early = false;
             }
 
+            // 计算这一条attendance是否异常
+            // 只要四项有一项是空的，直接报异常 （因为实际上下班必须对应应该上下班）
+            if ($attendance->should_work_time == null || $attendance->should_home_time == null || $attendance->actual_work_time == null || $attendance->actual_home_time == null)
+            {
+                $attendance->abnormal = true;
+            }
+            else
+            {
+                if ($attendance->extraWork == null)
+                {
+                    $extrawork_duration = 0;
+                }
+                else
+                {
+                    $extrawork_duration = $attendance->extraWork->duration;
+                }
+                $cal_duration = $attendance->actual_duration-$extrawork_duration+$attendance->absence_duration; // 实际工时-加班+请假 >= (应该工时-5分钟)
+                if ($cal_duration>=($attendance->should_duration-5/60))
+                {
+                    $attendance->abnormal = false;
+                }
+                else
+                {
+                    $attendance->abnormal = true;
+                }
+            }
+            // 如果全空，说明是休息日，不报异常
+            if ($attendance->should_work_time == null && $attendance->should_home_time == null && $attendance->actual_work_time == null && $attendance->actual_home_time == null)
+            {
+                $attendance->abnormal = false;
+            }
+
             if ($attendance->save())
             {
+                // 这条记录保存之后，判断该月记录是否仍然异常
+                $this_month_attendances = $attendance->totalAttendance->attendances;
+                // 查一下还有没有异常
+                $this_month_abnormal = $this_month_attendances->where('abnormal',true);
+                if (count($this_month_abnormal) == 0)
+                {
+                    // 如果没有异常返回 false
+                    $attendance->totalAttendance->abnormal = false;
+                }
+                else
+                {
+                    $attendance->totalAttendance->abnormal = true;
+                }
+
+                $total_should_duration = 0;
+                $total_actual_duration = 0;
+                $total_is_late = 0;
+                $total_is_early = 0;
+                $total_late_work = 0;
+                $total_early_home = 0;
+                $should_attend = 0;
+                $actual_attend = 0;
+                $total_extra_work_duration = 0;
+                $total_absence_duration = 0;
+                // $total_abnormal = false;
+                foreach ($this_month_attendances as $at) {
+                    if ($at->should_duration != null)
+                    {
+                        $total_should_duration += $at->should_duration;
+                        $should_attend += 1;
+                    }
+
+                    if ($at->actual_duration != null)
+                    {
+                        $total_actual_duration += $at->actual_duration;
+                        $actual_attend += 1;
+                    }
+
+                    $total_is_late += $at->is_late;
+                    $total_is_early += $at->is_early;
+                    if ($at->late_work>0)
+                    {
+                        $total_late_work += $at->late_work;
+                    }
+
+                    if ($at->early_home>0)
+                    {
+                        $total_early_home += $at->early_home;
+                    }
+
+                    if ($at->extra_work_id != null)
+                    {
+                        $total_extra_work_duration += $at->extraWork->duration;
+                    }
+
+                    if ($at->absence_id != null)
+                    {
+                        $total_absence_duration += $at->absence_duration;
+                    }
+                }
+
+                $total_abnormal = $this_month_attendances->where('abnormal',true);
+                if (count($total_abnormal) == 0)
+                {
+                    // 没有异常记录即不异常
+                    $total_attendance->abnormal = false;
+                }
+                else
+                {
+                    $total_attendance->abnormal = true;
+                }
+                $attendance->totalAttendance->total_should_duration = $total_should_duration;
+                $attendance->totalAttendance->total_actual_duration = $total_actual_duration;
+                $attendance->totalAttendance->total_is_late = $total_is_late;
+                $attendance->totalAttendance->total_is_early = $total_is_early;
+                $attendance->totalAttendance->total_late_work = $total_late_work;
+                $attendance->totalAttendance->total_early_home = $total_early_home;
+                $attendance->totalAttendance->should_attend = $should_attend;
+                $attendance->totalAttendance->actual_attend = $actual_attend;
+                $attendance->totalAttendance->total_extra_work_duration = $total_extra_work_duration;
+                $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
+                $attendance->totalAttendance->total_basic_duration = $total_actual_duration - $total_extra_work_duration;
+                $attendance->totalAttendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
+
+                $total_attendance->save();
+
+                $attendance->totalAttendance->save();
                 session()->flash('success','补打卡成功！');
                 return redirect()->route('attendances.show',$total_attendance->id);
             }
@@ -513,7 +632,7 @@ class AttendancesController extends Controller
                                                 }
                                                 $y_m_d = explode('-', $date_day[$j]);
                                                 $this_attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
-                                                dump($this_attendance);
+                                                // dump($this_attendance);
                                                 foreach ($this_attendance as $at) {
                                                     $at->absence_id = $absence_id;
                                                     $at->absence_duration = $absence_duration;
@@ -554,6 +673,31 @@ class AttendancesController extends Controller
                                             $s_a->abnormal = true;
                                         }
                                     }
+
+                                    // 再处理两种情况
+                                    // 第一种：应上下班有时间，而实上下班没打卡。如果请了假，看请假时长和应时长能不能对上
+                                    if ($s_a->should_work_time != null && $s_a->should_home_time != null && $s_a->actual_work_time == null && $s_a->actual_home_time == null)
+                                    {
+                                        if ($s_a->absence_id != null)
+                                        {
+                                            if ($s_a->absence_duration >= ($s_a->should_duration-5/60))
+                                            {
+                                                $s_a->abnormal = false;
+                                            }
+                                        }
+                                    }
+                                    // 第二种：应上下班没有时间，而实上下班打卡了。如果有加班记录，看应加班时长是否与实际打卡时长对上。
+                                    if ($s_a->should_work_time == null && $s_a->should_home_time == null && $s_a->actual_work_time != null && $s_a->actual_home_time != null)
+                                    {
+                                        if ($s_a->extra_work_id != null)
+                                        {
+                                            if ($s_a->actual_duration >= ($s_a->extraWork->duration-5/60))
+                                            {
+                                                $s_a->abnormal = false;
+                                            }
+                                        }
+                                    }
+
                                     // 如果全空，说明是休息日，不报异常
                                     if ($s_a->should_work_time == null && $s_a->should_home_time == null && $s_a->actual_work_time == null && $s_a->actual_home_time == null)
                                     {
