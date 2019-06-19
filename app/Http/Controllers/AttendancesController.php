@@ -110,6 +110,8 @@ class AttendancesController extends Controller
         return view('attendances.add_time',compact('attendance','total_attendance'));
     }
 
+    // 增补时间：一般是因为实际总时间少了，原来的实际总时间加上增补的时间如果大于等于应该的时间，那么就不异常了。（前提是存在应该的时间）
+    // 如果没有应该时间或者实际时间，可以添加异常处理吗？目前的解决方案是可以，但是没有应该时间不会计算。
     public function createAddTime(Request $request, $id)
     {
         $this->validate($request, [
@@ -130,10 +132,6 @@ class AttendancesController extends Controller
         $str_add_start_time = strtotime($y_m_d.' '.$add_start_time);
         $str_add_end_time = strtotime($y_m_d.' '.$add_end_time);
 
-        // dump($y_m_d.' '.$add_start_time);
-        // dump($str_add_start_time);
-        // dump($y_m_d.' '.$add_end_time);
-        // dump($str_add_end_time);
         // 检测时间填写是否正确
         if ($add_start_time == null || $add_end_time == null)
         {
@@ -153,12 +151,6 @@ class AttendancesController extends Controller
 
             $actual_home_time = strtotime($y_m_d.' '.$attendance->actual_home_time);
             // 不能和上班时间重合
-            // dump($attendance->actual_work_time);
-            // dump($actual_work_time);
-            // dump($attendance->actual_home_time);
-            // dump($actual_home_time);
-            // dump($add_time->isCrossing($str_add_start_time, $str_add_end_time, $actual_work_time, $actual_home_time));
-            // // exit();
             if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $actual_work_time, $actual_home_time))
             {
                 session()->flash('warning','时间与上班时间重叠！');
@@ -196,7 +188,7 @@ class AttendancesController extends Controller
         $add_time->add_end_time = $add_end_time;
 
         // 要判断是否与存在的记录重合
-        $add_times = $attendance->addTime; // 取出所有增补记录
+        $add_times = $attendance->addTimes; // 取出所有增补记录
         foreach ($add_times as $at) {
             $old_start_time = $at->add_start_time;
             $old_end_time = $at->add_end_time;
@@ -212,6 +204,15 @@ class AttendancesController extends Controller
 
         if ($add_time->save())
         {
+            // 添加完增补时间之后，需要对这一条考勤重新计算是否异常
+            // 把所有增补时间都加起来
+            if ($attendance->should_work_time != null && $attendance->should_home_time != null)
+            {
+                //////// 不写了，明天写
+            }
+
+
+
             session()->flash('success','增补时间成功！');
             return redirect()->route('attendances.show',$total_attendance->id);
         }

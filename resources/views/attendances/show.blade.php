@@ -105,8 +105,15 @@
             @else
             <td style="color: red;">是</td>
             @endif
-            <td>
-              这是增补记录
+            <td style="font-size: 12px;">
+              @foreach ($attendance->addTimes as $at)
+              {{$at->reason}},
+              <br>
+              {{date('H:i', strtotime($at->add_start_time))}}~{{date('H:i', strtotime($at->add_end_time))}},
+              <br>
+              时长:{{$at->duration}}.
+              <br>
+              @endforeach
             </td>
             <td>
                 <form action="{{ route('attendances.changeAbnormal', $attendance->id) }}" method="POST" style="display: inline-block;">

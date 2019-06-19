@@ -28,7 +28,7 @@ class Attendance extends Model
         return $this->belongsTo(TotalAttendance::class);
     }
 
-    public function addTime()
+    public function addTimes()
     {
         return $this->hasMany(AddTime::class);
     }
