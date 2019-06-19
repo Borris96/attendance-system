@@ -239,6 +239,13 @@ class AttendancesController extends Controller
                 $attendance->abnormal = false;
             }
 
+            // 如果记录不异常，那么不计早退和迟到
+            if ($s_a->abnormal == false)
+            {
+                $s_a->is_early = false;
+                $s_a->is_late = false;
+            }
+
             if ($attendance->save())
             {
                 // 这条记录保存之后，判断该月记录是否仍然异常
@@ -281,12 +288,12 @@ class AttendancesController extends Controller
 
                     $total_is_late += $at->is_late;
                     $total_is_early += $at->is_early;
-                    if ($at->late_work>0)
+                    if ($at->late_work>0 && $at->is_late == true)
                     {
                         $total_late_work += $at->late_work;
                     }
 
-                    if ($at->early_home>0)
+                    if ($at->early_home>0 && $at->is_early == true)
                     {
                         $total_early_home += $at->early_home;
                     }
