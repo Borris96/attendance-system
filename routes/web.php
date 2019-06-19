@@ -39,8 +39,11 @@ Route::get('/attendances/{attendance}/clock', 'AttendancesController@clock')->na
 
 Route::patch('/attendances/{attendance}/updateClock', 'AttendancesController@updateClock')->name('attendances.updateClock');
 
+Route::get('/attendances/{attendance}/addTime', 'AttendancesController@addTime')->name('attendances.addTime');
+
+Route::post('/attendances/{attendance}/createAddTime', 'AttendancesController@createAddTime')->name('attendances.createAddTime');
+
 Route::get('results','AttendancesController@index')->name('attendances.results');
-// Route::get('showf', 'AttendancesController@showf')->name('attendances.');
 
 Route::resource('/holidays','HolidaysController');
 

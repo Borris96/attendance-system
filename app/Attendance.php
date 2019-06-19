@@ -28,6 +28,11 @@ class Attendance extends Model
         return $this->belongsTo(TotalAttendance::class);
     }
 
+    public function addTime()
+    {
+        return $this->hasMany(AddTime::class);
+    }
+
     /**
      * 计算上班时长（小时）
      * @param timestamp $start_time,

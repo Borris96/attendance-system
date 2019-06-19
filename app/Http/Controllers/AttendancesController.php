@@ -9,6 +9,7 @@ use App\Holiday;
 use App\ExtraWork;
 use App\Absence;
 use App\TotalAttendance;
+use App\AddTime;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
@@ -99,6 +100,120 @@ class AttendancesController extends Controller
             $attendance->totalAttendance->save();
             session()->flash('success','更改异常成功！');
             return redirect()->back();
+        }
+    }
+
+    public function addTime($id)
+    {
+        $attendance = Attendance::find($id);
+        $total_attendance = $attendance->totalAttendance;
+        return view('attendances.add_time',compact('attendance','total_attendance'));
+    }
+
+    public function createAddTime(Request $request, $id)
+    {
+        $this->validate($request, [
+            'add_start_time'=>'required',
+            'add_end_time'=>'required',
+            'reason'=>'required',
+        ]);
+
+        $add_time = new AddTime();
+
+        $attendance = Attendance::find($id);
+        $total_attendance = $attendance->totalAttendance;
+
+        $add_start_time = $request->get('add_start_time');
+        $add_end_time = $request->get('add_end_time');
+
+        $y_m_d = $attendance->year.'-'.$attendance->month.'-'.$attendance->date;
+        $str_add_start_time = strtotime($y_m_d.' '.$add_start_time);
+        $str_add_end_time = strtotime($y_m_d.' '.$add_end_time);
+
+        // dump($y_m_d.' '.$add_start_time);
+        // dump($str_add_start_time);
+        // dump($y_m_d.' '.$add_end_time);
+        // dump($str_add_end_time);
+        // 检测时间填写是否正确
+        if ($add_start_time == null || $add_end_time == null)
+        {
+            session()->flash('warning','时间填写不完整！');
+            return redirect()->back()->withInput();
+        }
+
+        if (strtotime($add_start_time)>strtotime($add_end_time))
+        {
+            session()->flash('warning','开始时间晚于结束时间！');
+            return redirect()->back()->withInput();
+        }
+
+        if ($attendance->actual_work_time != null && $attendance->actual_home_time!=null)
+        {
+            $actual_work_time = strtotime($y_m_d.' '.$attendance->actual_work_time);
+
+            $actual_home_time = strtotime($y_m_d.' '.$attendance->actual_home_time);
+            // 不能和上班时间重合
+            // dump($attendance->actual_work_time);
+            // dump($actual_work_time);
+            // dump($attendance->actual_home_time);
+            // dump($actual_home_time);
+            // dump($add_time->isCrossing($str_add_start_time, $str_add_end_time, $actual_work_time, $actual_home_time));
+            // // exit();
+            if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $actual_work_time, $actual_home_time))
+            {
+                session()->flash('warning','时间与上班时间重叠！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        if ($attendance->extraWork != null && $attendance->extraWork!=null)
+        {
+            $extra_work_start_time = strtotime($attendance->extraWork->extra_work_start_time);
+            $extra_work_end_time = strtotime($attendance->extraWork->extra_work_end_time);
+            // 不能和加班时间重合
+            if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $extra_work_start_time, $extra_work_end_time))
+            {
+                session()->flash('warning','时间与加班时间重叠！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        if ($attendance->absence != null && $attendance->absence!=null)
+        {
+            $absence_start_time = strtotime($attendance->absence->absence_start_time);
+            $absence_end_time = strtotime($attendance->absence->absence_end_time);
+            // 不能和请假时间重合
+            if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $absence_start_time, $absence_end_time))
+            {
+                session()->flash('warning','时间与请假时间重叠！');
+                return redirect()->back()->withInput();
+            }
+        }
+        $reason = $request->get('reason');
+
+        $add_time->attendance_id = $attendance->id;
+        $add_time->add_start_time = $add_start_time;
+        $add_time->add_end_time = $add_end_time;
+
+        // 要判断是否与存在的记录重合
+        $add_times = $attendance->addTime; // 取出所有增补记录
+        foreach ($add_times as $at) {
+            $old_start_time = $at->add_start_time;
+            $old_end_time = $at->add_end_time;
+            if($add_time->isCrossing($add_start_time, $add_end_time, $old_start_time, $old_end_time))
+            {
+                session()->flash('warning','时间与已有记录重叠！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        $add_time->duration = $add_time->calDuration($add_start_time, $add_end_time);
+        $add_time->reason = $reason;
+
+        if ($add_time->save())
+        {
+            session()->flash('success','增补时间成功！');
+            return redirect()->route('attendances.show',$total_attendance->id);
         }
     }
 

@@ -25,9 +25,9 @@ class AbsencesTableSeeder extends Seeder
         DB::table('absences')->insert([
             'staff_id'=>'2016031601',
             'absence_type'=>'病假',
-            'absence_start_time'=>'2019-03-08 15:00:00',
+            'absence_start_time'=>'2019-03-08 17:00:00',
             'absence_end_time'=>'2019-03-08 18:00:00',
-            'duration'=>'3.00',
+            'duration'=>'1.00',
             'approve'=>true,
             'created_at'=>now(),
             'updated_at'=>now(),

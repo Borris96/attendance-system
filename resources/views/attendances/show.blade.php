@@ -40,6 +40,7 @@
         <th>应总工时</th>
         <th>实际总工时</th>
         <th>是否异常</th>
+        <th>增补记录</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -64,7 +65,7 @@
             @endif
 
             @if ($attendance->absence_id != null)
-            <td>
+            <td style="font-size: 12px;">
               {{ $attendance->absence_type }},
               @if ($attendance->absence->approve)
               批准
@@ -74,14 +75,14 @@
               <br>
               {{ date("Y-m-d H:i", strtotime($attendance->absence->absence_start_time)) }}~{{ date("Y-m-d H:i", strtotime($attendance->absence->absence_end_time)) }}
               <br>
-              当日时长:{{ $attendance->absence_duration }}
+              时长:{{ $attendance->absence_duration }}
             </td>
             @else
             <td></td>
             @endif
 
             @if ($attendance->extraWork != null)
-            <td>
+            <td style="font-size: 12px;">
               {{ $attendance->extraWork->extra_work_type }},
               @if ($attendance->extraWork->approve)
               批准
@@ -90,6 +91,8 @@
               @endif
               <br>
               {{ date("H:i", strtotime($attendance->extraWork->extra_work_start_time)) }}~{{ date("H:i", strtotime($attendance->extraWork->extra_work_end_time)) }}
+              <br>
+              时长:{{ $attendance->extraWork->duration }}
             </td>
             @else
             <td></td>
@@ -103,6 +106,9 @@
             <td style="color: red;">是</td>
             @endif
             <td>
+              这是增补记录
+            </td>
+            <td>
                 <form action="{{ route('attendances.changeAbnormal', $attendance->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('PATCH') }}
                   {{ csrf_field() }}
@@ -111,7 +117,7 @@
                 <form action="{{ route('attendances.clock', $attendance->id) }}" method="GET" style="display: inline-block;">
                   <button type="submit" class="btn btn-success" type="button">补打卡</button>
                 </form>
-                <form action="" method="POST" style="display: inline-block;">
+                <form action="{{ route('attendances.addTime', $attendance->id) }}" method="GET" style="display: inline-block;">
                   <button type="submit" class="btn btn-info" type="button">增补工时</button>
                 </form>
             </td>
