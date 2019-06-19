@@ -36,13 +36,13 @@
             <td>{{ $ta->staff->position_name }}</td>
             <td>{{ $ta->total_should_duration }}</td>
             <td>{{ $ta->total_actual_duration }}</td>
-            <td>还没填</td>
+            <td>{{ $ta->total_basic_duration }}</td>
             <td>{{ $ta->total_extra_work_duration }}</td>
             <td>{{ $ta->total_late_work }}分,{{ $ta->total_is_late }}次</td>
             <td>{{ $ta->total_early_home }}分,{{ $ta->total_is_early }}次</td>
             <td>{{ $ta->total_absence_duration }}</td>
             <td>应:{{ $ta->should_attend }}天/实:{{ $ta->actual_attend }}天</td>
-            <td>还没算</td>
+            <td>{{ $ta->difference }}</td>
             @if ($ta->abnormal == false)
             <td>否</td>
             @else

@@ -68,10 +68,44 @@ class AttendancesController extends Controller
         $attendances = $total_attendance->attendances;
         return view('attendances.show',compact('staff','attendances'));
     }
+
+
+    public function changeAbnormal($id)
+    {
+        $attendance = Attendance::find($id);
+        if ($attendance->abnormal == true)
+        {
+            $attendance->abnormal = false;
+        }
+        else
+        {
+            $attendance->abnormal = true;
+        }
+
+        if ($attendance->save())
+        {
+            $this_month_attendances = $attendance->totalAttendance->attendances;
+            // 查一下还有没有异常
+            $this_month_abnormal = $this_month_attendances->where('abnormal',true);
+            if (count($this_month_abnormal) == 0)
+            {
+                // 如果没有异常返回 false
+                $attendance->totalAttendance->abnormal = false;
+            }
+            else
+            {
+                $attendance->totalAttendance->abnormal = true;
+            }
+            $attendance->totalAttendance->save();
+            session()->flash('success','更改异常成功！');
+            return redirect()->back();
+        }
+    }
+
     /**
-     * 将上传的表格导入数据库
+     * 将上传的表格导入数据库并进行汇总计算 -- 这是这个考勤系统的最终目标
      *
-     * @return str $filename
+     *
      */
     public function import(Request $request)
     {
@@ -457,6 +491,7 @@ class AttendancesController extends Controller
                                 $actual_attend = 0;
                                 $total_extra_work_duration = 0;
                                 $total_absence_duration = 0;
+                                // $total_abnormal = false;
 
                                 foreach ($attendances as $at)
                                 {
@@ -484,10 +519,11 @@ class AttendancesController extends Controller
                                         $total_early_home += $at->early_home;
                                     }
 
-                                    if ($at->abnormal == true)
-                                    {
-                                        $abnormal = true;
-                                    }
+                                    // if ($at->abnormal == true)
+                                    // {
+                                    //     $total_abnormal = true;
+                                    //     break;
+                                    // }
 
                                     if ($at->extra_work_id != null)
                                     {
@@ -499,24 +535,29 @@ class AttendancesController extends Controller
                                         $total_absence_duration += $at->absence_duration;
                                     }
                                 }
-                                $total_attendance->total_should_duration = $total_should_duration ;
-                                $total_attendance->total_actual_duration = $total_actual_duration;
-                                $total_attendance->total_is_late = $total_is_late ;
-                                $total_attendance->total_is_early = $total_is_early ;
-                                $total_attendance->total_late_work = $total_late_work ;
-                                $total_attendance->total_early_home = $total_early_home ;
-                                $total_attendance->should_attend = $should_attend ;
-                                $total_attendance->actual_attend = $actual_attend ;
-                                $total_attendance->total_extra_work_duration = $total_extra_work_duration;
-                                $total_attendance->total_absence_duration = $total_absence_duration;
-                                if ($abnormal == null)
+
+                                $total_abnormal = $attendances->where('abnormal',true);
+                                if (count($total_abnormal) == 0)
                                 {
+                                    // 没有异常记录即不异常
                                     $total_attendance->abnormal = false;
                                 }
                                 else
                                 {
-                                    $total_attendance->abnormal = $abnormal;
+                                    $total_attendance->abnormal = true;
                                 }
+                                $total_attendance->total_should_duration = $total_should_duration;
+                                $total_attendance->total_actual_duration = $total_actual_duration;
+                                $total_attendance->total_is_late = $total_is_late;
+                                $total_attendance->total_is_early = $total_is_early;
+                                $total_attendance->total_late_work = $total_late_work;
+                                $total_attendance->total_early_home = $total_early_home;
+                                $total_attendance->should_attend = $should_attend;
+                                $total_attendance->actual_attend = $actual_attend;
+                                $total_attendance->total_extra_work_duration = $total_extra_work_duration;
+                                $total_attendance->total_absence_duration = $total_absence_duration;
+                                $total_attendance->total_basic_duration = $total_actual_duration - $total_extra_work_duration;
+                                $total_attendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
 
                                 $total_attendance->save();
 

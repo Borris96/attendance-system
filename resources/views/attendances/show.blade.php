@@ -103,9 +103,13 @@
             <td>是</td>
             @endif
             <td>
-                <a href="">编辑工时</a> | <!-- route('staffs.edit', $staff->id) -->
-                <a href="">编辑请假</a> |
-                <a href="">编辑加班</a>
+                <form action="{{ route('attendances.changeAbnormal', $attendance->id) }}" method="POST" style="display: inline-block;">
+                  {{ method_field('PATCH') }}
+                  {{ csrf_field() }}
+                  <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">更改异常</button>
+                </form>
+                <a href="" class="btn btn-success">补打卡</a>
+                <a href="" class="btn btn-info">增加工时</a>
             </td>
         </tr>
       @endforeach
@@ -135,4 +139,14 @@
 <div style="margin: 20px">
   <input class="btn btn-success" type="button" name="Submit" onclick="javascript:history.back(-1);" value="返回上一页">
 </div>
+
+<script>
+
+  function delcfm() {
+      if (!confirm("确认操作？")) {
+          window.event.returnValue = false;
+      }
+  }
+
+</script>
 @stop

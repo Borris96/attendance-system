@@ -33,6 +33,8 @@ Route::resource('/attendances','AttendancesController');
 
 Route::post('/attendances/import','AttendancesController@import')->name('attendances.import');
 
+Route::patch('/attendances/{attendance}/changeAbnormal', 'AttendancesController@changeAbnormal')->name('attendances.changeAbnormal');
+
 Route::get('results','AttendancesController@index')->name('attendances.results');
 // Route::get('showf', 'AttendancesController@showf')->name('attendances.');
 
