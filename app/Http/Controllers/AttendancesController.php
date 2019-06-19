@@ -207,6 +207,32 @@ class AttendancesController extends Controller
                     $attendance->abnormal = true;
                 }
             }
+
+
+            // 再处理两种情况
+            // 第一种：应上下班有时间，而实上下班没打卡。如果请了假，看请假时长和应时长能不能对上
+            if ($attendance->should_work_time != null && $attendance->should_home_time != null && $attendance->actual_work_time == null && $attendance->actual_home_time == null)
+            {
+                if ($attendance->absence_id != null)
+                {
+                    if ($attendance->absence_duration >= ($attendance->should_duration-5/60))
+                    {
+                        $attendance->abnormal = false;
+                    }
+                }
+            }
+            // 第二种：应上下班没有时间，而实上下班打卡了。如果有加班记录，看应加班时长是否与实际打卡时长对上。
+            if ($attendance->should_work_time == null && $attendance->should_home_time == null && $attendance->actual_work_time != null && $attendance->actual_home_time != null)
+            {
+                if ($attendance->extra_work_id != null)
+                {
+                    if ($attendance->actual_duration >= ($attendance->extraWork->duration-5/60))
+                    {
+                        $attendance->abnormal = false;
+                    }
+                }
+            }
+
             // 如果全空，说明是休息日，不报异常
             if ($attendance->should_work_time == null && $attendance->should_home_time == null && $attendance->actual_work_time == null && $attendance->actual_home_time == null)
             {
@@ -475,6 +501,7 @@ class AttendancesController extends Controller
                                     $attendance->actual_home_time = $home_time;
 
                                     // 计算迟到早退分钟数 以及 实际上班时长 判断是否异常
+                                    // 在异常判断之后，如果不报异常，该日不报迟到和早退记录。
                                     if ($attendance->should_work_time != null && $attendance->should_home_time != null) {
                                         $swt = strtotime($attendance->should_work_time);
                                         $sht = strtotime($attendance->should_home_time);
@@ -524,7 +551,6 @@ class AttendancesController extends Controller
                                         }
 
                                     }
-                                    // 异常计算还需要获取当天加班、请假的时间，所以还是比较复杂的。 异常判断标准还需明确一下。
                                     $look_for_start_time = $ymd.' 00:00:00';
                                     $look_for_end_time = $ymd.' 24:00:00';
                                     // 查询当日被批准的加班记录
@@ -703,6 +729,13 @@ class AttendancesController extends Controller
                                     {
                                         $s_a->abnormal = false;
                                     }
+
+                                    // 如果记录不异常，那么不计早退和迟到
+                                    if ($s_a->abnormal == false)
+                                    {
+                                        $s_a->is_early = false;
+                                        $s_a->is_late = false;
+                                    }
                                     $s_a->save();
                                 }
 
@@ -740,12 +773,12 @@ class AttendancesController extends Controller
 
                                     $total_is_late += $at->is_late;
                                     $total_is_early += $at->is_early;
-                                    if ($at->late_work>0)
+                                    if ($at->late_work>0 && $at->is_late == true) // 晚上班，且记作迟到才算在总迟到里
                                     {
                                         $total_late_work += $at->late_work;
                                     }
 
-                                    if ($at->early_home>0)
+                                    if ($at->early_home>0 && $at->is_early == true) // 早下班，且记作早退才算在总迟到里
                                     {
                                         $total_early_home += $at->early_home;
                                     }
