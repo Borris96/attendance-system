@@ -35,6 +35,10 @@ Route::post('/attendances/import','AttendancesController@import')->name('attenda
 
 Route::patch('/attendances/{attendance}/changeAbnormal', 'AttendancesController@changeAbnormal')->name('attendances.changeAbnormal');
 
+Route::get('/attendances/{attendance}/clock', 'AttendancesController@clock')->name('attendances.clock');
+
+Route::patch('/attendances/{attendance}/updateClock', 'AttendancesController@updateClock')->name('attendances.updateClock');
+
 Route::get('results','AttendancesController@index')->name('attendances.results');
 // Route::get('showf', 'AttendancesController@showf')->name('attendances.');
 

@@ -102,6 +102,93 @@ class AttendancesController extends Controller
         }
     }
 
+    public function clock($id)
+    {
+        $attendance = Attendance::find($id);
+        $total_attendance = $attendance->totalAttendance;
+        return view('attendances.clock',compact('attendance','total_attendance'));
+    }
+
+    public function updateClock(Request $request, $id)
+    {
+        $this->validate($request, [
+            'actual_work_time'=>'required',
+            'actual_home_time'=>'required',
+        ]);
+        $attendance = Attendance::find($id);
+        $total_attendance = $attendance->totalAttendance;
+        $attendance->actual_home_time = $request->get('actual_home_time');
+        $attendance->actual_work_time = $request->get('actual_work_time');
+
+        // 检测时间填写是否正确
+        if ($attendance->actual_home_time == null || $attendance->actual_work_time == null)
+        {
+            session()->flash('warning','时间填写不完整！');
+            return redirect()->back()->withInput();
+        }
+
+        if (strtotime($attendance->actual_work_time)>strtotime($attendance->actual_home_time))
+        {
+            session()->flash('warning','上班时间晚于下班时间！');
+            return redirect()->back()->withInput();
+        }
+
+        if ($attendance->should_work_time != null && $attendance->should_home_time != null) {
+            $swt = strtotime($attendance->should_work_time);
+            $sht = strtotime($attendance->should_home_time);
+            $attendance->should_duration = $attendance->calDuration($swt,$sht);
+        }
+        if ($attendance->actual_work_time != null && $attendance->actual_home_time != null)
+        {
+            $awt = strtotime($attendance->actual_work_time);
+            $aht = strtotime($attendance->actual_home_time);
+            $attendance->actual_duration = $attendance->calDuration($awt,$aht);
+        }
+
+        if ($attendance->should_work_time != null && $attendance->should_home_time != null && $attendance->actual_work_time != null && $attendance->actual_home_time != null)
+        {
+            $attendance->late_work = ($awt-$swt)/60; // 转换成分钟
+            if (($awt-$swt)>0){ // 迟到是实际上班晚于应该上班
+                // 后续还需要考虑到是否请假！！！！！
+                if ($attendance->late_work > 5 && $attendance->actual_duration<$attendance->should_duration) //迟到5分钟以上，并且没有补上工时算迟到
+                {
+                    $attendance->is_late = true;
+                }
+                else {
+                    $attendance->is_late = false;
+                }
+            }
+            else {
+                $attendance->is_late = false;
+                // dump($attendance->is_late);
+            }
+            // dump($sht);
+            // dump($aht);
+            // dump($sht-$aht);
+            // exit();
+            $attendance->early_home = ($sht-$aht)/60;
+            if (($sht-$aht)>0){ // 早退是实际下班早于应该下班
+                // 后续还需要考虑到是否请假！！！！！
+                if ($attendance->early_home > 5 && $attendance->actual_duration<$attendance->should_duration) // 早退5分钟以上算早退
+                {
+                    $attendance->is_early = true;
+                }
+                else {
+                    $attendance->is_early = false;
+                }
+            }
+            else {
+                $attendance->is_early = false;
+            }
+
+            if ($attendance->save())
+            {
+                session()->flash('success','补打卡成功！');
+                return redirect()->route('attendances.show',$total_attendance->id);
+            }
+        }
+    }
+
     /**
      * 将上传的表格导入数据库并进行汇总计算 -- 这是这个考勤系统的最终目标
      *

@@ -33,8 +33,8 @@
         <th>应下班</th>
         <th>实上班</th>
         <th>实下班</th>
-        <th>迟到（分）</th>
-        <th>早退（分）</th>
+        <th>迟到(分)</th>
+        <th>早退(分)</th>
         <th>请假记录</th>
         <th>加班记录</th>
         <th>应总工时</th>
@@ -108,8 +108,14 @@
                   {{ csrf_field() }}
                   <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">更改异常</button>
                 </form>
-                <a href="" class="btn btn-success">补打卡</a>
-                <a href="" class="btn btn-info">增加工时</a>
+                <form action="{{ route('attendances.clock', $attendance->id) }}" method="GET" style="display: inline-block;">
+                  <button type="submit" class="btn btn-success" type="button">补打卡</button>
+                </form>
+                <form action="" method="POST" style="display: inline-block;">
+                  {{ method_field('PATCH') }}
+                  {{ csrf_field() }}
+                  <button type="submit" class="btn btn-info" type="button">增加工时</button>
+                </form>
             </td>
         </tr>
       @endforeach
