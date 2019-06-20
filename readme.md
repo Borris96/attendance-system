@@ -1,72 +1,36 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+<p align="center">JadeClass 考勤管理系统</p>
+## 关于
+本系统根据 JadeClass 公司实际情况定制，使用 Laravel 开发，目的是能够满足 JadeClass 人事行政部门每个月进行的考勤统计以及工资计算。目前本项目正在开发之中。
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+## 运行环境要求
+-   PHP 7.1+
+-   Laravel 5.8
 
-## About Laravel
+## 基本功能介绍
+* 员工信息管理
+<br> 可以新增员工基础信息，如员工编号，姓名，入职日期，工作经历等。
+<br> 系统将会根据员工入职日期和工作经历计算出工作年数以及本年度剩余年假。
+<br> 年假将根据员工的工作年数，每年进行一次更新。未使用完的年假将累计到下一年度。
+<br> 员工信息将不会删除，如果离职，可以在离职员工表中查看离职员工信息。
+* 请假信息管理
+<br> 可根据不同请假类型进行添加。
+<br> 其中调休假必须在剩余调休时间的情况下才能正常添加。
+* 加班信息管理
+<br> 可根据不同加班类型进行添加。
+* 节假日调休管理
+<br> 添加本年度法定调休情况，以便计算考勤记录时考虑到节假日情况。
+* 时薪信息管理
+<br> 添加不同时薪类型，每月工资计算时将会使用到。
+* 考勤信息管理
+<br> 可以一次性导入一个月的考勤数据。
+<br> 首先需要确保当月的员工请假、加班记录已经录入，并已经添加了当月节假日调休情况。
+<br> 导入原始员工考勤表，如导入成功，系统将会计算当月考勤总数据。
+<br> 可以依据姓名-年-月查询员工当月考勤汇总（姓名可不填）。
+<br> 在查询到的当月考勤汇总表中，可点击查看员工该月每日的详细考勤情况。当日考勤如有异常，可使用“更改异常”、“补打卡”、“增补工时”三种方式修复异常情况。而从原始表格导入的原始数据将会被严格保护。
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1400 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 后续开发
+-   6月21日开始将对特殊员工信息录入以及相关算法进行完善
+-   6月24日开始将对计算员工当月薪资这一功能进行开发
+-   生成的数据表单导出功能
+-   直接导入员工一周排班表
+-   7月份将开始对老师上课考勤板块进行开发
