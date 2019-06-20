@@ -47,12 +47,28 @@
       @foreach ($attendances as $attendance)
        <tr>
             <td>{{ $attendance->workday_type }}</td>
-            <td>{{ $attendance->year }}-{{ $attendance->month }}-{{ $attendance->date }}</td>
+            <td>{{ $attendance->year }}/{{ $attendance->month }}/{{ $attendance->date }}</td>
             <td>{{ $attendance->day }}</td>
-            <td>{{ $attendance->should_work_time }}</td>
-            <td>{{ $attendance->should_home_time }}</td>
-            <td>{{ $attendance->actual_work_time }}</td>
-            <td>{{ $attendance->actual_home_time }}</td>
+            @if ($attendance->should_work_time != null)
+            <td>{{ date("H:i", strtotime($attendance->should_work_time)) }}</td>
+            @else
+            <td></td>
+            @endif
+            @if ($attendance->should_home_time != null)
+            <td>{{ date("H:i", strtotime($attendance->should_home_time)) }}</td>
+            @else
+            <td></td>
+            @endif
+            @if ($attendance->actual_work_time != null)
+            <td>{{ date("H:i", strtotime($attendance->actual_work_time)) }}</td>
+            @else
+            <td></td>
+            @endif
+            @if ($attendance->actual_home_time != null)
+            <td>{{ date("H:i", strtotime($attendance->actual_home_time)) }}</td>
+            @else
+            <td></td>
+            @endif
             @if ($attendance->late_work>0)
             <td>{{ $attendance->late_work }}</td>
             @else
@@ -123,10 +139,24 @@
                 </form>
                 <form action="{{ route('attendances.clock', $attendance->id) }}" method="GET" style="display: inline-block;">
 
-                  <button type="submit" class="btn btn-success" type="button" @if ($attendance->abnormal == false) disabled @endif>补打卡</button>
+                  <button type="submit" class="btn btn-success" type="button"
+                  @if ($attendance->actual_work_time != null && $attendance->actual_home_time != null)
+                  disabled
+                  @endif
+                  @if ($attendance->abnormal == false)
+                  disabled
+                  @endif
+                  >补打卡</button>
                 </form>
                 <form action="{{ route('attendances.addTime', $attendance->id) }}" method="GET" style="display: inline-block;">
-                  <button type="submit" class="btn btn-info" type="button">增补工时</button>
+                  <button type="submit" class="btn btn-info" type="button"
+                  @if ($attendance->actual_work_time == null || $attendance->should_work_time == null || $attendance->should_home_time == null || $attendance->actual_home_time == null)
+                  disabled
+                  @endif
+                  @if ($attendance->abnormal == false)
+                  disabled
+                  @endif
+                  >增补工时</button>
                 </form>
             </td>
         </tr>

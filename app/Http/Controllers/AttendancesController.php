@@ -102,12 +102,23 @@ class AttendancesController extends Controller
     {
         $attendance = Attendance::find($id);
         $total_attendance = $attendance->totalAttendance;
-        return view('attendances.add_time',compact('attendance','total_attendance'));
+        // 最多支持添加两段增补记录，一首一尾，以便解决更新是否迟到早退的问题。
+        $all_add_times = count($attendance->addTimes);
+
+        if ($all_add_times >= 2)
+        {
+            session()->flash('warning', '最多支持两段增补记录！');
+            return redirect()->back();
+        }
+        else
+        {
+            return view('attendances.add_time',compact('attendance','total_attendance'));
+        }
     }
 
     // 增补时间：一般是因为某些原因，实际时长少了，需要增加时长来补足空缺。主要适用于因合理原因迟到早退的情况：如地铁故障，哺乳期等
     // 原来的实际时间+请假时间-加班时间+增补的时间如果大于等于应该的时间，那么就不异常了。（前提是存在应该的时间）
-    // 如果没有应该时间或者实际时间，可以添加异常处理吗？目前的解决方案是可以，但是没有应该时间不会计算。
+    // 增补工时的目的是为了消除迟到早退次数，如果迟到早退本来就没有数据，那么是无法增补工时的。
     public function createAddTime(Request $request, $id)
     {
         $this->validate($request, [
@@ -116,11 +127,10 @@ class AttendancesController extends Controller
             'reason'=>'required',
         ]);
 
-        $add_time = new AddTime();
-
         $attendance = Attendance::find($id);
         $total_attendance = $attendance->totalAttendance;
 
+        $add_time = new AddTime();
         $add_start_time = $request->get('add_start_time');
         $add_end_time = $request->get('add_end_time');
 
@@ -154,29 +164,29 @@ class AttendancesController extends Controller
             }
         }
 
-        // if ($attendance->extraWork != null && $attendance->extraWork!=null)
-        // {
-        //     $extra_work_start_time = strtotime($attendance->extraWork->extra_work_start_time);
-        //     $extra_work_end_time = strtotime($attendance->extraWork->extra_work_end_time);
-        //     // 不能和加班时间重合
-        //     if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $extra_work_start_time, $extra_work_end_time))
-        //     {
-        //         session()->flash('warning','时间与加班时间重叠！');
-        //         return redirect()->back()->withInput();
-        //     }
-        // }
+        if ($attendance->extraWork != null && $attendance->extraWork!=null)
+        {
+            $extra_work_start_time = strtotime($attendance->extraWork->extra_work_start_time);
+            $extra_work_end_time = strtotime($attendance->extraWork->extra_work_end_time);
+            // 不能和加班时间重合
+            if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $extra_work_start_time, $extra_work_end_time))
+            {
+                session()->flash('warning','时间与加班时间重叠！');
+                return redirect()->back()->withInput();
+            }
+        }
 
-        // if ($attendance->absence != null && $attendance->absence!=null)
-        // {
-        //     $absence_start_time = strtotime($attendance->absence->absence_start_time);
-        //     $absence_end_time = strtotime($attendance->absence->absence_end_time);
-        //     // 不能和请假时间重合
-        //     if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $absence_start_time, $absence_end_time))
-        //     {
-        //         session()->flash('warning','时间与请假时间重叠！');
-        //         return redirect()->back()->withInput();
-        //     }
-        // }
+        if ($attendance->absence != null && $attendance->absence!=null)
+        {
+            $absence_start_time = strtotime($attendance->absence->absence_start_time);
+            $absence_end_time = strtotime($attendance->absence->absence_end_time);
+            // 不能和请假时间重合
+            if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $absence_start_time, $absence_end_time))
+            {
+                session()->flash('warning','时间与请假时间重叠！');
+                return redirect()->back()->withInput();
+            }
+        }
         $reason = $request->get('reason');
 
         $add_time->attendance_id = $attendance->id;
@@ -203,6 +213,7 @@ class AttendancesController extends Controller
             // 添加完增补时间之后，需要对这一条考勤重新计算是否异常
             // 先把所有增补时间都加起来
             $total_add = 0;
+            $attendance = Attendance::find($attendance->id);
             $add_times = $attendance->addTimes;
             if (count($add_times) == 0)
             {
@@ -213,15 +224,11 @@ class AttendancesController extends Controller
                 foreach($add_times as $at)
                 {
                     $total_add += $at->duration;
-                    dump($at->duration);
                 }
             }
-            // dump($add_times);
-            // echo "这里";
-            // dump($total_add);
-            // exit();
 
             $attendance->add_duration = $total_add;
+            // dump($attendance->add_duration);
 
             // 计算这一条attendance是否异常
             // 只要四项有一项是空的，直接报异常 （因为实际上下班必须对应应该上下班）
@@ -239,7 +246,13 @@ class AttendancesController extends Controller
                 {
                     $extrawork_duration = $attendance->extraWork->duration;
                 }
-                $cal_duration = $attendance->actual_duration-$extrawork_duration+$attendance->absence_duration+$total_add; // 实际工时-加班+请假+总增补 >= (应该工时-5分钟)
+                $cal_duration = $attendance->actual_duration-$extrawork_duration+$attendance->absence_duration+$attendance->add_duration; // 实际工时-加班+请假+总增补 >= (应该工时-5分钟)
+                // dump($attendance->actual_duration);
+                // dump($extrawork_duration);
+                // dump($attendance->absence_duration);
+                // dump($attendance->add_duration);
+                // dump($cal_duration);
+                // exit();
                 if ($cal_duration>=($attendance->should_duration-5/60))
                 {
                     $attendance->abnormal = false;
@@ -260,7 +273,7 @@ class AttendancesController extends Controller
                     // dump($total_add);
 
                     // exit();
-                    if ($attendance->absence_duration + $total_add >= ($attendance->should_duration-5/60))
+                    if ($attendance->absence_duration + $attendance->add_duration >= ($attendance->should_duration-5/60))
                     {
                         $attendance->abnormal = false;
                     }
@@ -271,7 +284,7 @@ class AttendancesController extends Controller
             {
                 if ($attendance->extra_work_id != null)
                 {
-                    if ($attendance->actual_duration + $total_add >= ($attendance->extraWork->duration-5/60))
+                    if ($attendance->actual_duration + $attendance->add_duration >= ($attendance->extraWork->duration-5/60))
                     {
                         $attendance->abnormal = false;
                     }
