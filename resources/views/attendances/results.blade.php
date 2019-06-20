@@ -22,6 +22,7 @@
         <th>总请假时长</th>
         <th>出勤天数</th>
         <th>工时差值</th>
+        <th>总增补工时</th>
         <th>是否异常</th>
         <th>当月工资</th>
         <th>操作</th>
@@ -43,6 +44,7 @@
             <td>{{ $ta->total_absence_duration }}</td>
             <td>应:{{ $ta->should_attend }}天/实:{{ $ta->actual_attend }}天</td>
             <td>{{ $ta->difference }}</td>
+            <td>{{ $ta->total_add_duration }}</td>
             @if ($ta->abnormal == false)
             <td>否</td>
             @else

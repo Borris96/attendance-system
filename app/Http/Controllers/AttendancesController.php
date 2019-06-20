@@ -154,29 +154,29 @@ class AttendancesController extends Controller
             }
         }
 
-        if ($attendance->extraWork != null && $attendance->extraWork!=null)
-        {
-            $extra_work_start_time = strtotime($attendance->extraWork->extra_work_start_time);
-            $extra_work_end_time = strtotime($attendance->extraWork->extra_work_end_time);
-            // 不能和加班时间重合
-            if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $extra_work_start_time, $extra_work_end_time))
-            {
-                session()->flash('warning','时间与加班时间重叠！');
-                return redirect()->back()->withInput();
-            }
-        }
+        // if ($attendance->extraWork != null && $attendance->extraWork!=null)
+        // {
+        //     $extra_work_start_time = strtotime($attendance->extraWork->extra_work_start_time);
+        //     $extra_work_end_time = strtotime($attendance->extraWork->extra_work_end_time);
+        //     // 不能和加班时间重合
+        //     if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $extra_work_start_time, $extra_work_end_time))
+        //     {
+        //         session()->flash('warning','时间与加班时间重叠！');
+        //         return redirect()->back()->withInput();
+        //     }
+        // }
 
-        if ($attendance->absence != null && $attendance->absence!=null)
-        {
-            $absence_start_time = strtotime($attendance->absence->absence_start_time);
-            $absence_end_time = strtotime($attendance->absence->absence_end_time);
-            // 不能和请假时间重合
-            if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $absence_start_time, $absence_end_time))
-            {
-                session()->flash('warning','时间与请假时间重叠！');
-                return redirect()->back()->withInput();
-            }
-        }
+        // if ($attendance->absence != null && $attendance->absence!=null)
+        // {
+        //     $absence_start_time = strtotime($attendance->absence->absence_start_time);
+        //     $absence_end_time = strtotime($attendance->absence->absence_end_time);
+        //     // 不能和请假时间重合
+        //     if ($add_time->isCrossing($str_add_start_time, $str_add_end_time, $absence_start_time, $absence_end_time))
+        //     {
+        //         session()->flash('warning','时间与请假时间重叠！');
+        //         return redirect()->back()->withInput();
+        //     }
+        // }
         $reason = $request->get('reason');
 
         $add_time->attendance_id = $attendance->id;
@@ -203,10 +203,23 @@ class AttendancesController extends Controller
             // 添加完增补时间之后，需要对这一条考勤重新计算是否异常
             // 先把所有增补时间都加起来
             $total_add = 0;
-            foreach($add_times as $at)
+            $add_times = $attendance->addTimes;
+            if (count($add_times) == 0)
             {
-                $total_add += $at->duration;
+                $total_add = $add_time->duration;
             }
+            else
+            {
+                foreach($add_times as $at)
+                {
+                    $total_add += $at->duration;
+                    dump($at->duration);
+                }
+            }
+            // dump($add_times);
+            // echo "这里";
+            // dump($total_add);
+            // exit();
 
             $attendance->add_duration = $total_add;
 
@@ -244,6 +257,9 @@ class AttendancesController extends Controller
             {
                 if ($attendance->absence_id != null)
                 {
+                    // dump($total_add);
+
+                    // exit();
                     if ($attendance->absence_duration + $total_add >= ($attendance->should_duration-5/60))
                     {
                         $attendance->abnormal = false;
