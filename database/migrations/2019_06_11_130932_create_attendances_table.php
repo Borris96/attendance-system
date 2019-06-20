@@ -35,6 +35,7 @@ class CreateAttendancesTable extends Migration
             $table->boolean('is_early')->nullable();
             $table->decimal('should_duration',5,2)->nullable();
             $table->decimal('actual_duration',5,2)->nullable();
+            $table->decimal('add_duration',5,2)->nullable();
             $table->boolean('abnormal')->nullable();
             $table->unsignedInteger('total_attendance_id')->nullable();
             $table->timestamps();

@@ -208,6 +208,7 @@ class AttendancesController extends Controller
                 $total_add += $at->duration;
             }
 
+            $attendance->add_duration = $total_add;
 
             // 计算这一条attendance是否异常
             // 只要四项有一项是空的，直接报异常 （因为实际上下班必须对应应该上下班）
@@ -300,6 +301,7 @@ class AttendancesController extends Controller
                 $actual_attend = 0;
                 $total_extra_work_duration = 0;
                 $total_absence_duration = 0;
+                $total_add_duration = 0;
                 // $total_abnormal = false;
                 foreach ($this_month_attendances as $at) {
                     if ($at->should_duration != null)
@@ -314,7 +316,11 @@ class AttendancesController extends Controller
                         $actual_attend += 1;
                     }
 
-                    if ()
+                    // 录入总增补时间
+                    if ($at->add_duration != null)
+                    {
+                        $total_add_duration += $at->add_duration;
+                    }
 
                     $total_is_late += $at->is_late;
                     $total_is_early += $at->is_early;
@@ -361,6 +367,7 @@ class AttendancesController extends Controller
                 $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
                 $attendance->totalAttendance->total_basic_duration = $total_actual_duration - $total_extra_work_duration;
                 $attendance->totalAttendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
+                $attendance->totalAttendance->total_add_duration = $total_add_duration;
                 $total_attendance->save();
 
                 $attendance->totalAttendance->save();
