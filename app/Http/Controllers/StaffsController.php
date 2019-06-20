@@ -348,7 +348,7 @@ class StaffsController extends Controller
             else {
                 $origin_workdays[$i]->is_work = false;
             }
-            $origin_workdays[$i]->duration = $staffworkday->calDuration($work_times[$i],$home_times[$i]);
+            $origin_workdays[$i]->duration = $origin_workdays[$i]->calDuration(strtotime($work_times[$i]),strtotime($home_times[$i]));
             $origin_workdays[$i]->save();
         }
         // 之前存在的 work history，更新
