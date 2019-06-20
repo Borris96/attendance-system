@@ -1,4 +1,4 @@
-<p align="center">JadeClass 考勤管理系统</p>
+# JadeClass 考勤管理系统
 ## 关于
 本系统根据 JadeClass 公司实际情况定制，使用 Laravel 开发，目的是能够满足 JadeClass 人事行政部门每个月进行的考勤统计以及工资计算。目前本项目正在开发之中。
 
