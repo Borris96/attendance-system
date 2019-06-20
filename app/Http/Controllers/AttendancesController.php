@@ -17,11 +17,6 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use Illuminate\Support\Carbon;
 
-function returnYear($year)
-{
-    return $year;
-}
-
 class AttendancesController extends Controller
 {
     public function __construct()
@@ -110,7 +105,8 @@ class AttendancesController extends Controller
         return view('attendances.add_time',compact('attendance','total_attendance'));
     }
 
-    // 增补时间：一般是因为实际总时间少了，原来的实际总时间加上增补的时间如果大于等于应该的时间，那么就不异常了。（前提是存在应该的时间）
+    // 增补时间：一般是因为某些原因，实际时长少了，需要增加时长来补足空缺。主要适用于因合理原因迟到早退的情况：如地铁故障，哺乳期等
+    // 原来的实际时间+请假时间-加班时间+增补的时间如果大于等于应该的时间，那么就不异常了。（前提是存在应该的时间）
     // 如果没有应该时间或者实际时间，可以添加异常处理吗？目前的解决方案是可以，但是没有应该时间不会计算。
     public function createAddTime(Request $request, $id)
     {
@@ -205,16 +201,172 @@ class AttendancesController extends Controller
         if ($add_time->save())
         {
             // 添加完增补时间之后，需要对这一条考勤重新计算是否异常
-            // 把所有增补时间都加起来
-            if ($attendance->should_work_time != null && $attendance->should_home_time != null)
+            // 先把所有增补时间都加起来
+            $total_add = 0;
+            foreach($add_times as $at)
             {
-                //////// 不写了，明天写
+                $total_add += $at->duration;
             }
 
 
 
-            session()->flash('success','增补时间成功！');
-            return redirect()->route('attendances.show',$total_attendance->id);
+
+            // 计算这一条attendance是否异常
+            // 只要四项有一项是空的，直接报异常 （因为实际上下班必须对应应该上下班）
+            if ($attendance->should_work_time == null || $attendance->should_home_time == null || $attendance->actual_work_time == null || $attendance->actual_home_time == null)
+            {
+                $attendance->abnormal = true;
+            }
+            else
+            {
+                if ($attendance->extraWork == null)
+                {
+                    $extrawork_duration = 0;
+                }
+                else
+                {
+                    $extrawork_duration = $attendance->extraWork->duration;
+                }
+                $cal_duration = $attendance->actual_duration-$extrawork_duration+$attendance->absence_duration; // 实际工时-加班+请假 >= (应该工时-5分钟)
+                if ($cal_duration>=($attendance->should_duration-5/60))
+                {
+                    $attendance->abnormal = false;
+                }
+                else
+                {
+                    $attendance->abnormal = true;
+                }
+            }
+
+
+            // 再处理两种情况
+            // 第一种：应上下班有时间，而实上下班没打卡。如果请了假，看请假时长和应时长能不能对上
+            if ($attendance->should_work_time != null && $attendance->should_home_time != null && $attendance->actual_work_time == null && $attendance->actual_home_time == null)
+            {
+                if ($attendance->absence_id != null)
+                {
+                    if ($attendance->absence_duration >= ($attendance->should_duration-5/60))
+                    {
+                        $attendance->abnormal = false;
+                    }
+                }
+            }
+            // 第二种：应上下班没有时间，而实上下班打卡了。如果有加班记录，看应加班时长是否与实际打卡时长对上。
+            if ($attendance->should_work_time == null && $attendance->should_home_time == null && $attendance->actual_work_time != null && $attendance->actual_home_time != null)
+            {
+                if ($attendance->extra_work_id != null)
+                {
+                    if ($attendance->actual_duration >= ($attendance->extraWork->duration-5/60))
+                    {
+                        $attendance->abnormal = false;
+                    }
+                }
+            }
+
+            // 如果全空，说明是休息日，不报异常
+            if ($attendance->should_work_time == null && $attendance->should_home_time == null && $attendance->actual_work_time == null && $attendance->actual_home_time == null)
+            {
+                $attendance->abnormal = false;
+            }
+
+            // 如果记录不异常，那么不计早退和迟到
+            if ($attendance->abnormal == false)
+            {
+                $attendance->is_early = false;
+                $attendance->is_late = false;
+            }
+
+            if ($attendance->save())
+            {
+                // 这条记录保存之后，判断该月记录是否仍然异常
+                $this_month_attendances = $attendance->totalAttendance->attendances;
+                // 查一下还有没有异常
+                $this_month_abnormal = $this_month_attendances->where('abnormal',true);
+                if (count($this_month_abnormal) == 0)
+                {
+                    // 如果没有异常返回 false
+                    $attendance->totalAttendance->abnormal = false;
+                }
+                else
+                {
+                    $attendance->totalAttendance->abnormal = true;
+                }
+
+                $total_should_duration = 0;
+                $total_actual_duration = 0;
+                $total_is_late = 0;
+                $total_is_early = 0;
+                $total_late_work = 0;
+                $total_early_home = 0;
+                $should_attend = 0;
+                $actual_attend = 0;
+                $total_extra_work_duration = 0;
+                $total_absence_duration = 0;
+                // $total_abnormal = false;
+                foreach ($this_month_attendances as $at) {
+                    if ($at->should_duration != null)
+                    {
+                        $total_should_duration += $at->should_duration;
+                        $should_attend += 1;
+                    }
+
+                    if ($at->actual_duration != null)
+                    {
+                        $total_actual_duration += $at->actual_duration;
+                        $actual_attend += 1;
+                    }
+
+                    $total_is_late += $at->is_late;
+                    $total_is_early += $at->is_early;
+                    if ($at->late_work>0 && $at->is_late == true)
+                    {
+                        $total_late_work += $at->late_work;
+                    }
+
+                    if ($at->early_home>0 && $at->is_early == true)
+                    {
+                        $total_early_home += $at->early_home;
+                    }
+
+                    if ($at->extra_work_id != null)
+                    {
+                        $total_extra_work_duration += $at->extraWork->duration;
+                    }
+
+                    if ($at->absence_id != null)
+                    {
+                        $total_absence_duration += $at->absence_duration;
+                    }
+                }
+
+                $total_abnormal = $this_month_attendances->where('abnormal',true);
+                if (count($total_abnormal) == 0)
+                {
+                    // 没有异常记录即不异常
+                    $total_attendance->abnormal = false;
+                }
+                else
+                {
+                    $total_attendance->abnormal = true;
+                }
+                $attendance->totalAttendance->total_should_duration = $total_should_duration;
+                $attendance->totalAttendance->total_actual_duration = $total_actual_duration;
+                $attendance->totalAttendance->total_is_late = $total_is_late;
+                $attendance->totalAttendance->total_is_early = $total_is_early;
+                $attendance->totalAttendance->total_late_work = $total_late_work;
+                $attendance->totalAttendance->total_early_home = $total_early_home;
+                $attendance->totalAttendance->should_attend = $should_attend;
+                $attendance->totalAttendance->actual_attend = $actual_attend;
+                $attendance->totalAttendance->total_extra_work_duration = $total_extra_work_duration;
+                $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
+                $attendance->totalAttendance->total_basic_duration = $total_actual_duration - $total_extra_work_duration;
+                $attendance->totalAttendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
+                $total_attendance->save();
+
+                $attendance->totalAttendance->save();
+                session()->flash('success','增补时间成功！');
+                return redirect()->route('attendances.show',$total_attendance->id);
+            }
         }
     }
 
