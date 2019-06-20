@@ -209,8 +209,6 @@ class AttendancesController extends Controller
             }
 
 
-
-
             // 计算这一条attendance是否异常
             // 只要四项有一项是空的，直接报异常 （因为实际上下班必须对应应该上下班）
             if ($attendance->should_work_time == null || $attendance->should_home_time == null || $attendance->actual_work_time == null || $attendance->actual_home_time == null)
@@ -227,7 +225,7 @@ class AttendancesController extends Controller
                 {
                     $extrawork_duration = $attendance->extraWork->duration;
                 }
-                $cal_duration = $attendance->actual_duration-$extrawork_duration+$attendance->absence_duration; // 实际工时-加班+请假 >= (应该工时-5分钟)
+                $cal_duration = $attendance->actual_duration-$extrawork_duration+$attendance->absence_duration+$total_add; // 实际工时-加班+请假+总增补 >= (应该工时-5分钟)
                 if ($cal_duration>=($attendance->should_duration-5/60))
                 {
                     $attendance->abnormal = false;
@@ -245,7 +243,7 @@ class AttendancesController extends Controller
             {
                 if ($attendance->absence_id != null)
                 {
-                    if ($attendance->absence_duration >= ($attendance->should_duration-5/60))
+                    if ($attendance->absence_duration + $total_add >= ($attendance->should_duration-5/60))
                     {
                         $attendance->abnormal = false;
                     }
@@ -256,7 +254,7 @@ class AttendancesController extends Controller
             {
                 if ($attendance->extra_work_id != null)
                 {
-                    if ($attendance->actual_duration >= ($attendance->extraWork->duration-5/60))
+                    if ($attendance->actual_duration + $total_add >= ($attendance->extraWork->duration-5/60))
                     {
                         $attendance->abnormal = false;
                     }
@@ -269,12 +267,12 @@ class AttendancesController extends Controller
                 $attendance->abnormal = false;
             }
 
-            // 如果记录不异常，那么不计早退和迟到
-            if ($attendance->abnormal == false)
-            {
-                $attendance->is_early = false;
-                $attendance->is_late = false;
-            }
+            // // 如果记录不异常，那么不计早退和迟到
+            // if ($attendance->abnormal == false)
+            // {
+            //     $attendance->is_early = false;
+            //     $attendance->is_late = false;
+            // }
 
             if ($attendance->save())
             {
@@ -315,6 +313,8 @@ class AttendancesController extends Controller
                         $total_actual_duration += $at->actual_duration;
                         $actual_attend += 1;
                     }
+
+                    if ()
 
                     $total_is_late += $at->is_late;
                     $total_is_early += $at->is_early;
