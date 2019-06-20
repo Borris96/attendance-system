@@ -261,7 +261,12 @@ class AttendancesController extends Controller
             $attendance->actual_duration = $attendance->calDuration($awt,$aht);
         }
 
-        if ($attendance->should_work_time != null && $attendance->should_home_time != null && $attendance->actual_work_time != null && $attendance->actual_home_time != null)
+        // 只有考勤异常时才能进行补打卡操作
+        if ($attendance->abnormal)
+        {
+        // 只有在应上下班时间不为空的情况下才能进行补打卡
+        if ($attendance->should_work_time != null && $attendance->should_home_time != null)
+             // && $attendance->actual_work_time != null && $attendance->actual_home_time != null
         {
             $attendance->late_work = ($awt-$swt)/60; // 转换成分钟
             if (($awt-$swt)>0){ // 迟到是实际上班晚于应该上班
@@ -356,10 +361,10 @@ class AttendancesController extends Controller
             }
 
             // 如果记录不异常，那么不计早退和迟到
-            if ($s_a->abnormal == false)
+            if ($attendance->abnormal == false)
             {
-                $s_a->is_early = false;
-                $s_a->is_late = false;
+                $attendance->is_early = false;
+                $attendance->is_late = false;
             }
 
             if ($attendance->save())
@@ -447,7 +452,6 @@ class AttendancesController extends Controller
                 $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
                 $attendance->totalAttendance->total_basic_duration = $total_actual_duration - $total_extra_work_duration;
                 $attendance->totalAttendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
-
                 $total_attendance->save();
 
                 $attendance->totalAttendance->save();
@@ -455,6 +459,18 @@ class AttendancesController extends Controller
                 return redirect()->route('attendances.show',$total_attendance->id);
             }
         }
+        else
+        {
+            session()->flash('danger','该日期无法进行补打卡！');
+            return redirect()->back()->withInput();
+        }
+        }
+        else
+        {
+            session()->flash('danger','该日期不异常，无法进行补打卡！');
+            return redirect()->back()->withInput();
+        }
+
     }
 
     /**
