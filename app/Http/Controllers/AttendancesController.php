@@ -469,6 +469,15 @@ class AttendancesController extends Controller
             }
             else
             {
+                if ($attendance->add_duration == null)
+                {
+                    $add_duration = 0;
+                }
+                else
+                {
+                    $add_duration = $attendance->add_duration;
+                }
+
                 if ($attendance->extraWork == null)
                 {
                     $extrawork_duration = 0;
@@ -477,7 +486,7 @@ class AttendancesController extends Controller
                 {
                     $extrawork_duration = $attendance->extraWork->duration;
                 }
-                $cal_duration = $attendance->actual_duration-$extrawork_duration+$attendance->absence_duration; // 实际工时-加班+请假 >= (应该工时-5分钟)
+                $cal_duration = $attendance->actual_duration-$extrawork_duration+$attendance->absence_duration+$add_duration; // 实际工时-加班+请假 >= (应该工时-5分钟)
                 if ($cal_duration>=($attendance->should_duration-5/60))
                 {
                     $attendance->abnormal = false;
@@ -495,7 +504,7 @@ class AttendancesController extends Controller
             {
                 if ($attendance->absence_id != null)
                 {
-                    if ($attendance->absence_duration >= ($attendance->should_duration-5/60))
+                    if ($attendance->absence_duration+$add_duration >= ($attendance->should_duration-5/60))
                     {
                         $attendance->abnormal = false;
                     }
@@ -506,7 +515,7 @@ class AttendancesController extends Controller
             {
                 if ($attendance->extra_work_id != null)
                 {
-                    if ($attendance->actual_duration >= ($attendance->extraWork->duration-5/60))
+                    if ($attendance->actual_duration+$add_duration >= ($attendance->extraWork->duration-5/60))
                     {
                         $attendance->abnormal = false;
                     }
