@@ -298,81 +298,63 @@ class AttendancesController extends Controller
                 $attendance->abnormal = false;
             }
 
-            // 如果记录不异常，那么不计早退和迟到
-            // if ($attendance->abnormal == false)
-            // {
-            //     $attendance->is_early = false;
-            //     $attendance->is_late = false;
-            // }
-            // 如果只有一条增补记录，计算总时长，时长够了不计迟到或者早退 (等价于记录不异常就不计迟到早退)
-            // if (count($add_times) == 1)
-            // {
-            //     if ($attendance->abnormal == false)
-            //     {
-            //         $attendance->is_early = false;
-            //         $attendance->is_late = false;
-            //     }
+            // 根据增补时间来更新是否迟到早退
+            // 这个是最优先条件
+            if ($attendance->abnormal == false)
+            {
+                $attendance->is_early = false;
+                $attendance->is_late = false;
+            }
+            else
+            {
+                $work = strtotime($attendance->should_work_time);
+                $home = strtotime($attendance->should_home_time);
+                // 先把这两段时间取出来
+                foreach ($add_times as $at)
+                {
+                    $start = strtotime($at->add_start_time);
+                    $end = strtotime($at->add_end_time);
 
-            // }
-            // 如果有两条增补记录，第一段时间的开始时间如果在5分钟容忍度内，不计迟到；第二段结束时间在5分钟容忍度内，不计早退。
-            // elseif (count($add_times) == 2)
-            // {
-                // 这个是最优先条件
-                if ($attendance->abnormal == false)
-                {
-                    $attendance->is_early = false;
-                    $attendance->is_late = false;
-                }
-                else
-                {
-                    $work = strtotime($attendance->should_work_time);
-                    $home = strtotime($attendance->should_home_time);
-                    // 先把这两段时间取出来
-                    foreach ($add_times as $at)
+                    // 判断开始、结束时间距离上下班哪个时间近，由此判断是该修改迟到还是早退。
+                    $judge_late = abs($start-$work);
+                    $judge_early = abs($home-$end);
+
+                    if ($judge_late <= $judge_early) // 开始时间离上班时间近，所以用这个时间判断是否早退
                     {
-                        $start = strtotime($at->add_start_time);
-                        $end = strtotime($at->add_end_time);
 
-                        // 判断开始、结束时间距离上下班哪个时间近，由此判断是该修改迟到还是早退。
-                        $judge_late = abs($start-$work);
-                        $judge_early = abs($home-$end);
-
-                        if ($judge_late <= $judge_early) // 开始时间离上班时间近，所以用这个时间判断是否早退
-                        {
-
-                            $late_work = ($start-$work)/60; // 转换成分钟
-                            if ($late_work>0){ // 迟到是实际上班晚于应该上班
-                                if ($late_work > 5) // 迟到5分钟以上，并且没有补上工时算迟到
-                                {
-                                    $attendance->is_late = true;
-                                }
-                                else {
-                                    $attendance->is_late = false;
-                                }
+                        $late_work = ($start-$work)/60; // 转换成分钟
+                        if ($late_work>0){ // 迟到是实际上班晚于应该上班
+                            if ($late_work > 5) // 迟到5分钟以上，并且没有补上工时算迟到
+                            {
+                                $attendance->is_late = true;
                             }
                             else {
                                 $attendance->is_late = false;
                             }
                         }
-                        else
-                        {
-                            $early_home = ($home-$end)/60;
-                            if ($early_home>0){ // 早退是实际下班早于应该下班
-                                // 后续还需要考虑到是否请假！！！！！
-                                if ($early_home > 5) // 早退5分钟以上算早退
-                                {
-                                    $attendance->is_early = true;
-                                }
-                                else {
-                                    $attendance->is_early = false;
-                                }
+                        else {
+                            $attendance->is_late = false;
+                        }
+                    }
+                    else
+                    {
+                        $early_home = ($home-$end)/60;
+                        if ($early_home>0){ // 早退是实际下班早于应该下班
+                            // 后续还需要考虑到是否请假！！！！！
+                            if ($early_home > 5) // 早退5分钟以上算早退
+                            {
+                                $attendance->is_early = true;
                             }
                             else {
                                 $attendance->is_early = false;
                             }
                         }
+                        else {
+                            $attendance->is_early = false;
+                        }
                     }
                 }
+            }
             // }
 
             if ($attendance->save())
