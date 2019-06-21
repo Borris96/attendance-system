@@ -40,7 +40,7 @@ class ExtraWork extends Model
         $start_time = strtotime($start_time); // Convert it to string
         $end_time = strtotime($end_time);
         if ($end_time>$start_time) {
-            // 只有当加班开始时间小于12点的时候才会计算午饭时间 （不要轻易试探11:59这个临界值）
+            // 只有当加班开始时间小于12点的时候会计算午饭时间 （不要轻易试探11:59这个临界值）
             if (date('H:i',$start_time)<'12:00')
             {
                 // 12点到1点为午休时间，只要超过一点才离开就减去一小时午饭时间（不要轻易试探13:01这个值哦）

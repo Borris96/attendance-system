@@ -18,13 +18,13 @@ class ExtraWorksController extends Controller
     {
         if ($request->get('englishname') == null)
         {
-            $extra_works = ExtraWork::orderBy('updated_at','desc')->paginate(15);
+            $extra_works = ExtraWork::orderBy('updated_at','desc')->paginate(50);
         }
         else {
             $englishname = $request->get('englishname');
             // 只能返回第一个有类似英文名的员工id
             $staff_id = Staff::where('englishname','like',$englishname.'%')->value('id');
-            $extra_works = ExtraWork::where('staff_id',$staff_id)->orderBy('updated_at','desc')->paginate(15);
+            $extra_works = ExtraWork::where('staff_id',$staff_id)->orderBy('updated_at','desc')->paginate(50);
             if (count($extra_works) == 0)
             {
                 session()->flash('warning', '加班记录不存在！');

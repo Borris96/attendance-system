@@ -34,11 +34,11 @@ class AttendancesController extends Controller
             if ($request->get('staff_id') != null)
             {
                 $staff_id = $request->get('staff_id');
-                $total_attendances = TotalAttendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(30);
+                $total_attendances = TotalAttendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(50);
             }
             else
             {
-                $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(30);
+                $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(50);
             }
             if (count($total_attendances) == 0)
             {
