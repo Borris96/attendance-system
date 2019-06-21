@@ -51,6 +51,8 @@ class Staffworkday extends Model
 
     public function calDuration($start_time, $end_time)
     {
+        $start_time = strtotime($start_time);
+        $end_time = strtotime($end_time);
         if ($end_time>$start_time) {
             if (date('H:i',$start_time)<'12:00')
             {
