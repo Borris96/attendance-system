@@ -83,6 +83,24 @@
       </tr>
 
       <tr>
+        <td class="tableleft">工资卡</td>
+        @if ($staff->card != null)
+        <td><input id="card" type="text" name="card_number" value="{{$staff->card->card_number}}" maxlength="23"></td>
+        @else
+        <td><input id="card" type="text" name="card_number" value="{{old('card_number')}}" maxlength="23"></td>
+        @endif
+      </tr>
+
+      <tr>
+        <td class="tableleft">开户行</td>
+        @if ($staff->card != null)
+        <td><input type="text" name="bank" value="{{$staff->card->bank}}"></td>
+        @else
+        <td><input type="text" name="bank" value="{{old('bank')}}"></td>
+        @endif
+      </tr>
+
+      <tr>
           <td class="tableleft"></td>
           <td>
               <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
@@ -99,6 +117,38 @@
   var defaultDate = document.querySelectorAll('#date-picker');
   for (var i = 0; i<defaultDate.length; i++) {
     defaultDate[i].valueAsDate = new Date();
+  }
+
+  window.onload=function()
+  {
+    var oT=document.getElementById('card');
+    oT.onkeydown=function(ev)
+    {
+      var oW=oT.value;
+      var oEvent=ev||event;
+      if(oEvent.keyCode==8)
+      {
+        if(oW)
+        {
+          for(var i=0;i<oW.length;i++)
+          {
+            var newStr=oW.replace(/\s$/g,'');
+          }
+          oT.value=newStr
+        }
+      }else{
+        for(var i=0;i<oW.length;i++)
+        {
+          var arr=oW.split('');
+
+          if((i+1)%5==0)
+          {
+            arr.splice(i,0,' ');
+          }
+        }
+        oT.value=arr.join('');
+      }
+    }
   }
 </script>
 

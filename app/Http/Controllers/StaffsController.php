@@ -12,6 +12,7 @@ use App\Staffworkday;
 use App\WorkHistory;
 use App\Absence;
 use App\LeaveStaff;
+use App\Card;
 
 class StaffsController extends Controller
 {
@@ -97,7 +98,9 @@ class StaffsController extends Controller
             'englishname'=>'required|max:50|unique:staffs',
             'join_company' => 'required',
             'positions'=>'required',
-            'annual_holiday'=>'max:6',
+            // 'annual_holiday'=>'',
+            'card_number'=>'max:23',
+            'bank'=>'max:50',
         ]);
 
         $staff = new Staff();
@@ -230,9 +233,15 @@ class StaffsController extends Controller
         }
         $staff->remaining_annual_holiday = $staff->annual_holiday;
 
+        $card_info = new Card();
+        $card_info->card_number = $request->get('card_number');
+        $card_info->bank = $request->get('bank');
+        $card_info->staff_id = $staff->id;
+
         $staff->status = true;
+
         if ($staff->save()) {
-            // $staff->insertWH($work_experiences_array, $leave_experiences_array, $staff->id);
+            $card_info->save();
             session()->flash('success','保存成功！');
             return redirect('staffs'); //应导向列表
         } else {
@@ -256,6 +265,8 @@ class StaffsController extends Controller
     public function update(Request $request, $id) {
         $this->validate($request, [
             'positions'=>'required',
+            'card_number'=>'max:23',
+            'bank'=>'max:50',
         ]);
 
         $staff = Staff::find($id);
@@ -389,7 +400,21 @@ class StaffsController extends Controller
         //     $staff->annual_holiday = $staff->getAnnualHolidays($staff->work_year, $staff->join_company);
         // }
 
+        if ($staff->card == null){
+            $card_info = new Card();
+            $card_info->card_number = $request->get('card_number');
+            $card_info->bank = $request->get('bank');
+            $card_info->staff_id = $staff->id;
+        }
+        else
+        {
+            $card_info = $staff->card;
+            $card_info->card_number = $request->get('card_number');
+            $card_info->bank = $request->get('bank');
+        }
+
         if ($staff->save()) {
+            $card_info->save();
             session()->flash('success','更新成功！');
             return redirect('staffs'); //应导向列表
         } else {

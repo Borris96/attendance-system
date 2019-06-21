@@ -87,6 +87,17 @@
           <td class="tableleft">年假小时数</td>
           <td><input type="text" name="annual_holiday" placeholder="如不填写则自动计算" value="{{ old('annual_holiday') }}" /></td>
       </tr>
+
+      <tr>
+        <td class="tableleft">工资卡</td>
+        <td><input id="card" type="text" name="card_number" value="{{old('card_number')}}" maxlength="23"></td>
+      </tr>
+
+      <tr>
+        <td class="tableleft">开户行</td>
+        <td><input type="text" name="bank" value="{{old('bank')}}"></td>
+      </tr>
+
       <tr>
           <td class="tableleft"></td>
           <td>
@@ -104,6 +115,38 @@
   var defaultDate = document.querySelectorAll('#date-picker');
   for (var i = 0; i<defaultDate.length; i++) {
     defaultDate[i].valueAsDate = new Date();
+  }
+
+  window.onload=function()
+  {
+    var oT=document.getElementById('card');
+    oT.onkeydown=function(ev)
+    {
+      var oW=oT.value;
+      var oEvent=ev||event;
+      if(oEvent.keyCode==8)
+      {
+        if(oW)
+        {
+          for(var i=0;i<oW.length;i++)
+          {
+            var newStr=oW.replace(/\s$/g,'');
+          }
+          oT.value=newStr
+        }
+      }else{
+        for(var i=0;i<oW.length;i++)
+        {
+          var arr=oW.split('');
+
+          if((i+1)%5==0)
+          {
+            arr.splice(i,0,' ');
+          }
+        }
+        oT.value=arr.join('');
+      }
+    }
   }
 </script>
 
