@@ -46,7 +46,14 @@ class AttendancesController extends Controller
                 return redirect()->back()->withInput();            }
             else
             {
-                return view('attendances/results',compact('total_attendances','year','month','staff_id'));
+                if ($request->get('staff_id') == null)
+                {
+                    return view('attendances/results',compact('total_attendances','year','month'));
+                }
+                else
+                {
+                    return view('attendances/results',compact('total_attendances','year','month','staff_id'));
+                }
             }
         }
         else
@@ -62,7 +69,8 @@ class AttendancesController extends Controller
     {
         $total_attendance = TotalAttendance::find($id); // 这个show的id是属于total attendance的，不是staff!!!
         $staff = $total_attendance->staff;
-        $attendances = $total_attendance->attendances;
+        // $attendances = $total_attendance->attendances;
+        $attendances = Attendance::where('total_attendance_id',$total_attendance->id)->orderBy('date','asc')->paginate(31);
         return view('attendances.show',compact('staff','attendances'));
     }
 

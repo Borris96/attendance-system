@@ -25,7 +25,7 @@ class StaffsController extends Controller
     {
         if ($request->get('englishname') == null)
         {
-            $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(10);
+            $staffs = Staff::where('status',true)->orderBy('id','asc')->paginate(50);
             foreach ($staffs as $staff) {
                 //每年更新一次
                 $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
