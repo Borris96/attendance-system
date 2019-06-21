@@ -24,7 +24,6 @@
         <th>工时差值</th>
         <th>总增补工时</th>
         <th>是否异常</th>
-        <th>当月工资</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -50,7 +49,6 @@
             @else
             <td style="color: red;">是</td>
             @endif
-            <td>还没算</td>
             <td>
                 <a style="font-size: 12px;" href="{{ route('attendances.show',$ta->id) }}">查看</a> <!-- route('staffs.edit', $staff->id) -->
             </td>
