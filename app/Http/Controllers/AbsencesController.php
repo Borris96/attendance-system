@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Staff;
 use App\Absence;
+use App\Attendance;
 use App\Lieu;
 
 class AbsencesController extends Controller
@@ -146,7 +147,7 @@ class AbsencesController extends Controller
         foreach ($workdays as $wd) { // 其实只有一个值
             $last_day_home_time = $wd->home_time;
             $last_day_work_time = $wd->work_time;
-            $work_duration = $wd->duration;
+            // $work_duration = $wd->duration; // 此处有问题
         }
 
         if (date('H:i:s',$absence_end_time)<$last_day_work_time)
@@ -175,7 +176,40 @@ class AbsencesController extends Controller
         $absence->approve = $request->get('approve');
         $absence->note = $request->get('note');
         // $absence->duration = 0.9;
-        $absence->duration = $absence->calDuration($first_day_home_time, $last_day_work_time, $work_duration, $absence->absence_start_time, $absence->absence_end_time);
+        // $absence->duration = $absence->calDuration($first_day_home_time, $last_day_work_time, $work_duration, $absence->absence_start_time, $absence->absence_end_time);
+
+
+        $duration_array = [];
+        $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence->absence_start_time, $absence->absence_end_time, $duration_array);
+
+        if (count($duration_array) == 1)
+        {
+            $absence->duration = array_sum($duration_array);
+        }
+        elseif (count($duration_array) == 2)
+        {
+            $middle_duration = 0;
+            // 将每一天分开，请假除去收尾的天按当日工作时长计算请假时长
+            $date_day = [];
+            $date_day = Attendance::separateAbsence($absence->absence_start_time, $absence->absence_end_time, $date_day);
+            // 计算中间日期的请假总时长
+            $count = count($date_day)-2; // 减去了起止日期
+            for ($j=1; $j<=$count; $j++)
+            {
+                $workday_name = $weekarray[date('w',strtotime($date_day[$j]))];
+                // 寻找这一天（星期）的该员工工作时长
+                $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                foreach ($this_workday as $twd) { // 其实只有一个 workday
+                    $middle_duration += $twd->duration;
+                }
+            }
+            $absence->duration = array_sum($duration_array) + $middle_duration;
+        }
+        else
+        {
+            session()->flash('danger','请假时长计算失败！');
+            return redirect()->back()->withInput();
+        }
 
         // 只有年假，且被批准情况下计算剩余年假
         if ($absence->absence_type == "年假" && $absence->approve == true){
@@ -333,7 +367,39 @@ class AbsencesController extends Controller
         $absence->approve = $request->get('approve');
         $absence->note = $request->get('note');
 
-        $absence->duration = $absence->calDuration($first_day_home_time, $last_day_work_time, $work_duration, $absence->absence_start_time, $absence->absence_end_time);
+        // $absence->duration = $absence->calDuration($first_day_home_time, $last_day_work_time, $work_duration, $absence->absence_start_time, $absence->absence_end_time);
+
+        $duration_array = [];
+        $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence->absence_start_time, $absence->absence_end_time, $duration_array);
+
+        if (count($duration_array) == 1)
+        {
+            $absence->duration = array_sum($duration_array);
+        }
+        elseif (count($duration_array) == 2)
+        {
+            $middle_duration = 0;
+            // 将每一天分开，请假除去收尾的天按当日工作时长计算请假时长
+            $date_day = [];
+            $date_day = Attendance::separateAbsence($absence->absence_start_time, $absence->absence_end_time, $date_day);
+            // 计算中间日期的请假总时长
+            $count = count($date_day)-2; // 减去了起止日期
+            for ($j=1; $j<=$count; $j++)
+            {
+                $workday_name = $weekarray[date('w',strtotime($date_day[$j]))];
+                // 寻找这一天（星期）的该员工工作时长
+                $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                foreach ($this_workday as $twd) { // 其实只有一个 workday
+                    $middle_duration += $twd->duration;
+                }
+            }
+            $absence->duration = array_sum($duration_array) + $middle_duration;
+        }
+        else
+        {
+            session()->flash('danger','请假时长计算失败！');
+            return redirect()->back()->withInput();
+        }
 
         if ($absence->absence_type == "调休" && $absence->approve == false) {
             session()->flash('danger','调休需要批准！');

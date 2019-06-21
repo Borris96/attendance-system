@@ -18,7 +18,7 @@ class Absence extends Model
      * 算法：
      * 如果请假起止在同一天，用加班时长算法;
      * 如果请假起止不在同一天，把这几天隔离开，
-     * 完整天数乘以工时（8小时）;
+     * 完整天数乘以工时（8小时）; 这里有问题。
      * 开始的那一天用下班时间减开始，结束的那一天用结束减上班时间，根据情况判定是否减午饭时间
      *
      * @param time $first_day_home_time
@@ -117,7 +117,7 @@ class Absence extends Model
      * @param datetime $absence_start_time
      * @param datetime $absence_end_time
      * @param array $duration_array
-     * @return array $duration_array 若有多天，第一个元素为第一天时长，第二个元素为最后一天时长，完整天的时长等于当日工时
+     * @return array $duration_array 若有多天，第一个元素为第一天时长，第二个元素为最后一天时长，完整天的时长等于当日工时（需要另读）
      */
     public function separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array)
     {
