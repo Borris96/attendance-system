@@ -19,13 +19,13 @@ class AbsencesController extends Controller
     {
         if ($request->get('englishname') == null)
         {
-            $absences = Absence::orderBy('updated_at','desc')->paginate(50);
+            $absences = Absence::orderBy('updated_at','desc')->get();
         }
         else {
             $englishname = $request->get('englishname');
             // 只能返回第一个有类似英文名的员工id
             $staff_id = Staff::where('englishname','like',$englishname.'%')->value('id');
-            $absences = Absence::where('staff_id',$staff_id)->orderBy('updated_at','desc')->paginate(50);
+            $absences = Absence::where('staff_id',$staff_id)->orderBy('updated_at','desc')->get();
             if (count($absences) == 0)
             {
                 session()->flash('warning', '加班记录不存在！');

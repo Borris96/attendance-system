@@ -14,7 +14,7 @@ class SalarysController extends Controller
 
     public function index()
     {
-        $salarys = Salary::orderBy('id','asc')->paginate(50);
+        $salarys = Salary::orderBy('id','asc')->get();
         return view('salarys/index',compact('salarys'));
     }
 

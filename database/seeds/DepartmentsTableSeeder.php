@@ -12,6 +12,7 @@ class DepartmentsTableSeeder extends Seeder
     protected $department_names = [
         '客服部',
         '教材部',
+        '外教部',
         '网课部',
         '人事行政部',
         '财务部',

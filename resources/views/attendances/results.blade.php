@@ -27,6 +27,7 @@
         <th>操作</th>
     </tr>
     </thead>
+    <tbody id="pageInfo">
       @foreach ($total_attendances as $ta)
        <tr>
             <td>{{ $ta->staff->id }}</td>
@@ -54,10 +55,10 @@
             </td>
         </tr>
       @endforeach
+      <tbody id="pageInfo">
 </table>
 
-{{ $total_attendances->links() }}
-
+@include('shared._pagination')
 <div style="margin: 20px">
   <a class="btn btn-success" href="{{ route('attendances.index') }}" role="button">返回考勤管理</a>
 </div>

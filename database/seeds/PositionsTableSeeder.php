@@ -16,11 +16,11 @@ class PositionsTableSeeder extends Seeder
         '文员',
         '主任',
         '主管',
+        '教师',
         '设计',
         '兼职',
         '实习生',
         '其他',
-
     ];
 
     public function run()

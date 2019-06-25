@@ -15,7 +15,7 @@ class LeaveStaffsController extends Controller
 
     public function index()
     {
-        $leave_staffs = Staff::where('status',false)->orderby('leave_company','desc')->paginate(50);
+        $leave_staffs = Staff::where('status',false)->orderby('leave_company','desc')->get();
         return view('leave_staffs.index',compact('leave_staffs'));
     }
 

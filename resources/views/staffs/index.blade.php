@@ -2,6 +2,7 @@
 @section('title','员工信息')
 @section('content')
 @include('shared._messages')
+
 <form class="form-inline definewidth m20" action="{{ route('staffs.index') }}" method="get">
     员工英文名
     <input type="text" name="englishname" id="englishname"class="abc input-default" placeholder="" value="{{ old('englishname') }}">&nbsp;&nbsp;
@@ -29,6 +30,7 @@
         <th>操作</th>
     </tr>
     </thead>
+    <tbody id="pageInfo">
     @foreach ($staffs as $staff)
        <tr>
             <td>{{ $staff->id }}</td>
@@ -59,10 +61,10 @@
             </td>
         </tr>
       @endforeach
+    </tbody>
 </table>
 
-  {!! $staffs->render() !!} <!-- show paginate -->
-
+@include('shared._pagination')
 
 <script>
 
@@ -73,6 +75,5 @@
   }
 
 </script>
-
 
 @stop

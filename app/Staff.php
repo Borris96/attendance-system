@@ -103,5 +103,4 @@ class Staff extends Model
         $annual_holiday += $default_holiday;
         return $annual_holiday;
     }
-
 }

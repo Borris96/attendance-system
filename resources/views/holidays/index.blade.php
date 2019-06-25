@@ -15,6 +15,7 @@
         <th>操作</th>
     </tr>
     </thead>
+    <tbody id="pageInfo">
       @foreach($holidays as $h)
        <tr>
             <td>{{ $h->date }}</td>
@@ -31,8 +32,10 @@
             </td>
         </tr>
       @endforeach
+    </tbody>
 </table>
-{{ $holidays->links() }}
+
+@include('shared._pagination')
 
 <script>
 

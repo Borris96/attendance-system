@@ -27,6 +27,7 @@
         <th>操作</th>
     </tr>
     </thead>
+    <tbody id="pageInfo">
     @foreach ($absences as $absence)
        <tr>
             <td>{{ $absence->staff->id }}</td>
@@ -55,10 +56,10 @@
             </td>
         </tr>
       @endforeach
+    </tbody>
 </table>
 
-{{ $absences->links() }}
-
+@include('shared._pagination')
 <script>
 
   function delcfm() {

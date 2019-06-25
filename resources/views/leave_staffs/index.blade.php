@@ -6,6 +6,8 @@
     员工姓名：
     <input type="text" name="staffname" id="staffname"class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>
+    &nbsp;&nbsp;
+    <a href="{{route('staffs.index')}}" class="btn btn-info">查看在职员工</a>
 </form>
 
 <table class="table table-bordered table-hover definewidth m10">
@@ -26,6 +28,7 @@
         <th>操作</th>
     </tr>
     </thead>
+    <tbody id="pageInfo">
     @foreach ($leave_staffs as $leave_staff)
        <tr>
             <td>{{ $leave_staff->id }}</td>
@@ -50,12 +53,10 @@
             </td>
         </tr>
       @endforeach
+    </tbody>
 </table>
 
-{{ $leave_staffs->links() }} <!-- show paginate -->
-
-<a href="{{route('staffs.index')}}" class="btn btn-info" style="margin:20px;">查看在职员工</a>
-
+@include('shared._pagination')
 <script>
 
   function delcfm() {

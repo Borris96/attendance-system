@@ -34,11 +34,11 @@ class AttendancesController extends Controller
             if ($request->get('staff_id') != null)
             {
                 $staff_id = $request->get('staff_id');
-                $total_attendances = TotalAttendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(50);
+                $total_attendances = TotalAttendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->get();
             }
             else
             {
-                $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->paginate(50);
+                $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->get();
             }
             if (count($total_attendances) == 0)
             {
@@ -70,7 +70,7 @@ class AttendancesController extends Controller
         $total_attendance = TotalAttendance::find($id); // 这个show的id是属于total attendance的，不是staff!!!
         $staff = $total_attendance->staff;
         // $attendances = $total_attendance->attendances;
-        $attendances = Attendance::where('total_attendance_id',$total_attendance->id)->orderBy('date','asc')->paginate(31);
+        $attendances = Attendance::where('total_attendance_id',$total_attendance->id)->orderBy('date','asc')->get();
         return view('attendances.show',compact('staff','attendances'));
     }
 

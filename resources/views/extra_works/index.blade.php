@@ -25,6 +25,7 @@
         <th>操作</th>
     </tr>
     </thead>
+    <tbody id="pageInfo">
       @foreach ($extra_works as $ew)
        <tr>
             <td> {{$ew->staff->id}} </td>
@@ -52,8 +53,10 @@
             </td>
         </tr>
       @endforeach
+    </tbody>
 </table>
 
+@include('shared._pagination')
 <script>
 
   function delcfm() {
