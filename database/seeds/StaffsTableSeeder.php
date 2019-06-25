@@ -23,6 +23,7 @@ class StaffsTableSeeder extends Seeder
         //     'updated_at'=>now(),
         //     ]);
 
+        // 固定时长员工
         DB::table('staffs')->insert([
             'id'=>'2018050701',
             'staffname'=>'陈嘉琛',
@@ -175,6 +176,81 @@ class StaffsTableSeeder extends Seeder
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true,
+            ]);
+
+        // 非固定员工
+        DB::table('staffs')->insert([
+            'id'=>'2015060401',
+            'staffname'=>'侯春燕',
+            'englishname'=>'JoeyHou',
+            'department_id'=>'1',
+            'position_id'=>'1',
+            'department_name'=>'客服部',
+            'position_name'=>'助理',
+            'join_company'=>'2015-06-04',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true,
+            ]);
+
+        DB::table('staffs')->insert([
+            'id'=>'2017040501',
+            'staffname'=>'范佳秋',
+            'englishname'=>'FannyFan',
+            'department_id'=>'1',
+            'position_id'=>'1',
+            'department_name'=>'客服部',
+            'position_name'=>'助理',
+            'join_company'=>'2017-04-05',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true,
+            ]);
+
+        // 外教
+        DB::table('staffs')->insert([
+            'id'=>'2017010102',
+            'staffname'=>'Rosalia',
+            'englishname'=>'Rosalia',
+            'department_id'=>'3',
+            'position_id'=>'1',
+            'department_name'=>'网课部',
+            'position_name'=>'助理',
+            'join_company'=>'2017-01-01',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true,
+            ]);
+
+        // 当月入职
+        DB::table('staffs')->insert([
+            'id'=>'2019032501',
+            'staffname'=>'MichelleZhang',
+            'englishname'=>'MichelleZhang',
+            'department_id'=>'1',
+            'position_id'=>'1',
+            'department_name'=>'客服部',
+            'position_name'=>'助理',
+            'join_company'=>'2019-03-25',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true,
+            ]);
+
+        // 离职员工
+        DB::table('staffs')->insert([
+            'id'=>'2017010101',
+            'staffname'=>'JasmxnJin',
+            'englishname'=>'JasmxnJin',
+            'department_id'=>'2',
+            'position_id'=>'3',
+            'department_name'=>'教材部',
+            'position_name'=>'文员',
+            'join_company'=>'2017-07-01',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>false,
+            'leave_company'=>'2019-03-11',
             ]);
     }
 }

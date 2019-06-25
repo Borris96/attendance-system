@@ -797,5 +797,361 @@ class StaffworkdaysTableSeeder extends Seeder
             'created_at'=>now(),
             'updated_at'=>now(),
         ]);
+
+
+        // 范佳秋
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017040501',
+            'workday_name'=>'一',
+            'is_work'=>true, 'duration'=>'6.00',
+            'work_time'=>'11:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017040501',
+            'workday_name'=>'二',
+            'is_work'=>true, 'duration'=>'5.00',
+            'work_time'=>'13:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017040501',
+            'workday_name'=>'三',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017040501',
+            'workday_name'=>'四',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017040501',
+            'workday_name'=>'五',
+            'is_work'=>true, 'duration'=>'9.00',
+            'work_time'=>'10:00:00',
+            'home_time'=>'20:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017040501',
+            'workday_name'=>'六',
+            'is_work'=>true, 'duration'=>'10.00',
+            'work_time'=>'08:00:00',
+            'home_time'=>'19:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017040501',
+            'workday_name'=>'日',
+            'is_work'=>true, 'duration'=>'10.00',
+            'work_time'=>'08:00:00',
+            'home_time'=>'19:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        // 侯春燕
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2015060401',
+            'workday_name'=>'一',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2015060401',
+            'workday_name'=>'二',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2015060401',
+            'workday_name'=>'三',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2015060401',
+            'workday_name'=>'四',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2015060401',
+            'workday_name'=>'五',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2015060401',
+            'workday_name'=>'六',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2015060401',
+            'workday_name'=>'日',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        // JasmxnJin
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017010101',
+            'workday_name'=>'一',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2018112601',
+            'workday_name'=>'二',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2018112601',
+            'workday_name'=>'三',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2018112601',
+            'workday_name'=>'四',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2018112601',
+            'workday_name'=>'五',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2018112601',
+            'workday_name'=>'六',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2018112601',
+            'workday_name'=>'日',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        // MichelleZhang
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019032501',
+            'workday_name'=>'一',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019032501',
+            'workday_name'=>'二',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019032501',
+            'workday_name'=>'三',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019032501',
+            'workday_name'=>'四',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019032501',
+            'workday_name'=>'五',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019032501',
+            'workday_name'=>'六',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019032501',
+            'workday_name'=>'日',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        // Rosalia
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017010102',
+            'workday_name'=>'一',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017010102',
+            'workday_name'=>'二',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017010102',
+            'workday_name'=>'三',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017010102',
+            'workday_name'=>'四',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017010102',
+            'workday_name'=>'五',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017010102',
+            'workday_name'=>'六',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2017010102',
+            'workday_name'=>'日',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
     }
 }
