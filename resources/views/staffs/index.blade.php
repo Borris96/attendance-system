@@ -64,7 +64,9 @@
     </tbody>
 </table>
 
+@if (count($staffs)>config('page.PAGE_SIZE'))
 @include('shared._pagination')
+@endif
 
 <script>
 

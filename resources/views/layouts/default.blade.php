@@ -45,7 +45,7 @@
 <script>
 var departmentInfo = document.getElementById("pageInfo");  /*获取table中的内容*/
   var totalRow = departmentInfo.rows.length;   /*计算出总条数(这种方法用来获取table行数，获取列数用var cells = departmentsInfo.rows[0].cells.length;*/
-  var pagesize = 10;   /*每页条数*/
+  var pagesize = config('page.PAGE_SIZE');   /*每页条数*/
   var totalPage = Math.ceil(totalRow/pagesize);  /*计算出总页数*/
   var currentPage;
   var startRow;

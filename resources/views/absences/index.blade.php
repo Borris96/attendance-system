@@ -59,7 +59,9 @@
     </tbody>
 </table>
 
+@if (count($absences)>config('page.PAGE_SIZE'))
 @include('shared._pagination')
+@endif
 <script>
 
   function delcfm() {

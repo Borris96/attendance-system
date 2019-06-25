@@ -56,7 +56,9 @@
     </tbody>
 </table>
 
+@if (count($extra_works)>config('page.PAGE_SIZE'))
 @include('shared._pagination')
+@endif
 <script>
 
   function delcfm() {

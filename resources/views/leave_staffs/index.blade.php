@@ -56,7 +56,9 @@
     </tbody>
 </table>
 
+@if (count($leave_staffs)>config('page.PAGE_SIZE'))
 @include('shared._pagination')
+@endif
 <script>
 
   function delcfm() {

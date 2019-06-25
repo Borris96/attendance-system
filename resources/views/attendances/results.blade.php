@@ -58,7 +58,9 @@
       <tbody id="pageInfo">
 </table>
 
+@if (count($total_attendances)>config('page.PAGE_SIZE'))
 @include('shared._pagination')
+@endif
 <div style="margin: 20px">
   <a class="btn btn-success" href="{{ route('attendances.index') }}" role="button">返回考勤管理</a>
 </div>

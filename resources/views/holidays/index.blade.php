@@ -35,7 +35,9 @@
     </tbody>
 </table>
 
+@if (count($holidays)>config('page.PAGE_SIZE'))
 @include('shared._pagination')
+@endif
 
 <script>
 
