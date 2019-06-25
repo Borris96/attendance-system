@@ -766,13 +766,27 @@ class AttendancesController extends Controller
                 $reader->setReadDataOnly(TRUE); // 只读
                 $spreadsheet = $reader->load($realPath);
                 $num = $spreadsheet->getSheetCount(); // Sheet的总数
-                //////目前读的只是第五个worksheet!
-                for ($i = 5; $i<$num; $i++)
+                // 判断读取的表格格式是否正确
+                $testsheet = $spreadsheet->getSheet(0);
+                if ($testsheet->getTitle() != '排班信息')
+                {
+                    session()->flash('danger','导入表格格式错误');
+                    return redirect()->back();
+                }
+                // 从第五张表开始是我们需要读的原始数据
+                for ($i = 4; $i<$num; $i++)
                 {
                     $worksheet = $spreadsheet->getSheet($i); // 读取指定的sheet
                     $highest_row = $worksheet->getHighestRow(); // 总行数
                     $highest_column = $worksheet->getHighestColumn(); // 总列数
                     $highest_column_index = Coordinate::columnIndexFromString($highest_column);
+                    $title = $worksheet->getCellByColumnAndRow(1,1)->getValue();
+                    if ($title != "考 勤 卡 表")
+                    {
+                        session()->flash('danger',"'".$worksheet->getTitle()."'工作表格式错误");
+                        return redirect()->back();
+                    }
+
                     $month_period = $worksheet->getCellByColumnAndRow(4,2)->getValue();
                     $this_month = explode('-', $month_period);
                     $year = $this_month[0];
@@ -1142,6 +1156,27 @@ class AttendancesController extends Controller
                                 $total_attendance->year = $year;
                                 $total_attendance->month = $month;
                                 $attendances = $staff->attendances->where('year',$year)->where('month',$month);
+
+                                // 判断该员工是否当月入职，如果是，入职前的日期统一改为异常
+                                $join_company = $staff->join_company;
+                                $month_first_day = date('Y-m-01',strtotime($year.'-'.$month));
+                                $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
+                                if ($join_company >= $month_first_day && $join_company <= $month_last_day)
+                                {
+                                    foreach ($attendances as $at) {
+                                        $this_day = $year.'-'.$month.'-'.$at->date;
+                                        if (strtotime($this_day)<strtotime($join_company)) // 如果考勤日早于入职日，那么之前不算考勤
+                                        {
+                                            $at->workday_type = null;
+                                            $at->should_home_time = null;
+                                            $at->should_work_time = null;
+                                            $at->should_duration = null;
+                                            $at->abnormal = false;
+                                            $at->save();
+                                        }
+                                    }
+                                }
+
                                 $total_should_duration = 0;
                                 $total_actual_duration = 0;
                                 $total_is_late = 0;
