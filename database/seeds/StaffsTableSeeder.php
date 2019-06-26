@@ -111,7 +111,7 @@ class StaffsTableSeeder extends Seeder
         DB::table('staffs')->insert([
             'id'=>'2017030101',
             'staffname'=>'张颖',
-            'englishname'=>'LillianZhang',
+            'englishname'=>'lillianZhang',
             'department_id'=>'5',
             'position_id'=>'2',
             'department_name'=>'人事行政部',
