@@ -972,6 +972,16 @@ class AttendancesController extends Controller
                                     // 无论有没有批准都记录进去。
                                     $extra_work_id = ExtraWork::where('staff_id',$staff->id)->where('extra_work_start_time','>=',$look_for_start_time)->where('extra_work_end_time','<=',$look_for_end_time)->value('id');
                                     $attendance->extra_work_id = $extra_work_id;
+                                    // 计算当日基本工时：用 实-加 和 应 来比:如果 (实-加)>应, 记应工时; 反之记 (实-加)
+                                    // 每日基本工时:(实-加)>应？应:(实-加)
+                                    if ($attendance->extra_work_id != null)
+                                    {
+                                        $attendance->basic_duration = ($attendance->actual_duration-$attendance->extraWork->duration)>$attendance->should_duration?$attendance->should_duration:($attendance->actual_duration-$attendance->extraWork->duration);
+                                    }
+                                    else
+                                    {
+                                        $attendance->basic_duration = $attendance->actual_duration>$attendance->should_duration?$attendance->should_duration:$attendance->actual_duration;
+                                    }
                                     $attendance->save();
                                 }
 
@@ -1178,6 +1188,24 @@ class AttendancesController extends Controller
                                     }
                                 }
 
+                                // 判断该员工是否当月离职，如果是，入职前的日期统一改为不异常
+                                $leave_company = $staff->leave_company;
+                                if ($leave_company >= $month_first_day && $leave_company <= $month_last_day)
+                                {
+                                    foreach ($attendances as $at) {
+                                        $this_day = $year.'-'.$month.'-'.$at->date;
+                                        if (strtotime($this_day)>=strtotime($leave_company)) // 如果考勤日晚于离职日，那么之后不算考勤
+                                        {
+                                            $at->workday_type = null;
+                                            $at->should_home_time = null;
+                                            $at->should_work_time = null;
+                                            $at->should_duration = null;
+                                            $at->abnormal = false;
+                                            $at->save();
+                                        }
+                                    }
+                                }
+
                                 $total_should_duration = 0;
                                 $total_actual_duration = 0;
                                 $total_is_late = 0;
@@ -1188,6 +1216,7 @@ class AttendancesController extends Controller
                                 $actual_attend = 0;
                                 $total_extra_work_duration = 0;
                                 $total_absence_duration = 0;
+                                $total_basic_duration = 0;
                                 // $total_abnormal = false;
 
                                 foreach ($attendances as $at)
@@ -1203,6 +1232,7 @@ class AttendancesController extends Controller
                                         $total_actual_duration += $at->actual_duration;
                                         $actual_attend += 1;
                                     }
+                                    $total_basic_duration += $at->basic_duration;
 
                                     $total_is_late += $at->is_late;
                                     $total_is_early += $at->is_early;
@@ -1253,7 +1283,7 @@ class AttendancesController extends Controller
                                 $total_attendance->actual_attend = $actual_attend;
                                 $total_attendance->total_extra_work_duration = $total_extra_work_duration;
                                 $total_attendance->total_absence_duration = $total_absence_duration;
-                                $total_attendance->total_basic_duration = $total_actual_duration - $total_extra_work_duration;
+                                $total_attendance->total_basic_duration = $total_basic_duration;
                                 $total_attendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
 
                                 $total_attendance->save();

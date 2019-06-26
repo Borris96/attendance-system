@@ -46,8 +46,8 @@
               <td>{{ $staff->lieu->total_time }}</td>
               <td>{{ $staff->lieu->remaining_time }}</td>
             @else
-              <td>0.00</td>
-              <td>0.00</td>
+              <td></td>
+              <td></td>
             @endif
             <td>
                 <a href="{{ route('staffs.show',$staff->id) }}" class="btn btn-info">详情</a>

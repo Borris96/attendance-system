@@ -18,9 +18,9 @@ class CreateTotalAttendancesTable extends Migration
             $table->unsignedInteger('year')->nullable();
             $table->unsignedInteger('month')->nullable();
             $table->unsignedInteger('staff_id')->nullable();
-            $table->decimal('total_should_duration',5,2)->nullable(); //
-            $table->decimal('total_actual_duration',5,2)->nullable(); //
-            $table->decimal('total_basic_duration',5,2)->nullable();
+            $table->decimal('total_should_duration',5,2)->nullable(); // 应该工作的总时长
+            $table->decimal('total_actual_duration',5,2)->nullable(); // 实际工作总时长(包括加班)
+            $table->decimal('total_basic_duration',5,2)->nullable(); //
             $table->decimal('total_absence_duration',5,2)->nullable();
             $table->decimal('total_extra_work_duration',5,2)->nullable();
             $table->decimal('total_add_duration',5,2)->nullable();

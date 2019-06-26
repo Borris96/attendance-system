@@ -37,8 +37,9 @@
         <th>早退(分)</th>
         <th>请假记录</th>
         <th>加班记录</th>
-        <th>应总工时</th>
-        <th>实际总工时</th>
+        <th>应工时</th>
+        <th>实工时</th>
+        <th>基本工时</th>
         <th>是否异常</th>
         <th>增补记录</th>
         <th>操作</th>
@@ -116,6 +117,7 @@
 
             <td>{{ $attendance->should_duration }}</td>
             <td>{{ $attendance->actual_duration }}</td>
+            <td>{{ $attendance->basic_duration }}</td>
             @if ($attendance->abnormal == false)
             <td>否</td>
             @else

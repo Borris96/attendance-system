@@ -19,6 +19,7 @@
         <th>所属部门</th>
         <th>当前职位</th>
         <th>入职日期</th>
+        <th>离职日期</th>
         <th>参加工作年数</th>
         <th>年假小时数</th>
         <th>剩余小时</th>
@@ -37,6 +38,7 @@
             <td>{{ $leave_staff->department_name }}</td>
             <td>{{ $leave_staff->position_name }}</td>
             <td>{{ $leave_staff->join_company }}</td>
+            <td>{{ $leave_staff->leave_company }}</td>
             <td>{{ $leave_staff->work_year }}</td>
             <td>{{ $leave_staff->annual_holiday }}</td>
             <td>{{ $leave_staff->remaining_annual_holiday }}</td>
@@ -44,8 +46,8 @@
               <td>{{ $leave_staff->lieu->total_time }}</td>
               <td>{{ $leave_staff->lieu->remaining_time }}</td>
             @else
-              <td>0.00</td>
-              <td>0.00</td>
+              <td></td>
+              <td></td>
             @endif
             <td><button class="btn btn-danger disabled" type="button">已离职</button></td>
             <td>
