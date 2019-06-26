@@ -1341,8 +1341,8 @@ class AttendancesController extends Controller
 
                             }
                             else {
-                                dump($find->get());
-                                exit();
+                                // dump($find->get());
+                                // exit();
                                 session()->flash('danger','该员工该月记录已存在！');
                                 return redirect()->back();
                             }

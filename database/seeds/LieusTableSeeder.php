@@ -13,7 +13,7 @@ class LieusTableSeeder extends Seeder
     {
         DB::table('lieus')->insert([
             'staff_id'=>'2018090101',
-            'total_time'=>'9.00',
+            'total_time'=>'8.00',
             'remaining_time'=>'0.00',
             'created_at'=>now(),
             'updated_at'=>now(),
@@ -21,7 +21,7 @@ class LieusTableSeeder extends Seeder
 
         DB::table('lieus')->insert([
             'staff_id'=>'2011110101',
-            'total_time'=>'9.00',
+            'total_time'=>'8.00',
             'remaining_time'=>'0.00',
             'created_at'=>now(),
             'updated_at'=>now(),
