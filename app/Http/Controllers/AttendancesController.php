@@ -796,8 +796,12 @@ class AttendancesController extends Controller
                     for ($c = 1; $c < $highest_column_index; $c += 15)
                     {
                         $englishname = $worksheet->getCellByColumnAndRow($c+9,3)->getValue();
-                        $staff = Staff::where('status',true)->where('englishname',$englishname);
+                        // 查询离职日期为空或者晚于这个考勤月离职的员工。
+                        // 为了查询方便，我将未离职员工的离职日期默认设为时间戳能达到的最后一年第一天，即：2038-01-01
+                        $staff = Staff::where('leave_company','>=',$year.'-'.$month.'-01')->where('englishname',$englishname);
+                        // $staff = Staff::where('status',true)->where('englishname',$englishname);
                         $staff_id = $staff->value('id');
+
                         // 如果这个人存在于在职员工数据库中，那么我才读取他的数据。这样可以避免读取没有必要的数据。
                         if (count($staff->get()) != 0)
                         {
@@ -964,10 +968,7 @@ class AttendancesController extends Controller
                                     }
                                     $look_for_start_time = $ymd.' 00:00:00';
                                     $look_for_end_time = $ymd.' 24:00:00';
-                                    // 查询当日被批准的加班记录
-
                                     // 目前这个查询方法只适用于查询结果只有一条的。如果多条结果不能如此直接赋值
-
                                     // 无论有没有批准都记录进去。
                                     $extra_work_id = ExtraWork::where('staff_id',$staff->id)->where('extra_work_start_time','>=',$look_for_start_time)->where('extra_work_end_time','<=',$look_for_end_time)->value('id');
                                     $attendance->extra_work_id = $extra_work_id;
@@ -1157,7 +1158,7 @@ class AttendancesController extends Controller
                                 $total_attendance->month = $month;
                                 $attendances = $staff->attendances->where('year',$year)->where('month',$month);
 
-                                // 判断该员工是否当月入职，如果是，入职前的日期统一改为异常
+                                // 判断该员工是否当月入职，如果是，入职前的日期统一改为不异常
                                 $join_company = $staff->join_company;
                                 $month_first_day = date('Y-m-01',strtotime($year.'-'.$month));
                                 $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
@@ -1268,6 +1269,8 @@ class AttendancesController extends Controller
 
                             }
                             else {
+                                dump($find->get());
+                                exit();
                                 session()->flash('danger','该员工该月记录已存在！');
                                 return redirect()->back();
                             }

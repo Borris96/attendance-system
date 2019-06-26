@@ -238,6 +238,8 @@ class StaffsController extends Controller
         $card_info->bank = $request->get('bank');
         $card_info->staff_id = $staff->id;
 
+        // 为了在考勤中方便查询在该月离职以及还未离职的员工
+        $staff->leave_company = '2038-01-01';
         $staff->status = true;
 
         if ($staff->save()) {
