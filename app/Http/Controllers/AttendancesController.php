@@ -381,30 +381,30 @@ class AttendancesController extends Controller
                     $attendance->totalAttendance->abnormal = true;
                 }
 
-                $total_should_duration = 0;
-                $total_actual_duration = 0;
+                // $total_should_duration = 0;
+                // $total_actual_duration = 0;
                 $total_is_late = 0;
                 $total_is_early = 0;
                 $total_late_work = 0;
                 $total_early_home = 0;
                 $should_attend = 0;
                 $actual_attend = 0;
-                $total_extra_work_duration = 0;
-                $total_absence_duration = 0;
+                // $total_extra_work_duration = 0;
+                // $total_absence_duration = 0;
                 $total_add_duration = 0;
                 // $total_abnormal = false;
                 foreach ($this_month_attendances as $at) {
-                    if ($at->should_duration != null)
-                    {
-                        $total_should_duration += $at->should_duration;
-                        $should_attend += 1;
-                    }
+                    // if ($at->should_duration != null)
+                    // {
+                    //     $total_should_duration += $at->should_duration;
+                    //     $should_attend += 1;
+                    // }
 
-                    if ($at->actual_duration != null)
-                    {
-                        $total_actual_duration += $at->actual_duration;
-                        $actual_attend += 1;
-                    }
+                    // if ($at->actual_duration != null)
+                    // {
+                    //     $total_actual_duration += $at->actual_duration;
+                    //     $actual_attend += 1;
+                    // }
 
                     // 录入总增补时间
                     if ($at->add_duration != null)
@@ -424,15 +424,15 @@ class AttendancesController extends Controller
                         $total_early_home += $at->early_home;
                     }
 
-                    if ($at->extra_work_id != null)
-                    {
-                        $total_extra_work_duration += $at->extraWork->duration;
-                    }
+                    // if ($at->extra_work_id != null)
+                    // {
+                    //     $total_extra_work_duration += $at->extraWork->duration;
+                    // }
 
-                    if ($at->absence_id != null)
-                    {
-                        $total_absence_duration += $at->absence_duration;
-                    }
+                    // if ($at->absence_id != null)
+                    // {
+                    //     $total_absence_duration += $at->absence_duration;
+                    // }
                 }
 
                 $total_abnormal = $this_month_attendances->where('abnormal',true);
@@ -445,18 +445,18 @@ class AttendancesController extends Controller
                 {
                     $total_attendance->abnormal = true;
                 }
-                $attendance->totalAttendance->total_should_duration = $total_should_duration;
-                $attendance->totalAttendance->total_actual_duration = $total_actual_duration;
+                // $attendance->totalAttendance->total_should_duration = $total_should_duration;
+                // $attendance->totalAttendance->total_actual_duration = $total_actual_duration;
                 $attendance->totalAttendance->total_is_late = $total_is_late;
                 $attendance->totalAttendance->total_is_early = $total_is_early;
                 $attendance->totalAttendance->total_late_work = $total_late_work;
                 $attendance->totalAttendance->total_early_home = $total_early_home;
-                $attendance->totalAttendance->should_attend = $should_attend;
-                $attendance->totalAttendance->actual_attend = $actual_attend;
-                $attendance->totalAttendance->total_extra_work_duration = $total_extra_work_duration;
-                $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
-                $attendance->totalAttendance->total_basic_duration = $total_actual_duration - $total_extra_work_duration;
-                $attendance->totalAttendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
+                // $attendance->totalAttendance->should_attend = $should_attend;
+                // $attendance->totalAttendance->actual_attend = $actual_attend;
+                // $attendance->totalAttendance->total_extra_work_duration = $total_extra_work_duration;
+                // $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
+                // $attendance->totalAttendance->total_basic_duration = $total_basic_duration - $total_extra_work_duration;
+                // $attendance->totalAttendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
                 $attendance->totalAttendance->total_add_duration = $total_add_duration;
                 $total_attendance->save();
 
@@ -625,6 +625,17 @@ class AttendancesController extends Controller
                 $attendance->is_late = false;
             }
 
+            // 计算当日基本工时：用 实-加 和 应 来比:如果 (实-加)>应, 记应工时; 反之记 (实-加)
+            // 每日基本工时:(实-加)>应？应:(实-加)
+            if ($attendance->extra_work_id != null)
+            {
+                $attendance->basic_duration = ($attendance->actual_duration-$attendance->extraWork->duration)>$attendance->should_duration?$attendance->should_duration:($attendance->actual_duration-$attendance->extraWork->duration);
+            }
+            else
+            {
+                $attendance->basic_duration = $attendance->actual_duration>$attendance->should_duration?$attendance->should_duration:$attendance->actual_duration;
+            }
+
             if ($attendance->save())
             {
                 // 这条记录保存之后，判断该月记录是否仍然异常
@@ -651,6 +662,7 @@ class AttendancesController extends Controller
                 $actual_attend = 0;
                 $total_extra_work_duration = 0;
                 $total_absence_duration = 0;
+                $total_basic_duration = 0;
                 // $total_abnormal = false;
                 foreach ($this_month_attendances as $at) {
                     if ($at->should_duration != null)
@@ -682,6 +694,8 @@ class AttendancesController extends Controller
                         $total_extra_work_duration += $at->extraWork->duration;
                     }
 
+                    $total_basic_duration += $at->basic_duration;
+
                     if ($at->absence_id != null)
                     {
                         $total_absence_duration += $at->absence_duration;
@@ -708,7 +722,7 @@ class AttendancesController extends Controller
                 $attendance->totalAttendance->actual_attend = $actual_attend;
                 $attendance->totalAttendance->total_extra_work_duration = $total_extra_work_duration;
                 $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
-                $attendance->totalAttendance->total_basic_duration = $total_actual_duration - $total_extra_work_duration;
+                $attendance->totalAttendance->total_basic_duration = $total_basic_duration;
                 $attendance->totalAttendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
                 $total_attendance->save();
 
