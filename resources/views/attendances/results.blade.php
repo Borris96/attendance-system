@@ -13,16 +13,17 @@
         <th>英文名</th>
         <th>所属部门</th>
         <th>职位</th>
-        <th>总应工时</th>
-        <th>总实工时</th>
-        <th>总基本工时</th>
-        <th>总加班工时</th>
+        <th>总应</th>
+        <th>总实</th>
+        <th>总基本</th>
+        <th>总额外</th>
+        <th>总加班</th>
+        <th>总请假</th>
         <th>总迟到</th>
         <th>总早退</th>
-        <th>总请假时长</th>
         <th>出勤天数</th>
         <th>工时差值</th>
-        <th>总增补工时</th>
+        <th>总增补</th>
         <th>是否异常</th>
         <th>操作</th>
     </tr>
@@ -38,16 +39,17 @@
             <td>{{ $ta->total_should_duration }}</td>
             <td>{{ $ta->total_actual_duration }}</td>
             <td>{{ $ta->total_basic_duration }}</td>
+            <td>{{ $ta->total_more_duration }}</td>
             <td>{{ $ta->total_lieu_work_duration }} /
               @if ($ta->total_extra_work_duration == $ta->total_lieu_work_duration)
               0.00
               @else
-              {{$ta->total_extra_work_duration - $ta->total_lieu_work_duration}}
+              {{$ta->total_salary_work_duration}}
               @endif
             </td>
+            <td>{{ $ta->total_absence_duration }}</td>
             <td>{{ $ta->total_late_work }}分,{{ $ta->total_is_late }}次</td>
             <td>{{ $ta->total_early_home }}分,{{ $ta->total_is_early }}次</td>
-            <td>{{ $ta->total_absence_duration }}</td>
             <td>应:{{ $ta->should_attend }}天/实:{{ $ta->actual_attend }}天</td>
             <td>{{ $ta->difference }}</td>
             <td>{{ $ta->total_add_duration }}</td>

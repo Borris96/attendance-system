@@ -510,12 +510,10 @@ class AttendancesController extends Controller
             $attendance->actual_duration = $attendance->calDuration($awt,$aht);
         }
 
-        // 只有考勤异常时才能进行补打卡操作
-        if ($attendance->abnormal)
-        {
-        // 只有在应上下班时间不为空的情况下才能进行补打卡
+        // // 只有考勤异常时才能进行补打卡操作
+        // if ($attendance->abnormal)
+        // {
         if ($attendance->should_work_time != null && $attendance->should_home_time != null)
-             // && $attendance->actual_work_time != null && $attendance->actual_home_time != null
         {
             $attendance->late_work = ($awt-$swt)/60; // 转换成分钟
             if (($awt-$swt)>0){ // 迟到是实际上班晚于应该上班
@@ -550,7 +548,7 @@ class AttendancesController extends Controller
             else {
                 $attendance->is_early = false;
             }
-
+        }
             // 计算这一条attendance是否异常
             // 只要四项有一项是空的，直接报异常 （因为实际上下班必须对应应该上下班）
             if ($attendance->should_work_time == null || $attendance->should_home_time == null || $attendance->actual_work_time == null || $attendance->actual_home_time == null)
@@ -664,6 +662,7 @@ class AttendancesController extends Controller
                 $total_absence_duration = 0;
                 $total_basic_duration = 0;
                 $total_lieu_work_duration = 0;
+                $total_more_duration = 0;
                 // $total_abnormal = false;
                 foreach ($this_month_attendances as $at) {
                     if ($at->should_duration != null)
@@ -701,6 +700,15 @@ class AttendancesController extends Controller
 
                     $total_basic_duration += $at->basic_duration;
 
+                    // 不在应该上班时间上班了的时长
+                    if ($at->should_work_time == null && $at->should_home_time == null && $at->actual_work_time != null && $at->actual_home_time != null)
+                    {
+                        if ($at->extraWork == null)
+                        {
+                            $total_more_duration += $at->actual_duration; //如果该日是加班,时长不算。
+                        }
+                    }
+
                     if ($at->absence_id != null)
                     {
                         $total_absence_duration += $at->absence_duration;
@@ -729,24 +737,21 @@ class AttendancesController extends Controller
                 $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
                 $attendance->totalAttendance->total_basic_duration = $total_basic_duration;
                 $attendance->totalAttendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
+                $total_attendance->total_lieu_work_duration = $total_lieu_work_duration;
+                $total_attendance->total_salary_work_duration = $total_extra_work_duration-$total_lieu_work_duration;
+                $total_attendance->total_more_duration = $total_more_duration;
                 $total_attendance->save();
 
                 $attendance->totalAttendance->save();
                 session()->flash('success','补打卡成功！');
                 return redirect()->route('attendances.show',$total_attendance->id);
             }
-        }
-        else
-        {
-            session()->flash('danger','该日期无法进行补打卡！');
-            return redirect()->back()->withInput();
-        }
-        }
-        else
-        {
-            session()->flash('danger','该日期不异常，无法进行补打卡！');
-            return redirect()->back()->withInput();
-        }
+        // }
+        // else
+        // {
+        //     session()->flash('danger','该日期不异常，无法进行补打卡！');
+        //     return redirect()->back()->withInput();
+        // }
 
     }
 
@@ -985,6 +990,7 @@ class AttendancesController extends Controller
                                         }
 
                                     }
+
                                     $look_for_start_time = $ymd.' 00:00:00';
                                     $look_for_end_time = $ymd.' 24:00:00';
                                     // 目前这个查询方法只适用于查询结果只有一条的。如果多条结果不能如此直接赋值
@@ -1237,6 +1243,7 @@ class AttendancesController extends Controller
                                 $total_lieu_work_duration = 0;
                                 $total_absence_duration = 0;
                                 $total_basic_duration = 0;
+                                $total_more_duration = 0;
                                 // $total_abnormal = false;
 
                                 foreach ($attendances as $at)
@@ -1253,6 +1260,15 @@ class AttendancesController extends Controller
                                         $actual_attend += 1;
                                     }
                                     $total_basic_duration += $at->basic_duration;
+
+                                    // 不在应该上班时间上班了的时长(加班除外)
+                                    if ($at->should_work_time == null && $at->should_home_time == null && $at->actual_work_time != null && $at->actual_home_time != null)
+                                    {
+                                        if ($at->extraWork == null)
+                                        {
+                                            $total_more_duration += $at->actual_duration; //如果该日是加班,时长不算。
+                                        }
+                                    }
 
                                     $total_is_late += $at->is_late;
                                     $total_is_early += $at->is_early;
@@ -1308,9 +1324,10 @@ class AttendancesController extends Controller
                                 $total_attendance->total_extra_work_duration = $total_extra_work_duration;
                                 $total_attendance->total_absence_duration = $total_absence_duration;
                                 $total_attendance->total_basic_duration = $total_basic_duration;
+                                $total_attendance->total_more_duration = $total_more_duration;
                                 $total_attendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
                                 $total_attendance->total_lieu_work_duration = $total_lieu_work_duration;
-
+                                $total_attendance->total_salary_work_duration = $total_extra_work_duration-$total_lieu_work_duration;
                                 $total_attendance->save();
 
                                 $total_attendance_id = $total_attendance->id;

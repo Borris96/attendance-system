@@ -24,7 +24,9 @@ class CreateTotalAttendancesTable extends Migration
             $table->decimal('total_absence_duration',5,2)->nullable();
             $table->decimal('total_extra_work_duration',5,2)->nullable();
             $table->decimal('total_lieu_work_duration',5,2)->nullable(); // 调休加班总时长
-            $table->decimal('total_add_duration',5,2)->nullable();
+            $table->decimal('total_salary_work_duration',5,2)->nullable();
+            $table->decimal('total_more_duration',5,2)->nullable(); // 额外总工时
+            $table->decimal('total_add_duration',5,2)->nullable(); // 增补总时长
             $table->integer('total_late_work')->nullable(); //
             $table->integer('total_early_home')->nullable(); //
             $table->unsignedInteger('total_is_late')->nullable(); //
