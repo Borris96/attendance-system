@@ -663,6 +663,7 @@ class AttendancesController extends Controller
                 $total_extra_work_duration = 0;
                 $total_absence_duration = 0;
                 $total_basic_duration = 0;
+                $total_lieu_work_duration = 0;
                 // $total_abnormal = false;
                 foreach ($this_month_attendances as $at) {
                     if ($at->should_duration != null)
@@ -692,6 +693,10 @@ class AttendancesController extends Controller
                     if ($at->extra_work_id != null)
                     {
                         $total_extra_work_duration += $at->extraWork->duration;
+                        if ($at->extraWork->extra_work_type == '调休')
+                        {
+                            $total_lieu_work_duration += $at->extraWork->duration;
+                        }
                     }
 
                     $total_basic_duration += $at->basic_duration;
@@ -1229,6 +1234,7 @@ class AttendancesController extends Controller
                                 $should_attend = 0;
                                 $actual_attend = 0;
                                 $total_extra_work_duration = 0;
+                                $total_lieu_work_duration = 0;
                                 $total_absence_duration = 0;
                                 $total_basic_duration = 0;
                                 // $total_abnormal = false;
@@ -1269,6 +1275,10 @@ class AttendancesController extends Controller
                                     if ($at->extra_work_id != null)
                                     {
                                         $total_extra_work_duration += $at->extraWork->duration;
+                                        if ($at->extraWork->extra_work_type == '调休')
+                                        {
+                                            $total_lieu_work_duration += $at->extraWork->duration;
+                                        }
                                     }
 
                                     if ($at->absence_id != null)
@@ -1299,6 +1309,7 @@ class AttendancesController extends Controller
                                 $total_attendance->total_absence_duration = $total_absence_duration;
                                 $total_attendance->total_basic_duration = $total_basic_duration;
                                 $total_attendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
+                                $total_attendance->total_lieu_work_duration = $total_lieu_work_duration;
 
                                 $total_attendance->save();
 
