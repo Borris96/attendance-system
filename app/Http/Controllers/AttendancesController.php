@@ -1207,7 +1207,7 @@ class AttendancesController extends Controller
                                     }
                                 }
 
-                                // 判断该员工是否当月离职，如果是，入职前的日期统一改为不异常
+                                // 判断该员工是否当月离职，如果是，离职前的日期统一改为不异常
                                 $leave_company = $staff->leave_company;
                                 if ($leave_company >= $month_first_day && $leave_company <= $month_last_day)
                                 {

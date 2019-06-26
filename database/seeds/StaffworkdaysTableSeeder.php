@@ -953,7 +953,7 @@ class StaffworkdaysTableSeeder extends Seeder
         ]);
 
         DB::table('staffworkdays')->insert([
-            'staff_id'=>'2018112601',
+            'staff_id'=>'2017010101',
             'workday_name'=>'二',
             'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
@@ -963,7 +963,7 @@ class StaffworkdaysTableSeeder extends Seeder
         ]);
 
         DB::table('staffworkdays')->insert([
-            'staff_id'=>'2018112601',
+            'staff_id'=>'2017010101',
             'workday_name'=>'三',
             'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
@@ -973,7 +973,7 @@ class StaffworkdaysTableSeeder extends Seeder
         ]);
 
         DB::table('staffworkdays')->insert([
-            'staff_id'=>'2018112601',
+            'staff_id'=>'2017010101',
             'workday_name'=>'四',
             'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
@@ -983,7 +983,7 @@ class StaffworkdaysTableSeeder extends Seeder
         ]);
 
         DB::table('staffworkdays')->insert([
-            'staff_id'=>'2018112601',
+            'staff_id'=>'2017010101',
             'workday_name'=>'五',
             'is_work'=>true, 'duration'=>'8.00',
             'work_time'=>'09:00:00',
@@ -993,7 +993,7 @@ class StaffworkdaysTableSeeder extends Seeder
         ]);
 
         DB::table('staffworkdays')->insert([
-            'staff_id'=>'2018112601',
+            'staff_id'=>'2017010101',
             'workday_name'=>'六',
             'is_work'=>false,
             'work_time'=>null,
@@ -1003,7 +1003,7 @@ class StaffworkdaysTableSeeder extends Seeder
         ]);
 
         DB::table('staffworkdays')->insert([
-            'staff_id'=>'2018112601',
+            'staff_id'=>'2017010101',
             'workday_name'=>'日',
             'is_work'=>false,
             'work_time'=>null,
