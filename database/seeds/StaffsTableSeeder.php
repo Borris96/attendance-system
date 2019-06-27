@@ -53,6 +53,20 @@ class StaffsTableSeeder extends Seeder
             ]);
 
         DB::table('staffs')->insert([
+            'id'=>'2019010101',
+            'staffname'=>'TinaChen',
+            'englishname'=>'TinaChen',
+            'department_id'=>'2',
+            'position_id'=>'3',
+            'department_name'=>'教材部',
+            'position_name'=>'文员',
+            'join_company'=>'2019-01-01',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
             'id'=>'2016031601',
             'staffname'=>'朱莹',
             'englishname'=>'CindyZhu',

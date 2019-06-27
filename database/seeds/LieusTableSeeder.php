@@ -26,5 +26,13 @@ class LieusTableSeeder extends Seeder
             'created_at'=>now(),
             'updated_at'=>now(),
             ]);
+
+        DB::table('lieus')->insert([
+            'staff_id'=>'2019010101',
+            'total_time'=>'16.00',
+            'remaining_time'=>'0.00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
     }
 }

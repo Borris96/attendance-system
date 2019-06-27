@@ -53,6 +53,7 @@
 </table>
 
 @if ($staff->card != null)
+@if ($staff->card->card_number != null)
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
@@ -65,6 +66,7 @@
         <td>{{ $staff->card->bank}}</td>
     </tr>
 </table>
+@endif
 @endif
 
 <table class="table table-bordered table-hover definewidth m10">

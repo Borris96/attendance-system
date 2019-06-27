@@ -197,5 +197,38 @@ class AbsencesTableSeeder extends Seeder
             'created_at'=>now(),
             'updated_at'=>now(),
             ]);
+
+        DB::table('absences')->insert([
+            'staff_id'=>'2019010101',
+            'absence_type'=>'调休',
+            'absence_start_time'=>'2019-03-11 09:00:00',
+            'absence_end_time'=>'2019-03-11 18:00:00',
+            'duration'=>'8.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
+
+        DB::table('absences')->insert([
+            'staff_id'=>'2019010101',
+            'absence_type'=>'调休',
+            'absence_start_time'=>'2019-03-14 09:00:00',
+            'absence_end_time'=>'2019-03-14 18:00:00',
+            'duration'=>'8.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
+
+        DB::table('absences')->insert([
+            'staff_id'=>'2019010101',
+            'absence_type'=>'事假',
+            'absence_start_time'=>'2019-03-04 17:00:00',
+            'absence_end_time'=>'2019-03-04 18:00:00',
+            'duration'=>'1.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
     }
 }

@@ -126,6 +126,7 @@ class ExtraWorksController extends Controller
         //把被批准的调休类加班存进lieus表
         if ($extra_work->extra_work_type == "调休" && $extra_work->approve == true){
             $lieu = $extra_work->staff->lieu;
+
             if ($lieu != null) {
                 $lieu->total_time += $extra_work->duration;
                 $lieu->remaining_time += $extra_work->duration;
@@ -136,7 +137,8 @@ class ExtraWorksController extends Controller
                 $lieu->remaining_time = $extra_work->duration;
             }
 
-            if ($extra_work->save() && $lieu->save()) {
+            if ($extra_work->save()) {
+                $lieu->save();
                 session()->flash('success','保存成功！');
                 return redirect('extra_works'); //应导向列表
             } else {

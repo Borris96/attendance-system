@@ -87,5 +87,27 @@ class ExtraWorksTableSeeder extends Seeder
             'created_at'=>now(),
             'updated_at'=>now(),
             ]);
+
+        DB::table('extra_works')->insert([
+            'staff_id'=>'2019010101',
+            'extra_work_type'=>'调休',
+            'extra_work_start_time'=>'2019-03-10 09:00:00',
+            'extra_work_end_time'=>'2019-03-10 18:00:00',
+            'duration'=>'8.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
+
+        DB::table('extra_works')->insert([
+            'staff_id'=>'2019010101',
+            'extra_work_type'=>'调休',
+            'extra_work_start_time'=>'2019-03-31 09:00:00',
+            'extra_work_end_time'=>'2019-03-31 18:00:00',
+            'duration'=>'8.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
     }
 }

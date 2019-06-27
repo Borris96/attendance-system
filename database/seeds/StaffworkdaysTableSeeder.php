@@ -153,6 +153,75 @@ class StaffworkdaysTableSeeder extends Seeder
             'updated_at'=>now(),
         ]);
 
+        // 陈嘉琛
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019010101',
+            'workday_name'=>'一',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019010101',
+            'workday_name'=>'二',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019010101',
+            'workday_name'=>'三',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019010101',
+            'workday_name'=>'四',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019010101',
+            'workday_name'=>'五',
+            'is_work'=>true, 'duration'=>'8.00',
+            'work_time'=>'09:00:00',
+            'home_time'=>'18:00:00',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019010101',
+            'workday_name'=>'六',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
+
+        DB::table('staffworkdays')->insert([
+            'staff_id'=>'2019010101',
+            'workday_name'=>'日',
+            'is_work'=>false,
+            'work_time'=>null,
+            'home_time'=>null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+        ]);
 
         // 朱莹
         DB::table('staffworkdays')->insert([
