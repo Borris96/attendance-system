@@ -71,7 +71,13 @@
 @endif
 <div style="margin: 20px">
   <a class="btn btn-success" href="{{ route('attendances.index') }}" role="button">返回考勤管理</a>
+  &nbsp;&nbsp;
+  <form action="{{ route('attendances.export', array('year'=>$year,'month'=>$month)) }}" method="POST" style="display: inline-block;">
+    {{ csrf_field() }}
+    <button type="submit" class="btn btn-warning" type="button">导出考勤汇总</button>
+  </form>
 </div>
+
 
 
 @stop

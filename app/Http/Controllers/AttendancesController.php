@@ -11,8 +11,11 @@ use App\Absence;
 use App\TotalAttendance;
 use App\AddTime;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Writer;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use Illuminate\Support\Carbon;
@@ -779,6 +782,14 @@ class AttendancesController extends Controller
                 // MimeType 这是 HTTP 标准中该资源的媒体类型
                 // $type = $file->getClientMimeType();
                 // 判断是哪种表格格式
+                // if ($ext == 'xls') {
+                //     $reader = new Xls();
+                // }
+                // else {
+                //     session()->flash('danger','文件格式错误！');
+                //     redirect()->back();
+                // }
+
                 if ($ext == 'xlsx') {
                     $reader = new Xlsx();
                 } elseif ($ext == 'xls') {
@@ -787,6 +798,7 @@ class AttendancesController extends Controller
                     session()->flash('danger','文件格式错误！');
                     redirect()->back();
                 }
+
                 $reader->setReadDataOnly(TRUE); // 只读
                 $spreadsheet = $reader->load($realPath);
                 $num = $spreadsheet->getSheetCount(); // Sheet的总数
@@ -1189,6 +1201,7 @@ class AttendancesController extends Controller
                                 // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表
                                 $total_attendance = new TotalAttendance();
                                 $total_attendance->staff_id = $staff->id;
+                                $total_attendance->department_id = $staff->department_id;
                                 $total_attendance->year = $year;
                                 $total_attendance->month = $month;
                                 $attendances = $staff->attendances->where('year',$year)->where('month',$month);
@@ -1356,4 +1369,129 @@ class AttendancesController extends Controller
         return redirect()->back();
     }
 
+    public function export(Request $request)
+    {
+        $staff_id = $request->input('staff_id');
+        $year = $request->input('year');
+        $month = $request->input('month');
+        $spreadsheet = new Spreadsheet();
+        $worksheet = $spreadsheet->getSheet(0);
+        $title = $year.'_'.$month.' 考勤汇总';
+        $worksheet->setTitle('考勤汇总');
+        $worksheet->setCellValueByColumnAndRow(1, 1, '考勤汇总表'); // (列，行)
+        $worksheet->setCellValueByColumnAndRow(1, 2, '统计日期:');
+        $month_first_day = date('Y-m-01',strtotime($year.'-'.$month));
+        $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
+        $worksheet->setCellValueByColumnAndRow(2, 2, $month_first_day.'~'.$month_last_day);
+        $worksheet->setCellValueByColumnAndRow(1, 3, '编号');
+        $worksheet->setCellValueByColumnAndRow(2, 3, '英文名');
+        $worksheet->setCellValueByColumnAndRow(3, 3, '姓名');
+        $worksheet->setCellValueByColumnAndRow(4, 3, '所属部门');
+        $worksheet->setCellValueByColumnAndRow(5, 3, '职位');
+        $worksheet->setCellValueByColumnAndRow(6, 3, '总工作时长');
+        $worksheet->setCellValueByColumnAndRow(6, 4, '总应');
+        $worksheet->setCellValueByColumnAndRow(7, 4, '总实际');
+        $worksheet->setCellValueByColumnAndRow(8, 4, '总基本');
+        $worksheet->setCellValueByColumnAndRow(9, 4, '总额外');
+        $worksheet->setCellValueByColumnAndRow(10, 3, '总加班时长');
+        $worksheet->setCellValueByColumnAndRow(10, 4, '调休');
+        $worksheet->setCellValueByColumnAndRow(11, 4, '带薪');
+        $worksheet->setCellValueByColumnAndRow(12, 3, '总请假时长');
+        $worksheet->setCellValueByColumnAndRow(13, 3, '总迟到');
+        $worksheet->setCellValueByColumnAndRow(13, 4, '次数');
+        $worksheet->setCellValueByColumnAndRow(14, 4, '分钟');
+        $worksheet->setCellValueByColumnAndRow(15, 3, '总早退');
+        $worksheet->setCellValueByColumnAndRow(15, 4, '次数');
+        $worksheet->setCellValueByColumnAndRow(16, 4, '分钟');
+        $worksheet->setCellValueByColumnAndRow(17, 3, '出勤天数');
+        $worksheet->setCellValueByColumnAndRow(17, 4, '应');
+        $worksheet->setCellValueByColumnAndRow(18, 4, '实');
+        $worksheet->setCellValueByColumnAndRow(19, 3, '工时差值');
+        $worksheet->setCellValueByColumnAndRow(20, 3, '总增补时长');
+
+        $worksheet->mergeCells('A1:T1'); // 合并第一行单元格
+        $worksheet->mergeCells('A3:A4');
+        $worksheet->mergeCells('B3:B4');
+        $worksheet->mergeCells('C3:C4');
+        $worksheet->mergeCells('D3:D4');
+        $worksheet->mergeCells('E3:E4');
+        $worksheet->mergeCells('F3:I3'); // 合并"总工作时长"
+        $worksheet->mergeCells('J3:K3');
+        $worksheet->mergeCells('L3:L4');
+        $worksheet->mergeCells('M3:N3');
+        $worksheet->mergeCells('O3:P3');
+        $worksheet->mergeCells('Q3:R3');
+        $worksheet->mergeCells('S3:S4');
+        $worksheet->mergeCells('T3:T4');
+
+
+        $title_array = [
+            'font' => [
+                'bold' => true
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
+        ];
+        $content_array = [
+            'font' => [
+                'bold' => false
+            ],
+            // 'alignment' => [
+            //     'horizontal' => Alignment::HORIZONTAL_CENTER,
+            // ],
+        ];
+        //设置单元格样式
+        $worksheet->getStyle('A1')->applyFromArray($title_array)->getFont()->setSize(24);
+        $worksheet->getStyle('A2:B2')->applyFromArray($content_array)->getFont('bold')->setSize(10);
+        $worksheet->getStyle('A3:T4')->applyFromArray($title_array)->getFont()->setSize(9);
+
+        // 导入员工汇总数据
+        $this_month_total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('department_id');
+        $count = $this_month_total_attendances->count();
+        foreach ($this_month_total_attendances->get() as $key => $tmta) {
+            // 数据从第五行开始写入
+            $worksheet->setCellValueByColumnAndRow(1, 5+$key, $tmta->staff_id);
+            $worksheet->setCellValueByColumnAndRow(2, 5+$key, $tmta->staff->englishname);
+            $worksheet->setCellValueByColumnAndRow(3, 5+$key, $tmta->staff->staffname);
+            $worksheet->setCellValueByColumnAndRow(4, 5+$key, $tmta->staff->department_name);
+            $worksheet->setCellValueByColumnAndRow(5, 5+$key, $tmta->staff->position_name);
+            $worksheet->setCellValueByColumnAndRow(6, 5+$key, $tmta->total_should_duration);
+            $worksheet->setCellValueByColumnAndRow(7, 5+$key, $tmta->total_actual_duration);
+            $worksheet->setCellValueByColumnAndRow(8, 5+$key, $tmta->total_basic_duration);
+            $worksheet->setCellValueByColumnAndRow(9, 5+$key, $tmta->total_more_duration);
+            $worksheet->setCellValueByColumnAndRow(10, 5+$key, $tmta->total_lieu_work_duration);
+            $worksheet->setCellValueByColumnAndRow(11, 5+$key, $tmta->total_salary_work_duration);
+            $worksheet->setCellValueByColumnAndRow(12, 5+$key, $tmta->total_absence_duration);
+            $worksheet->setCellValueByColumnAndRow(13, 5+$key, $tmta->total_is_late);
+            $worksheet->setCellValueByColumnAndRow(14, 5+$key, $tmta->total_late_work);
+            $worksheet->setCellValueByColumnAndRow(15, 5+$key, $tmta->total_is_early);
+            $worksheet->setCellValueByColumnAndRow(16, 5+$key, $tmta->total_early_home);
+            $worksheet->setCellValueByColumnAndRow(17, 5+$key, $tmta->should_attend);
+            $worksheet->setCellValueByColumnAndRow(18, 5+$key, $tmta->actual_attend);
+            $worksheet->setCellValueByColumnAndRow(19, 5+$key, $tmta->difference);
+            if ($tmta->total_add_duration == null)
+            {
+                $worksheet->setCellValueByColumnAndRow(20, 5+$key, 0);
+            }
+            else
+            {
+                $worksheet->setCellValueByColumnAndRow(20, 5+$key, $tmta->total_add_duration);
+            }
+
+        }
+        // 设置数据样式
+        $worksheet->getStyle('A5:T'.($count+4))->applyFromArray($content_array)->getFont()->setSize(9);
+
+        // $w = $spreadsheet->createSheet(1);
+        // 下载
+        $filename = $title.'.xlsx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
+        header('Cache-Control: max-age=0');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+
+    }
 }
