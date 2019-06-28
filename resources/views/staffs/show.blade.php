@@ -36,18 +36,18 @@
     </thead>
     <tr>
       @if ($staff->annual_holiday != null)
-        <td>{{ $staff->annual_holiday}}</td>
-        <td>{{ $staff->remaining_annual_holiday}}</td>
+        <td>{{ round($staff->annual_holiday)}}</td>
+        <td>{{ round($staff->remaining_annual_holiday)}}</td>
       @else
-        <td>0.00</td>
-        <td>0.00</td>
+        <td>0</td>
+        <td>0</td>
       @endif
       @if ($staff->lieu != null)
-        <td>{{ $staff->lieu->total_time }}</td>
-        <td>{{ $staff->lieu->remaining_time }}</td>
+        <td>{{ round($staff->lieu->total_time) }}</td>
+        <td>{{ round($staff->lieu->remaining_time) }}</td>
       @else
-        <td>0.00</td>
-        <td>0.00</td>
+        <td>0</td>
+        <td>0</td>
       @endif
     </tr>
 </table>
