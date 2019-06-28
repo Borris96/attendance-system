@@ -394,13 +394,18 @@ class StaffsController extends Controller
         $staff->origin_work_year = $total_work_year;
         $old_annual_holiday = $staff->annual_holiday;
         $old_remaining_annual_holiday = $staff->remaining_annual_holiday;
+
+        // 如果年假和剩余年假没有改动,自动计算年假和剩余年假
         $staff->annual_holiday = $staff->getAnnualHolidays($staff->origin_work_year, $staff->join_company, $staff->position_name);
         $staff->remaining_annual_holiday = $old_remaining_annual_holiday-$old_annual_holiday+$staff->annual_holiday;
+        // 否则按改动的为准
         // if ($request->get('annual_holiday')!=null){
         //     $staff->annual_holiday = $request->get('annual_holiday');
         // } else {
         //     $staff->annual_holiday = $staff->getAnnualHolidays($staff->work_year, $staff->join_company);
         // }
+
+
 
         if ($staff->card == null){
             $card_info = new Card();

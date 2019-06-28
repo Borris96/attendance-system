@@ -58,6 +58,14 @@
           </td>
       </tr>
       <tr>
+          <td class="tableleft">年假小时数</td>
+          <td><input type="text" name="annual_holiday" placeholder="" value="{{ $staff->annual_holiday }}" /></td>
+      </tr>
+      <tr>
+          <td class="tableleft">剩余小时数</td>
+          <td><input type="text" name="remaining_annual_holiday" placeholder="" value="{{ $staff->remaining_annual_holiday }}" /></td>
+      </tr>
+      <tr>
           <td class="tableleft">应上下班时间*</td>
           <td>
             @for($i=0;$i<=6;$i++)

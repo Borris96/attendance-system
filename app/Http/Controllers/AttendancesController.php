@@ -827,8 +827,10 @@ class AttendancesController extends Controller
                     $this_month = explode('-', $month_period);
                     $year = $this_month[0];
                     $month = $this_month[1];
+                    $month_first_day = date('Y-m-01',strtotime($year.'-'.$month));
+                    $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
                     // 查询这个月的节假日调休，接下来使用这个集合进行遍历
-                    $get_holidays = Holiday::where('date','<=',$year.'-'.$month.'-31')->where('date','>=',$year.'-'.$month.'-01')->get();
+                    $get_holidays = Holiday::where('date','<=',$month_last_day)->where('date','>=',$month_first_day)->get();
                     for ($c = 1; $c < $highest_column_index; $c += 15)
                     {
                         $englishname = $worksheet->getCellByColumnAndRow($c+9,3)->getValue();
@@ -864,7 +866,7 @@ class AttendancesController extends Controller
                                     // 判断这一天是上班还是休息，录入该日期的类型
                                     if (count($get_holidays)!=0)
                                     {
-                                        $holidays = Holiday::where('date','<=',$year.'-'.$month.'-31')->where('date','>=',$year.'-'.$month.'-01');
+                                        $holidays = Holiday::where('date','<=',$month_last_day)->where('date','>=',$month_first_day);
                                         // 如果在holidays找到了这个日子，这个日子以holidays里的那个为准
                                         $find_holiday = $holidays->where('date', date('Y-m-d',strtotime($ymd)))->get();
 
@@ -1024,7 +1026,7 @@ class AttendancesController extends Controller
 
                                 // 录入请假记录分割多天的请假记录到每一天，以便计算每天请假的小时数
                                 // 取出这个月的该员工所有请假 （如果涉及跨月还查不到，需要修改）
-                                $absences = Absence::where('staff_id',$staff->id)->where('absence_start_time','>=',$year.'-'.$month.'-01 0:00:00')->where('absence_end_time','<=',$year.'-'.$month.'-31 24:00:00')->get();
+                                $absences = Absence::where('staff_id',$staff->id)->where('absence_start_time','>=',$month_first_day.' 0:00:00')->where('absence_end_time','<=',$month_last_day.' 24:00:00')->get();
                                 if (count($absences) != 0)
                                 {
                                     foreach ($absences as $absence) {
