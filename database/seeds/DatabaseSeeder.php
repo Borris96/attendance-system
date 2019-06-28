@@ -18,11 +18,11 @@ class DatabaseSeeder extends Seeder
         $this->call(UsersTableSeeder::class);
         $this->call(DepartmentsTableSeeder::class);
         $this->call(PositionsTableSeeder::class);
-        $this->call(StaffsTableSeeder::class);
-        $this->call(StaffworkdaysTableSeeder::class);
-        $this->call(ExtraWorksTableSeeder::class);
-        $this->call(AbsencesTableSeeder::class);
-        $this->call(LieusTableSeeder::class);
+        // $this->call(StaffsTableSeeder::class);
+        // $this->call(StaffworkdaysTableSeeder::class);
+        // $this->call(ExtraWorksTableSeeder::class);
+        // $this->call(AbsencesTableSeeder::class);
+        // $this->call(LieusTableSeeder::class);
         // $this->call(HolidaysTableSeeder::class);
         Model::reguard();
     }
