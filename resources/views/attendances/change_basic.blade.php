@@ -9,10 +9,28 @@
   {{ method_field('PATCH') }}
   {{ csrf_field() }}
     <tr>
+      <td class="tableleft">英文名</td>
+      <td>
+        {{ $attendance->staff->englishname }}
+      </td>
+    </tr>
+    <tr>
         <td class="tableleft">日期</td>
          <td>
-          <input type="text" name="date" value="{{ $attendance->year }}年{{ $attendance->month}}月{{ $attendance->date }}日" disabled>
+          {{ $attendance->year }}年{{ $attendance->month}}月{{ $attendance->date }}日
         </td>
+    </tr>
+    <tr>
+      <td class="tableleft">应工作</td>
+      <td>
+        {{$attendance->should_work_time}}~{{$attendance->should_home_time}}&nbsp;时长:{{ $attendance->should_duration }}
+      </td>
+    </tr>
+    <tr>
+      <td class="tableleft">实工作</td>
+      <td>
+        {{$attendance->actual_work_time}}~{{$attendance->actual_home_time}}&nbsp;时长:{{ $attendance->actual_duration }}
+      </td>
     </tr>
     <tr>
       <td class="tableleft">基本工作时长*</td>
