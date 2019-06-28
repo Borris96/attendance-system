@@ -45,6 +45,10 @@ Route::post('/attendances/{attendance}/createAddTime', 'AttendancesController@cr
 
 Route::post('/attendances/export','AttendancesController@export')->name('attendances.export');
 
+Route::get('/attendances/{attendance}/basic', 'AttendancesController@basic')->name('attendances.basic');
+
+Route::patch('/attendances/{attendance}/changeBasic', 'AttendancesController@changeBasic')->name('attendances.changeBasic');
+
 Route::get('results','AttendancesController@index')->name('attendances.results');
 
 Route::resource('/holidays','HolidaysController');

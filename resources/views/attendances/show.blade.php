@@ -160,6 +160,14 @@
                   @endif
                   >增补工时</button>
                 </form>
+                <form action="{{ route('attendances.basic',$attendance->id) }}" method="GET" style="display: inline-block;">
+                  {{ csrf_field() }}
+                  <button type="submit" class="btn" type="button"
+                  @if ($attendance->basic_duration == null)
+                  disabled
+                  @endif
+                  >更改基本工时</button>
+                </form>
             </td>
         </tr>
       @endforeach

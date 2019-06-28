@@ -98,7 +98,7 @@ class StaffsController extends Controller
             'englishname'=>'required|max:50|unique:staffs',
             'join_company' => 'required',
             'positions'=>'required',
-            // 'annual_holiday'=>'',
+            'annual_holiday'=>'numeric',
             'card_number'=>'max:23',
             'bank'=>'max:50',
         ]);
@@ -269,6 +269,8 @@ class StaffsController extends Controller
             'positions'=>'required',
             'card_number'=>'max:23',
             'bank'=>'max:50',
+            'annual_holiday'=>'numeric',
+            'remaining_annual_holiday'=>'numeric',
         ]);
 
         $staff = Staff::find($id);

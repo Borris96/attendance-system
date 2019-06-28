@@ -1379,4 +1379,39 @@ class AttendancesController extends Controller
         $spreadsheet = new Spreadsheet();
         TotalAttendance::exportTotal($spreadsheet, $year, $month);
     }
+
+    public function basic($id)
+    {
+        $attendance = Attendance::find($id);
+        $total_attendance = $attendance->totalAttendance;
+        return view('attendances.change_basic',compact('attendance','total_attendance'));
+    }
+
+        public function changeBasic($id, Request $request)
+    {
+        // 更改基本工时，对是否异常没有影响。
+        $this->validate($request, [
+            'basic_duration'=>'required|numeric',
+        ]);
+        // 对这一条考勤进行更改
+        $attendance = Attendance::find($id);
+        $total_attendance = $attendance->totalAttendance;
+        $old_duration = $attendance->basic_duration;
+        $new_duration = $request->get('basic_duration');
+        $attendance->basic_duration = $new_duration;
+        if ($attendance->save())
+        {
+            // 总记录上总基本时间更新
+            $total_attendance->total_basic_duration = $total_attendance->total_basic_duration + ($new_duration-$old_duration);
+            $total_attendance->difference = $total_attendance->total_basic_duration - $total_attendance->total_should_duration;
+            $total_attendance->save();
+            session()->flash('success','基本工时修改成功！');
+            return redirect()->route('attendances.show',$total_attendance->id);
+        }
+        else
+        {
+            session()->flash('danger','基本工时修改失败！');
+            return redirect()->back()->withInput();
+        }
+    }
 }
