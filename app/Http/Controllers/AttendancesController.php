@@ -630,7 +630,7 @@ class AttendancesController extends Controller
             // 每日基本工时:(实-加)>应？应:(实-加)
             if ($attendance->extra_work_id != null)
             {
-                $attendance->basic_duration = ($attendance->actual_duration-$attendance->extraWork->duration)>($attendance->should_duration-5/60)?$attendance->should_duration:($attendance->actual_duration-$attendance->extraWork->duration);
+                $attendance->basic_duration = ($attendance->actual_duration-$attendance->extraWork->duration)>($attendance->should_duration)?$attendance->should_duration:($attendance->actual_duration-$attendance->extraWork->duration);
             }
             else
             {
@@ -1015,11 +1015,11 @@ class AttendancesController extends Controller
                                     // 每日基本工时:(实-加)>应？应:(实-加)
                                     if ($attendance->extra_work_id != null)
                                     {
-                                        $attendance->basic_duration = ($attendance->actual_duration-$attendance->extraWork->duration)>($attendance->should_duration-5/60)?$attendance->should_duration:($attendance->actual_duration-$attendance->extraWork->duration);
+                                        $attendance->basic_duration = ($attendance->actual_duration-$attendance->extraWork->duration)>($attendance->should_duration)?$attendance->should_duration:($attendance->actual_duration-$attendance->extraWork->duration);
                                     }
                                     else
                                     {
-                                        $attendance->basic_duration = $attendance->actual_duration>($attendance->should_duration-5/60)?$attendance->should_duration:$attendance->actual_duration;
+                                        $attendance->basic_duration = $attendance->actual_duration>($attendance->should_duration)?$attendance->should_duration:$attendance->actual_duration;
                                     }
                                     $attendance->save();
                                 }
