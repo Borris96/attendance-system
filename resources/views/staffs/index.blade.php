@@ -40,11 +40,11 @@
             <td>{{ $staff->position_name }}</td>
             <td>{{ $staff->join_company }}</td>
             <td>{{ $staff->work_year }}</td>
-            <td>{{ $staff->annual_holiday }}</td>
-            <td>{{ $staff->remaining_annual_holiday }}</td>
+            <td>{{ round($staff->annual_holiday) }}</td>
+            <td>{{ round($staff->remaining_annual_holiday) }}</td>
             @if ($staff->lieu != null)
-              <td>{{ $staff->lieu->total_time }}</td>
-              <td>{{ $staff->lieu->remaining_time }}</td>
+              <td>{{ round($staff->lieu->total_time) }}</td>
+              <td>{{ round($staff->lieu->remaining_time) }}</td>
             @else
               <td></td>
               <td></td>

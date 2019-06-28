@@ -291,7 +291,9 @@ class StaffsController extends Controller
 
         $work_experiences_array = $request->input('work_experiences');
         $leave_experiences_array = $request->input('leave_experiences');
-
+        // dump($work_experiences_array);
+        // dump($leave_experiences_array);
+        // exit();
         // 判断填写格式是否正确
         for ($i=0; $i<=6; $i++){
             if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
@@ -328,8 +330,8 @@ class StaffsController extends Controller
                     $start_time = $work_experiences_array[$i];
                     $end_time = $leave_experiences_array[$i];
 
-                    if ($end_time<$old_start_time) {
-                        session()->flash('warning','请按照顺序填写工作经历');
+                    if (strtotime($end_time)<=strtotime($old_start_time)) {
+                        session()->flash('warning','请按照由近至远的顺序填写工作经历');
                         return redirect()->back()->withInput();
                     } elseif (WorkHistory::isCrossing($start_time, $end_time, $old_start_time, $old_end_time))
                     {
@@ -369,14 +371,16 @@ class StaffsController extends Controller
         // 之前存在的 work history，更新
         $origin_work_historys = $staff->workHistorys;
         $count = count($origin_work_historys);
+        // dump($count);
+        // exit();
         $total_work_year = 0;
         for ($i=0; $i<$count; $i++){
-            if ($work_experiences_array[$i]!=null && $leave_experiences_array[$i]!=null){ //填写了才录入
+            // if ($work_experiences_array[$i]!=null && $leave_experiences_array[$i]!=null){ //填写了才录入
                 $origin_work_historys[$i]->work_experience = $work_experiences_array[$i];
                 $origin_work_historys[$i]->leave_experience = $leave_experiences_array[$i];
                 $origin_work_historys[$i]->save();
                 $total_work_year += strtotime($leave_experiences_array[$i])-strtotime($work_experiences_array[$i]);
-            }
+            // }
         }
 
         // 新增的，则新增记录
@@ -391,16 +395,62 @@ class StaffsController extends Controller
             }
         }
 
-        $total_work_year = $total_work_year/(31536000); //转换成年
+        $old_work_year = $staff->work_year; // 原来的工作年数
+        $total_work_year = $total_work_year/(31536000); // 现在的工作年数，转换成年
         $staff->work_year = $total_work_year;
         $staff->origin_work_year = $total_work_year;
         $old_annual_holiday = $staff->annual_holiday;
         $old_remaining_annual_holiday = $staff->remaining_annual_holiday;
+        $new_annual_holiday = $request->get('annual_holiday');
+        $new_remaining_annual_holiday = $request->get('remaining_annual_holiday');
+        // 计算年假。如果工作经历改动,则按改动的数据计算;如果未改动,则按填写的数据计算。
+        // 计算出的工作年数变了就是工作经历变了！
 
-        // 如果年假和剩余年假没有改动,自动计算年假和剩余年假
-        $staff->annual_holiday = $staff->getAnnualHolidays($staff->origin_work_year, $staff->join_company, $staff->position_name);
-        $staff->remaining_annual_holiday = $old_remaining_annual_holiday-$old_annual_holiday+$staff->annual_holiday;
-        // 否则按改动的为准
+        if ($old_work_year != round($total_work_year,2)) // 改动过工作经历按经历计算
+        {
+            if ($new_annual_holiday >= $new_remaining_annual_holiday)
+            {
+                if ($new_annual_holiday == $old_annual_holiday)
+                {
+                    if ($new_remaining_annual_holiday == $old_remaining_annual_holiday)
+                    {
+                        // 如果总的年假和剩余年假没有改动,自动计算年假和剩余年假
+                        $staff->annual_holiday = $staff->getAnnualHolidays($staff->origin_work_year, $staff->join_company, $staff->position_name);
+                        $staff->remaining_annual_holiday = $old_remaining_annual_holiday-$old_annual_holiday+$staff->annual_holiday;
+                    }
+                    else
+                    {
+                        // 剩余改了，总的没改，总的计算，剩余的按改的
+                        $staff->annual_holiday = $staff->getAnnualHolidays($staff->origin_work_year, $staff->join_company, $staff->position_name);
+                        $staff->remaining_annual_holiday = $new_remaining_annual_holiday;
+                    }
+                }
+                else
+                {
+                    $staff->annual_holiday = $new_annual_holiday;
+                    $staff->remaining_annual_holiday = $new_remaining_annual_holiday;
+                }
+            }
+            else
+            {
+                session()->flash('warning','剩余年假大于总年假！');
+                return redirect()->back()->withInput();
+            }
+        }
+        else // 否则直接读取填写的值
+        {
+            if ($new_annual_holiday >= $new_remaining_annual_holiday)
+            {
+                $staff->annual_holiday = $new_annual_holiday;
+                $staff->remaining_annual_holiday = $new_remaining_annual_holiday;
+            }
+            else
+            {
+                session()->flash('warning','剩余年假大于总年假！');
+                return redirect()->back()->withInput();
+            }
+        }
+
         // if ($request->get('annual_holiday')!=null){
         //     $staff->annual_holiday = $request->get('annual_holiday');
         // } else {

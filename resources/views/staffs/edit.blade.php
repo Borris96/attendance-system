@@ -87,6 +87,7 @@
               <input type="date" name="work_experiences[{{$i}}]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[{{$i}}]"/> <br>
               @endif
             @endfor
+            *修改工作经历会自动更新年假
           </td>
       </tr>
 
