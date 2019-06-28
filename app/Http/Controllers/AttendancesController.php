@@ -11,8 +11,11 @@ use App\Absence;
 use App\TotalAttendance;
 use App\AddTime;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Writer;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use Illuminate\Support\Carbon;
@@ -38,7 +41,7 @@ class AttendancesController extends Controller
             }
             else
             {
-                $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('staff_id','asc')->get();
+                $total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('department_id','asc')->get();
             }
             if (count($total_attendances) == 0)
             {
@@ -779,6 +782,14 @@ class AttendancesController extends Controller
                 // MimeType 这是 HTTP 标准中该资源的媒体类型
                 // $type = $file->getClientMimeType();
                 // 判断是哪种表格格式
+                // if ($ext == 'xls') {
+                //     $reader = new Xls();
+                // }
+                // else {
+                //     session()->flash('danger','文件格式错误！');
+                //     redirect()->back();
+                // }
+
                 if ($ext == 'xlsx') {
                     $reader = new Xlsx();
                 } elseif ($ext == 'xls') {
@@ -787,6 +798,7 @@ class AttendancesController extends Controller
                     session()->flash('danger','文件格式错误！');
                     redirect()->back();
                 }
+
                 $reader->setReadDataOnly(TRUE); // 只读
                 $spreadsheet = $reader->load($realPath);
                 $num = $spreadsheet->getSheetCount(); // Sheet的总数
@@ -1189,6 +1201,7 @@ class AttendancesController extends Controller
                                 // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表
                                 $total_attendance = new TotalAttendance();
                                 $total_attendance->staff_id = $staff->id;
+                                $total_attendance->department_id = $staff->department_id;
                                 $total_attendance->year = $year;
                                 $total_attendance->month = $month;
                                 $attendances = $staff->attendances->where('year',$year)->where('month',$month);
@@ -1356,4 +1369,12 @@ class AttendancesController extends Controller
         return redirect()->back();
     }
 
+    public function export(Request $request)
+    {
+        // $staff_id = $request->input('staff_id');
+        $year = $request->input('year');
+        $month = $request->input('month');
+        $spreadsheet = new Spreadsheet();
+        TotalAttendance::exportTotal($spreadsheet, $year, $month);
+    }
 }

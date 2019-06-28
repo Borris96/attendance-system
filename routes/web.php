@@ -43,6 +43,8 @@ Route::get('/attendances/{attendance}/addTime', 'AttendancesController@addTime')
 
 Route::post('/attendances/{attendance}/createAddTime', 'AttendancesController@createAddTime')->name('attendances.createAddTime');
 
+Route::post('/attendances/export','AttendancesController@export')->name('attendances.export');
+
 Route::get('results','AttendancesController@index')->name('attendances.results');
 
 Route::resource('/holidays','HolidaysController');
