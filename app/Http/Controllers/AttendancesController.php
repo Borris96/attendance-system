@@ -10,6 +10,7 @@ use App\ExtraWork;
 use App\Absence;
 use App\TotalAttendance;
 use App\AddTime;
+use App\AbnormalNote;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -81,13 +82,22 @@ class AttendancesController extends Controller
     public function changeAbnormal($id)
     {
         $attendance = Attendance::find($id);
-        if ($attendance->abnormal == true)
+
+        if ($attendance->abnormalNote == null)
         {
-            $attendance->abnormal = false;
+            session()->flash('warning','请在添加备注后修改异常');
+            return redirect()->back();
         }
         else
         {
-            $attendance->abnormal = true;
+            if ($attendance->abnormal == true)
+            {
+                $attendance->abnormal = false;
+            }
+            else
+            {
+                $attendance->abnormal = true;
+            }
         }
 
         if ($attendance->save())
@@ -107,6 +117,30 @@ class AttendancesController extends Controller
             $attendance->totalAttendance->save();
             session()->flash('success','更改异常成功！');
             return redirect()->back();
+        }
+    }
+
+    public function addNote($id)
+    {
+        $attendance = Attendance::find($id);
+        $total_attendance = $attendance->totalAttendance;
+        return view('attendances.add_note',compact('attendance','total_attendance'));
+    }
+
+    public function createAddNote($id, Request $request)
+    {
+        $attendance = Attendance::find($id);
+        $total_attendance = $attendance->totalAttendance;
+        $this->validate($request, [
+        'note'=>'required|max:140',
+        ]);
+        $abnormal_note = new AbnormalNote();
+        $abnormal_note->note = $request->get('note');
+        $abnormal_note->attendance_id = $attendance->id;
+        if ($abnormal_note->save())
+        {
+            session()->flash('success', '异常备注添加成功！');
+            return redirect()->route('attendances.show',$total_attendance->id);
         }
     }
 

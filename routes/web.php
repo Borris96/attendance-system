@@ -43,6 +43,10 @@ Route::get('/attendances/{attendance}/addTime', 'AttendancesController@addTime')
 
 Route::post('/attendances/{attendance}/createAddTime', 'AttendancesController@createAddTime')->name('attendances.createAddTime');
 
+Route::get('/attendances/{attendance}/addNote', 'AttendancesController@addNote')->name('attendances.addNote');
+
+Route::post('/attendances/{attendance}/createAddNote', 'AttendancesController@createAddNote')->name('attendances.createAddNote');
+
 Route::post('/attendances/export','AttendancesController@export')->name('attendances.export');
 
 Route::get('/attendances/{attendance}/basic', 'AttendancesController@basic')->name('attendances.basic');

@@ -14,6 +14,12 @@
         </td>
     </tr>
     <tr>
+        <td class="tableleft">英文名</td>
+         <td>
+          {{$attendance->staff->englishname}}
+        </td>
+    </tr>
+    <tr>
         <td class="tableleft">增补开始时间*</td>
         <td>
           <input type="time" name="add_start_time" value="{{ old('add_start_time') }}"/>

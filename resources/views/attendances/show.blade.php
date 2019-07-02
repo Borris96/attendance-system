@@ -42,6 +42,7 @@
         <th>基本工时</th>
         <th>是否异常</th>
         <th>增补记录</th>
+        <th>异常备注</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -133,12 +134,28 @@
               <br>
               @endforeach
             </td>
+            @if ($attendance->abnormalNote != null)
+            <td>{{ $attendance->abnormalNote->note }}</td>
+            @else
+            <td></td>
+            @endif
             <td>
-                <form action="{{ route('attendances.changeAbnormal', $attendance->id) }}" method="POST" style="display: inline-block;">
-                  {{ method_field('PATCH') }}
-                  {{ csrf_field() }}
-                  <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();" @if ($attendance->abnormal == false) disabled @endif>更改异常</button>
-                </form>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                  异常操作 <span class="caret"></span></button>
+                  <ul class="dropdown-menu" role="menu">
+                    <form action="{{ route('attendances.changeAbnormal', $attendance->id) }}" method="POST" style="display: inline-block;">
+                      {{ method_field('PATCH') }}
+                      {{ csrf_field() }}
+                      <button type="submit" class="btn btn-link" type="button" onclick="delcfm();" @if ($attendance->abnormal == false) disabled @endif>更改异常</button>
+                    </form>
+
+                    <form action="{{ route('attendances.addNote', $attendance->id) }}" method="GET" style="display: inline-block;">
+                      <button type="submit" class="btn btn-link" type="button" @if ($attendance->abnormalNote != null) disabled @endif>异常备注</button>
+                    </form>
+                    <!-- <li><a href="#">Tablet</a></li> -->
+                  </ul>
+                </div>
                 <form action="{{ route('attendances.clock', $attendance->id) }}" method="GET" style="display: inline-block;">
 
                   <button type="submit" class="btn btn-success" type="button"

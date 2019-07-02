@@ -36,6 +36,11 @@ class Attendance extends Model
         return $this->hasMany(AddTime::class);
     }
 
+    public function abnormalNote()
+    {
+        return $this->hasOne(AbnormalNote::class);
+    }
+
     /**
      * 计算上班时长（小时）
      * @param timestamp $start_time,
