@@ -83,13 +83,13 @@ class AttendancesController extends Controller
     {
         $attendance = Attendance::find($id);
 
-        if ($attendance->abnormalNote == null)
-        {
-            session()->flash('warning','请在添加备注后修改异常');
-            return redirect()->back();
-        }
-        else
-        {
+        // if ($attendance->abnormalNote == null)
+        // {
+        //     session()->flash('warning','请在添加备注后修改异常');
+        //     return redirect()->back();
+        // }
+        // else
+        // {
             if ($attendance->abnormal == true)
             {
                 $attendance->abnormal = false;
@@ -98,7 +98,7 @@ class AttendancesController extends Controller
             {
                 $attendance->abnormal = true;
             }
-        }
+        // }
 
         if ($attendance->save())
         {
@@ -115,7 +115,7 @@ class AttendancesController extends Controller
                 $attendance->totalAttendance->abnormal = true;
             }
             $attendance->totalAttendance->save();
-            session()->flash('success','更改异常成功！');
+            session()->flash('success','更改'.$attendance->month.'月'.$attendance->date.'日异常成功！');
             return redirect()->back();
         }
     }
