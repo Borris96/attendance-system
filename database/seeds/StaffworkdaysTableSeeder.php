@@ -1758,7 +1758,7 @@ class StaffworkdaysTableSeeder extends Seeder
 
         DB::table('staffworkdays')->insert([
             'staff_id'=>'2017010109',
-            'workday_name'=>'二',
+            'workday_name'=>'五',
             'is_work'=>true, 'duration'=>'4.50',
             'work_time'=>'13:00:00',
             'home_time'=>'17:30:00',

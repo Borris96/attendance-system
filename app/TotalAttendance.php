@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Attendance;
+use App\Staff;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer;
@@ -20,6 +21,265 @@ class TotalAttendance extends Model
 
     public function attendances(){
         return $this->hasMany(Attendance::class);
+    }
+
+    public static function calTotal($total_attendance, $attendances, $staff, $year, $month)
+    {
+        $total_attendance->staff_id = $staff->id;
+        $total_attendance->department_id = $staff->department_id;
+        $total_attendance->year = $year;
+        $total_attendance->month = $month;
+
+        $total_should_duration = 0;
+        $total_actual_duration = 0;
+        $total_is_late = 0;
+        $total_is_early = 0;
+        $total_late_work = 0;
+        $total_early_home = 0;
+        $should_attend = 0;
+        $actual_attend = 0;
+        $total_extra_work_duration = 0;
+        $total_lieu_work_duration = 0;
+        $total_absence_duration = 0;
+        $total_basic_duration = 0;
+        $total_more_duration = 0;
+        // $total_abnormal = false;
+
+        foreach ($attendances as $at)
+        {
+            if ($at->should_duration != null)
+            {
+                $total_should_duration += $at->should_duration;
+                $should_attend += 1;
+            }
+
+            if ($at->actual_duration != null)
+            {
+                $total_actual_duration += $at->actual_duration;
+                $actual_attend += 1;
+            }
+            $total_basic_duration += $at->basic_duration;
+
+            // 不在应该上班时间上班了的时长(加班除外)
+            if ($at->should_work_time == null && $at->should_home_time == null && $at->actual_work_time != null && $at->actual_home_time != null)
+            {
+                if ($at->extraWork == null)
+                {
+                    $total_more_duration += $at->actual_duration; //如果该日是加班,时长不算。
+                }
+            }
+
+            $total_is_late += $at->is_late;
+            $total_is_early += $at->is_early;
+            if ($at->late_work>0 && $at->is_late == true) // 晚上班，且记作迟到才算在总迟到里
+            {
+                $total_late_work += $at->late_work;
+            }
+
+            if ($at->early_home>0 && $at->is_early == true) // 早下班，且记作早退才算在总迟到里
+            {
+                $total_early_home += $at->early_home;
+            }
+
+            // if ($at->abnormal == true)
+            // {
+            //     $total_abnormal = true;
+            //     break;
+            // }
+
+            if ($at->extra_work_id != null)
+            {
+                $total_extra_work_duration += $at->extraWork->duration;
+                if ($at->extraWork->extra_work_type == '调休')
+                {
+                    $total_lieu_work_duration += $at->extraWork->duration;
+                }
+            }
+
+            if ($at->absence_id != null)
+            {
+                $total_absence_duration += $at->absence_duration;
+            }
+        }
+
+        $total_abnormal = $attendances->where('abnormal',true);
+        if (count($total_abnormal) == 0)
+        {
+            // 没有异常记录即不异常
+            $total_attendance->abnormal = false;
+        }
+        else
+        {
+            $total_attendance->abnormal = true;
+        }
+        $total_attendance->total_should_duration = $total_should_duration;
+        $total_attendance->total_actual_duration = $total_actual_duration;
+        $total_attendance->total_is_late = $total_is_late;
+        $total_attendance->total_is_early = $total_is_early;
+        $total_attendance->total_late_work = $total_late_work;
+        $total_attendance->total_early_home = $total_early_home;
+        $total_attendance->should_attend = $should_attend;
+        $total_attendance->actual_attend = $actual_attend;
+        $total_attendance->total_extra_work_duration = $total_extra_work_duration;
+        $total_attendance->total_absence_duration = $total_absence_duration;
+        $total_attendance->total_basic_duration = $total_basic_duration;
+        $total_attendance->total_more_duration = $total_more_duration;
+        $total_attendance->difference = $total_attendance->total_basic_duration - $total_should_duration;
+        $total_attendance->total_lieu_work_duration = $total_lieu_work_duration;
+        $total_attendance->total_salary_work_duration = $total_extra_work_duration-$total_lieu_work_duration;
+        $total_attendance->save();
+
+        $total_attendance_id = $total_attendance->id;
+
+        // 当该员工当月考勤汇总计算好之后，应当为当月每一天的考勤加入汇总数据的关联
+        foreach ($attendances as $at)
+        {
+            $at->total_attendance_id = $total_attendance_id;
+            $at->save();
+        }
+    }
+
+    /**
+     * 更新汇总记录
+     * @param collection $this_month_attendance
+     * @param object $attendance // 所修改的一条考勤记录
+     * @param string $type // 决定用哪一种计算方式: add 增补工时; clock 补打卡
+     *
+     */
+    public static function updateTotal($this_month_attendances, $attendance, $type='add')
+    {
+        // 查一下还有没有异常
+        $this_month_abnormal = $this_month_attendances->where('abnormal',true);
+        if (count($this_month_abnormal) == 0)
+        {
+            // 如果没有异常返回 false
+            $attendance->totalAttendance->abnormal = false;
+        }
+        else
+        {
+            $attendance->totalAttendance->abnormal = true;
+        }
+
+        if ($type == 'clock')
+        {
+        $total_should_duration = 0;
+        $total_actual_duration = 0;
+        $total_extra_work_duration = 0;
+        $total_absence_duration = 0;
+        $total_basic_duration = 0;
+        $total_lieu_work_duration = 0;
+        $total_more_duration = 0;
+        }
+
+        $total_is_late = 0;
+        $total_is_early = 0;
+        $total_late_work = 0;
+        $total_early_home = 0;
+        $should_attend = 0;
+        $actual_attend = 0;
+        $total_add_duration = 0;
+
+        foreach ($this_month_attendances as $at) {
+            if ($type == 'clock')
+            {
+                if ($at->should_duration != null)
+                {
+                    $total_should_duration += $at->should_duration;
+                    $should_attend += 1;
+                }
+
+                if ($at->actual_duration != null)
+                {
+                    $total_actual_duration += $at->actual_duration;
+                    $actual_attend += 1;
+                }
+
+                if ($at->extra_work_id != null)
+                {
+                    $total_extra_work_duration += $at->extraWork->duration;
+                    if ($at->extraWork->extra_work_type == '调休')
+                    {
+                        $total_lieu_work_duration += $at->extraWork->duration;
+                    }
+                }
+
+                $total_basic_duration += $at->basic_duration;
+
+                // 不在应该上班时间上班了的时长
+                if ($at->should_work_time == null && $at->should_home_time == null && $at->actual_work_time != null && $at->actual_home_time != null)
+                {
+                    if ($at->extraWork == null)
+                    {
+                        $total_more_duration += $at->actual_duration; //如果该日是加班,时长不算。
+                    }
+                }
+
+                if ($at->absence_id != null)
+                {
+                    $total_absence_duration += $at->absence_duration;
+                }
+            }
+
+            // 录入总增补时间
+            if ($at->add_duration != null)
+            {
+                $total_add_duration += $at->add_duration;
+            }
+
+            $total_is_late += $at->is_late;
+            $total_is_early += $at->is_early;
+            if ($at->late_work>0 && $at->is_late == true)
+            {
+                $total_late_work += $at->late_work;
+            }
+
+            if ($at->early_home>0 && $at->is_early == true)
+            {
+                $total_early_home += $at->early_home;
+            }
+        }
+
+        // 好像和最前面的重复了
+        $total_abnormal = $this_month_attendances->where('abnormal',true);
+        if (count($total_abnormal) == 0)
+        {
+            // 没有异常记录即不异常
+            $attendance->totalAttendance->abnormal = false;
+        }
+        else
+        {
+            $attendance->totalAttendance->abnormal = true;
+        }
+
+        if ($type == 'clock')
+        {
+            $attendance->totalAttendance->total_should_duration = $total_should_duration;
+            $attendance->totalAttendance->total_actual_duration = $total_actual_duration;
+            $attendance->totalAttendance->should_attend = $should_attend;
+            $attendance->totalAttendance->actual_attend = $actual_attend;
+            $attendance->totalAttendance->total_extra_work_duration = $total_extra_work_duration;
+            $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
+            $attendance->totalAttendance->total_basic_duration = $total_basic_duration - $total_extra_work_duration;
+            $attendance->totalAttendance->difference = $attendance->totalAttendance->total_basic_duration - $total_should_duration;
+            $attendance->totalAttendance->total_lieu_work_duration = $total_lieu_work_duration;
+            $attendance->totalAttendance->total_salary_work_duration = $total_extra_work_duration-$total_lieu_work_duration;
+            $attendance->totalAttendance->total_more_duration = $total_more_duration;
+        }
+        $attendance->totalAttendance->total_is_late = $total_is_late;
+        $attendance->totalAttendance->total_is_early = $total_is_early;
+        $attendance->totalAttendance->total_late_work = $total_late_work;
+        $attendance->totalAttendance->total_early_home = $total_early_home;
+        $attendance->totalAttendance->total_add_duration = $total_add_duration;
+        $attendance->totalAttendance->save();
+
+        if ($type == 'add')
+        {
+            session()->flash('success','增补时间成功！');
+        }
+        elseif ($type == 'clock')
+        {
+            session()->flash('success','补打卡成功！');
+        }
     }
 
     /**

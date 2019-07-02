@@ -3,6 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Holiday;
+use App\ExtraWork;
+use App\Absence;
 
 class Attendance extends Model
 {
@@ -83,5 +86,454 @@ class Attendance extends Model
             $date_day[] = date('Y-m-d', $ts_absence_start_date+3600*24*$i);
         }
         return $date_day;
+    }
+
+    /**
+     * 判断是否迟到或者早退
+     * @param int $late_early
+     * @param int $should_duration
+     * @param int $actual_duration
+     * @return boolean $is_late_early
+     *
+     */
+    public static function lateOrEarly($late_early, $should_duration, $actual_duration, $is_late_early = false)
+    {
+        // $is_late_early = false;
+        if ($late_early>0){ // 迟到是实际上班晚于应该上班
+            // 后续还需要考虑到是否请假！！！！！
+            if ($late_early > 5 && $actual_duration<$should_duration) //迟到5分钟以上，并且没有补上工时算迟到
+            {
+                $is_late_early = true;
+            }
+            else {
+                $is_late_early = false;
+            }
+        }
+        else {
+            $is_late_early = false;
+        }
+        return $is_late_early;
+    }
+
+    /**
+     * 计算基本工时, 根据有无加班判断用哪种计算方法
+     * @param object $attendance
+     * @param int $extra_work_id
+     * @return decimal $basic_duration
+     */
+    public static function calBasic($attendance, $extra_work_id)
+    {
+        // 计算当日基本工时：用 实-加 和 应 来比:如果 (实-加)>应, 记应工时; 反之记 (实-加)
+        // 每日基本工时:(实-加)>应？应:(实-加)
+        if ($extra_work_id != null)
+        {
+            $basic_duration = ($attendance->actual_duration-$attendance->extraWork->duration)>($attendance->should_duration)?$attendance->should_duration:($attendance->actual_duration-$attendance->extraWork->duration);
+        }
+        else
+        {
+            $basic_duration = $attendance->actual_duration>($attendance->should_duration)?$attendance->should_duration:$attendance->actual_duration;
+        }
+
+        return $basic_duration;
+    }
+
+
+
+    /**
+     * 录入基础考勤数据(除请假)
+     * @param object $worksheet
+     * @param int $c
+     * @param int $r
+     * @param object $attendance
+     * @param collection $staff
+     * @param collection $get_holidays
+     * @param int $year
+     * @param int $month
+     * @param int $date
+     * @param string $day
+     * @param date $month_first_day
+     * @param date $month_last_day
+     * @return void
+     *
+     */
+    public static function postAttendance($worksheet, $c, $r, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day)
+    {
+        $attendance->staff_id = $staff->id;
+        // dump($attendance->staff_id);
+        // exit();
+        // 录入年月日
+        $attendance->year = $year;
+        $attendance->month = $month;
+        $attendance->date = $date;
+        $attendance->day = $day;
+        $ymd = $year.'-'.$month.'-'.$date;
+        // 判断这一天是上班还是休息，录入该日期的类型
+        if (count($get_holidays)!=0)
+        {
+            $holidays = Holiday::where('date','<=',$month_last_day)->where('date','>=',$month_first_day);
+            // 如果在holidays找到了这个日子，这个日子以holidays里的那个为准
+            $find_holiday = $holidays->where('date', date('Y-m-d',strtotime($ymd)))->get();
+
+            if (count($find_holiday)!=0)
+            {
+                foreach ($find_holiday as $h) {
+                    $attendance->workday_type = $h->holiday_type;
+                    $workday_name = $h->workday_name;
+                    $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                    // 如果节假日调休了，需要找到调上班那天应上下班时间
+                    if ($attendance->workday_type == '上班')
+                    {
+                        foreach ($this_workday as $twd) {
+                            $should_work_time = $twd->work_time;
+                            $should_home_time = $twd->home_time;
+                        }
+                    }
+                    if ($attendance->workday_type == '休息')
+                    {
+                        $should_work_time = null;
+                        $should_home_time = null;
+                    }
+                }
+            }
+            // 否则以员工的为准
+            else {
+                // 否则寻找这一天是该员工休息日还是工作日
+                $this_workday = $staff->staffworkdays->where('workday_name',$day);
+                foreach ($this_workday as $twd) {
+                    $should_work_time = $twd->work_time;
+                    $should_home_time = $twd->home_time;
+                }
+                if (count($this_workday->where('work_time',!null)) != 0 && $attendance->workday_type == null) { // work_time非null，上班
+                    $attendance->workday_type = '上班';
+                }
+                elseif ($attendance->workday_type == null) {
+                    $attendance->workday_type = '休息';
+                }
+            }
+            $attendance->should_work_time = $should_work_time;
+            $attendance->should_home_time = $should_home_time;
+        }
+        else
+        {
+            // 直接判断这一天是该员工休息日还是工作日
+            $this_workday = $staff->staffworkdays->where('workday_name',$day);
+                // dump($staff->staffworkdays);
+                // dump($this_workday);
+                // dump($day);
+                // exit();
+            foreach ($this_workday as $twd) {
+                $should_work_time = $twd->work_time;
+                $should_home_time = $twd->home_time;
+            }
+            if (count($this_workday->where('work_time',!null)) != 0) { // work_time非null，上班
+                $attendance->workday_type = '上班';
+            }
+            else {
+                $attendance->workday_type = '休息';
+            }
+            $attendance->should_work_time = $should_work_time;
+            $attendance->should_home_time = $should_home_time;
+        }
+
+        // 录入实际上下班时间
+        // 默认工作日休息日读取的列不同
+        if ($day == '日' || $day == '六') {
+            $work_time = $worksheet->getCellByColumnAndRow($c+10,$r)->getValue();
+            $home_time = $worksheet->getCellByColumnAndRow($c+12,$r)->getValue();
+        }
+        else {
+            $work_time = $worksheet->getCellByColumnAndRow($c+1,$r)->getValue();
+            if ($work_time == '旷工') {
+                $work_time = null;
+            }
+            $home_time = $worksheet->getCellByColumnAndRow($c+3,$r)->getValue();
+        }
+        $attendance->actual_work_time = $work_time;
+        $attendance->actual_home_time = $home_time;
+
+        // 计算迟到早退分钟数 以及 实际上班时长 判断是否异常
+        // 在异常判断之后，如果不报异常，该日不报迟到和早退记录。
+        if ($attendance->should_work_time != null && $attendance->should_home_time != null) {
+            $swt = strtotime($attendance->should_work_time);
+            $sht = strtotime($attendance->should_home_time);
+            $attendance->should_duration = $attendance->calDuration($swt,$sht);
+        }
+        if ($attendance->actual_work_time != null && $attendance->actual_home_time != null)
+        {
+            $awt = strtotime($attendance->actual_work_time);
+            $aht = strtotime($attendance->actual_home_time);
+            $attendance->actual_duration = $attendance->calDuration($awt,$aht);
+        }
+
+        if ($attendance->should_work_time != null && $attendance->should_home_time != null && $attendance->actual_work_time != null && $attendance->actual_home_time != null)
+        {
+            $attendance->late_work = ($awt-$swt)/60; // 转换成分钟
+            $late_work = ($awt-$swt)/60;
+            $attendance->early_home = ($sht-$aht)/60;
+            $early_home = ($sht-$aht)/60;
+            $should = $attendance->should_duration;
+            $actual = $attendance->actual_duration;
+
+            $attendance->is_late = Attendance::lateOrEarly($late_work, $should, $actual);
+            $attendance->is_early = Attendance::lateOrEarly($early_home, $should, $actual);
+        }
+
+        $look_for_start_time = $ymd.' 00:00:00';
+        $look_for_end_time = $ymd.' 24:00:00';
+        // 目前这个查询方法只适用于查询结果只有一条的。如果多条结果不能如此直接赋值
+        // 无论有没有批准都记录进去。
+        $extra_work_id = ExtraWork::where('staff_id',$staff->id)->where('extra_work_start_time','>=',$look_for_start_time)->where('extra_work_end_time','<=',$look_for_end_time)->value('id');
+        $attendance->extra_work_id = $extra_work_id;
+
+        $attendance->basic_duration = Attendance::calBasic($attendance, $extra_work_id);
+        $attendance->save();
+    }
+
+
+    /**
+     *
+     * @param collection $absences
+     * @param object $staff
+     * @return void
+     *
+     */
+    public static function postAbsences($absences, $staff)
+    {
+        $weekarray=array("日","一","二","三","四","五","六");
+        if (count($absences) != 0)
+        {
+            foreach ($absences as $absence) {
+                // 分别对每一段请假记录进行拆分
+                $date_day = [];
+                // 存起止日的工作时长
+                $duration_array = [];
+                // 以下都是赋值给一条请假的
+                $absence_id = $absence->id;
+                $absence_type = $absence->absence_type;
+                $absence_start_time = $absence->absence_start_time;
+                $absence_end_time = $absence->absence_end_time;
+                // 第一天到最后一天，日期及星期返回至数组(key为星期,value为日期)
+                $date_day = Attendance::separateAbsence($absence_start_time, $absence_end_time, $date_day);
+
+                $last_day = end($date_day);
+                $first_day = reset($date_day);
+
+                if (count($date_day) == 1) // 只请了一天的假
+                {
+                    $workday_name = $weekarray[date('w',strtotime($date_day[0]))];
+                    $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                    foreach ($this_workday as $twd) {
+                        $first_day_home_time = $twd->work_time;
+                        $last_day_work_time = $twd->home_time;
+                    }
+                    $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array);
+                    foreach ($date_day as $date) {
+                        // 找到这个日期的考勤
+                        // 考勤表中年月日时分开的
+                        $y_m_d = explode('-', $date);
+                        $this_attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
+                        // dump($this_attendance);
+                        // exit();
+                        foreach ($this_attendance as $at) {
+                            $at->absence_id = $absence_id;
+                            $at->absence_duration = $duration_array[0];
+                            $at->absence_type = $absence_type;
+                            $at->save();
+                        }
+                    }
+                }
+                elseif (count($date_day) >1) // 请假天数大于一天
+                {
+                    // 先录入起止日的请假数据
+                    $first_absence_day_name = $weekarray[date('w',strtotime($first_day))];
+                    $first_absence_day = $staff->staffworkdays->where('workday_name',$first_absence_day_name);
+
+                    $last_absence_day_name = $weekarray[date('w',strtotime($last_day))];
+                    $last_absence_day = $staff->staffworkdays->where('workday_name',$last_absence_day_name);
+                    foreach ($first_absence_day as $fad) {
+                        $first_day_home_time = $fad->home_time;
+                    }
+                    foreach ($last_absence_day as $lad) {
+                        $last_day_work_time = $lad->work_time;
+                    }
+                    $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array);
+                    // 找到起止日的考勤
+                    // 起
+                    $f_y_m_d = explode('-', $first_day);
+                    $first_absence_day_attendance = Attendance::where('staff_id',$staff->id)->where('year',$f_y_m_d[0])->where('month',$f_y_m_d[1])->where('date',$f_y_m_d[2])->get();
+
+                    foreach ($first_absence_day_attendance as $at) {
+                        $at->absence_id = $absence_id;
+                        $at->absence_duration = $duration_array[0];
+                        $at->absence_type = $absence_type;
+                        $at->save();
+                    }
+
+                    // 止
+                    $l_y_m_d = explode('-', $last_day);
+                    $last_absence_day_attendance = Attendance::where('staff_id',$staff->id)->where('year',$l_y_m_d[0])->where('month',$l_y_m_d[1])->where('date',$l_y_m_d[2])->get();
+
+                    foreach ($last_absence_day_attendance as $at) {
+                        $at->absence_id = $absence_id;
+                        $at->absence_duration = $duration_array[1];
+                        $at->absence_type = $absence_type;
+                        $at->save();
+                    }
+
+                    // 录入中间日期的请假时长
+                    $count = count($date_day)-2; // 减去了起止日期
+                    for ($j=1; $j<=$count; $j++)
+                    {
+                        $workday_name = $weekarray[date('w',strtotime($date_day[$j]))];
+                        // 寻找这一天（星期）的该员工工作时长
+                        $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                        foreach ($this_workday as $twd) {
+                            $absence_duration = $twd->duration;
+                        }
+                        $y_m_d = explode('-', $date_day[$j]);
+                        $this_attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
+                        // dump($this_attendance);
+                        foreach ($this_attendance as $at) {
+                            $at->absence_id = $absence_id;
+                            $at->absence_duration = $absence_duration;
+                            $at->absence_type = $absence_type;
+                            $at->save();
+                        }
+                        // exit();
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     *
+     * @param one item in collection $s_a
+     * @return void
+     *
+     */
+    public static function isAbnormal($s_a)
+    {
+        // 只要四项有一项是空的，直接报异常 （因为实际上下班必须对应应该上下班）
+        if ($s_a->should_work_time == null || $s_a->should_home_time == null || $s_a->actual_work_time == null || $s_a->actual_home_time == null)
+        {
+            $s_a->abnormal = true;
+        }
+        else
+        {
+            if ($s_a->add_duration == null)
+            {
+                $add_duration = 0;
+            }
+            else
+            {
+                $add_duration = $s_a->add_duration;
+            }
+
+            if ($s_a->extraWork == null)
+            {
+                $extrawork_duration = 0;
+            }
+            else
+            {
+                $extrawork_duration = $s_a->extraWork->duration;
+            }
+            $cal_duration = $s_a->actual_duration-$extrawork_duration+$s_a->absence_duration+$s_a->add_duration; // 实际工时-加班+请假+总增补 >= (应该工时-5分钟)
+            if ($cal_duration>=($s_a->should_duration-5/60))
+            {
+                $s_a->abnormal = false;
+            }
+            else
+            {
+                $s_a->abnormal = true;
+            }
+        }
+        // 再处理两种情况
+        // 第一种：应上下班有时间，而实上下班没打卡。如果请了假，看请假时长和应时长能不能对上
+        if ($s_a->should_work_time != null && $s_a->should_home_time != null && $s_a->actual_work_time == null && $s_a->actual_home_time == null)
+        {
+            if ($s_a->absence_id != null)
+            {
+                if ($s_a->absence_duration  + $s_a->add_duration>= ($s_a->should_duration-5/60))
+                {
+                    $s_a->abnormal = false;
+                }
+            }
+        }
+        // 第二种：应上下班没有时间，而实上下班打卡了。如果有加班记录，看应加班时长是否与实际打卡时长对上。
+        if ($s_a->should_work_time == null && $s_a->should_home_time == null && $s_a->actual_work_time != null && $s_a->actual_home_time != null)
+        {
+            if ($s_a->extra_work_id != null)
+            {
+                if ($s_a->actual_duration  + $s_a->add_duration>= ($s_a->extraWork->duration-5/60))
+                {
+                    $s_a->abnormal = false;
+                }
+            }
+        }
+
+        // 如果全空，说明是休息日，不报异常
+        if ($s_a->should_work_time == null && $s_a->should_home_time == null && $s_a->actual_work_time == null && $s_a->actual_home_time == null)
+        {
+            $s_a->abnormal = false;
+        }
+
+        // 如果记录不异常，那么不计早退和迟到
+        if ($s_a->abnormal == false)
+        {
+            $s_a->is_early = false;
+            $s_a->is_late = false;
+        }
+        $s_a->save();
+    }
+
+    /**
+     *
+     * @param collection $attendances
+     * @param date $join_company
+     * @param date $leave_company
+     * @param date $month_first_day
+     * @param date $month_last_day
+     * @param int $year
+     * @param int $month
+     * @return void
+     *
+     */
+    public static function joinOrLeave($attendances, $join_company, $leave_company, $month_first_day, $month_last_day, $year, $month)
+    {
+        // 判断该员工是否当月入职，如果是，入职前的日期统一改为不异常
+        if ($join_company >= $month_first_day && $join_company <= $month_last_day)
+        {
+            foreach ($attendances as $at) {
+                $this_day = $year.'-'.$month.'-'.$at->date;
+                if (strtotime($this_day)<strtotime($join_company)) // 如果考勤日早于入职日，那么之前不算考勤
+                {
+                    $at->workday_type = null;
+                    $at->should_home_time = null;
+                    $at->should_work_time = null;
+                    $at->should_duration = null;
+                    $at->abnormal = false;
+                    $at->save();
+                }
+            }
+        }
+
+        // 判断该员工是否当月离职，如果是，离职前的日期统一改为不异常
+        if ($leave_company >= $month_first_day && $leave_company <= $month_last_day)
+        {
+            foreach ($attendances as $at) {
+                $this_day = $year.'-'.$month.'-'.$at->date;
+                if (strtotime($this_day)>=strtotime($leave_company)) // 如果考勤日晚于离职日，那么之后不算考勤
+                {
+                    $at->workday_type = null;
+                    $at->should_home_time = null;
+                    $at->should_work_time = null;
+                    $at->should_duration = null;
+                    $at->abnormal = false;
+                    $at->save();
+                }
+            }
+        }
     }
 }
