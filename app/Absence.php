@@ -13,6 +13,11 @@ class Absence extends Model
         return $this->belongsTo(Staff::class);
     }
 
+    public function separateAbsences()
+    {
+        return $this->hasMany(SeparateAbsence::class);
+    }
+
     /**
      *
      * 将一段请假时间每天时长作为数组返回

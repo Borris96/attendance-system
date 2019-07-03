@@ -98,7 +98,7 @@ class StaffsController extends Controller
             'englishname'=>'required|max:50|unique:staffs',
             'join_company' => 'required',
             'positions'=>'required',
-            'annual_holiday'=>'numeric',
+            // 'annual_holiday'=>'numeric',
             'card_number'=>'max:23',
             'bank'=>'max:50',
         ]);
@@ -221,7 +221,7 @@ class StaffsController extends Controller
             else {
                 $staffworkday->is_work = false;
             }
-            $staffworkday->duration = $staffworkday->calDuration($work_times[$i],$home_times[$i]);
+            $staffworkday->duration = Staffworkday::calDuration($work_times[$i],$home_times[$i]);
             $staffworkday->save();
             // dump($staffworkday);
         }
@@ -269,8 +269,8 @@ class StaffsController extends Controller
             'positions'=>'required',
             'card_number'=>'max:23',
             'bank'=>'max:50',
-            'annual_holiday'=>'numeric',
-            'remaining_annual_holiday'=>'numeric',
+            // 'annual_holiday'=>'numeric',
+            // 'remaining_annual_holiday'=>'numeric',
         ]);
 
         $staff = Staff::find($id);
@@ -288,12 +288,8 @@ class StaffsController extends Controller
         // 获取工作日，工作经历
         $work_times = $request->input('work_time');
         $home_times = $request->input('home_time');
-
         $work_experiences_array = $request->input('work_experiences');
         $leave_experiences_array = $request->input('leave_experiences');
-        // dump($work_experiences_array);
-        // dump($leave_experiences_array);
-        // exit();
         // 判断填写格式是否正确
         for ($i=0; $i<=6; $i++){
             if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
@@ -365,7 +361,7 @@ class StaffsController extends Controller
             else {
                 $origin_workdays[$i]->is_work = false;
             }
-            $origin_workdays[$i]->duration = $origin_workdays[$i]->calDuration(strtotime($work_times[$i]),strtotime($home_times[$i]));
+            $origin_workdays[$i]->duration = Staffworkday::calDuration($work_times[$i],$home_times[$i]);
             $origin_workdays[$i]->save();
         }
         // 之前存在的 work history，更新

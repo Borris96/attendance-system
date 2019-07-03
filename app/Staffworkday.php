@@ -49,7 +49,7 @@ class Staffworkday extends Model
         }
     }
 
-    public function calDuration($start_time, $end_time)
+    public static function calDuration($start_time, $end_time)
     {
         $start_time = strtotime($start_time);
         $end_time = strtotime($end_time);
