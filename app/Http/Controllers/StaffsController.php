@@ -269,8 +269,8 @@ class StaffsController extends Controller
             'positions'=>'required',
             'card_number'=>'max:23',
             'bank'=>'max:50',
-            // 'annual_holiday'=>'numeric',
-            // 'remaining_annual_holiday'=>'numeric',
+            'annual_holiday'=>'numeric',
+            'remaining_annual_holiday'=>'numeric',
         ]);
 
         $staff = Staff::find($id);
