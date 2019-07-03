@@ -285,11 +285,19 @@ class Attendance extends Model
 
         $look_for_start_time = $ymd.' 00:00:00';
         $look_for_end_time = $ymd.' 24:00:00';
-        // 目前这个查询方法只适用于查询结果只有一条的。如果多条结果不能如此直接赋值
+        // 录入当日加班：目前这个查询方法只适用于查询结果只有一条的。如果多条结果不能如此直接赋值
         // 无论有没有批准都记录进去。
         $extra_work_id = ExtraWork::where('staff_id',$staff->id)->where('extra_work_start_time','>=',$look_for_start_time)->where('extra_work_end_time','<=',$look_for_end_time)->value('id');
         $attendance->extra_work_id = $extra_work_id;
 
+        // 录入当日请假:
+        $absence_id = SeparateAbsence::where('staff_id',$staff->id)->where('year',$year)->where('month',$month)->where('date',$date)->value('absence_id');
+        if ($absence_id != null)
+        {
+            $attendance->absence_id = $absence_id;
+            $attendance->absence_duration = SeparateAbsence::where('staff_id',$staff->id)->where('year',$year)->where('month',$month)->where('date',$date)->value('duration');
+            $attendance->absence_type = Absence::find($absence_id)->absence_type;
+        }
         $attendance->basic_duration = Attendance::calBasic($attendance, $extra_work_id);
         $attendance->save();
     }

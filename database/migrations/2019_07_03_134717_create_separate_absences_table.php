@@ -16,6 +16,7 @@ class CreateSeparateAbsencesTable extends Migration
         Schema::create('separate_absences', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('absence_id')->nullable();
+            $table->unsignedInteger('staff_id')->nullable();
             $table->unsignedInteger('year')->nullable();
             $table->unsignedInteger('month')->nullable();
             $table->unsignedInteger('date')->nullable();

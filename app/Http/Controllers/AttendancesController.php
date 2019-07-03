@@ -471,15 +471,15 @@ class AttendancesController extends Controller
                                     $date_and_day = explode(' ', $worksheet->getCellByColumnAndRow($c,$r)->getValue());
                                     $date = $date_and_day[0];
                                     $day = $date_and_day[1];
-
+                                    // 把当日基础数据录入
                                     Attendance::postAttendance($worksheet, $c, $r, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day);
                                 }
 
                                 // 录入请假记录分割多天的请假记录到每一天，以便计算每天请假的小时数
                                 // 取出这个月的该员工所有请假 （如果涉及跨月还查不到，需要修改）
-                                $absences = Absence::where('staff_id',$staff->id)->where('absence_start_time','>=',$month_first_day.' 0:00:00')->where('absence_end_time','<=',$month_last_day.' 24:00:00')->get();
-                                // 应该在生成请假记录时就拆分好的。
-                                Attendance::postAbsences($absences, $staff);
+                                // $absences = Absence::where('staff_id',$staff->id)->where('absence_start_time','>=',$month_first_day.' 0:00:00')->where('absence_end_time','<=',$month_last_day.' 24:00:00')->get();
+                                // // 应该在生成请假记录时就拆分好的。
+                                // Attendance::postAbsences($absences, $staff);
                                 // 计算每一条attendance是否异常
                                 $attendances = $staff->attendances->where('year',$year)->where('month',$month);
                                 foreach ($attendances as $s_a)

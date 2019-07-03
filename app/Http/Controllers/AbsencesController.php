@@ -71,6 +71,13 @@ class AbsencesController extends Controller
             $absence->staff->lieu->save();
         }
 
+        if ($absence->separateAbsences != null)
+        {
+            foreach ($absence->separateAbsences as $s_a) {
+                $s_a->delete();
+            }
+        }
+
         $absence->delete();
         session()->flash('success', '成功删除请假记录！');
         return back();
@@ -318,16 +325,20 @@ class AbsencesController extends Controller
             if (count($duration_array) == 1)
             {
                 $separate_absence->absence_id = $absence->id;
+                $separate_absence->staff_id = $absence->staff_id;
                 $separate_absence->save();
             }
             elseif (count($duration_array) ==2)
             {
                 $separate_absence_start->absence_id = $absence->id;
+                $separate_absence_start->staff_id = $absence->staff_id;
                 $separate_absence_start->save();
                 $separate_absence_end->absence_id = $absence->id;
+                $separate_absence_end->staff_id = $absence->staff_id;
                 $separate_absence_end->save();
                 foreach ($middle_absence_array as $maa) {
                     $maa->absence_id = $absence->id;
+                    $maa->staff_id = $absence->staff_id;
                     $maa->save();
                 }
             }
@@ -581,16 +592,20 @@ class AbsencesController extends Controller
             if (count($duration_array) == 1)
             {
                 $separate_absence->absence_id = $absence->id;
+                $separate_absence->staff_id = $absence->staff_id;
                 $separate_absence->save();
             }
             elseif (count($duration_array) ==2)
             {
                 $separate_absence_start->absence_id = $absence->id;
+                $separate_absence_start->staff_id = $absence->staff_id;
                 $separate_absence_start->save();
                 $separate_absence_end->absence_id = $absence->id;
+                $separate_absence_end->staff_id = $absence->staff_id;
                 $separate_absence_end->save();
                 foreach ($middle_absence_array as $maa) {
                     $maa->absence_id = $absence->id;
+                    $maa->staff_id = $absence->staff_id;
                     $maa->save();
                 }
             }
