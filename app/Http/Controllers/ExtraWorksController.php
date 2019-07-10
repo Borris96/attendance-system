@@ -7,6 +7,8 @@ use App\Staff;
 use App\Absence;
 use App\ExtraWork;
 use App\Lieu;
+use App\Attendance;
+use App\TotalAttendance;
 
 class ExtraWorksController extends Controller
 {
@@ -37,10 +39,11 @@ class ExtraWorksController extends Controller
 
 
 
-    public function create()
+    public function create(Request $request)
     {
         $staffs = Staff::where('status',true)->get();
-        return view('extra_works/create',compact('staffs'));
+        $attendance = null;
+        return view('extra_works/create',compact('staffs','attendance'));
     }
 
 
@@ -58,11 +61,22 @@ class ExtraWorksController extends Controller
         $extra_work = ExtraWork::find($id);
         //被批准的调休记录删除时，剩余应相应增加
         $approve = $extra_work->approve;
-        if ($approve == true){
+        if ($approve == true && $extra_work->staff->lieu != null){
             $duration = $extra_work->duration;
             $lieu = $extra_work->staff->lieu;
             $lieu->total_time -= $duration;
             $lieu->save();
+        }
+        $y_m_d = explode('-',date("Y-m-d", strtotime($extra_work->extra_work_start_time)));
+        $attendance = Attendance::where('staff_id',$extra_work->staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
+        if ($attendance!=null)
+        {
+            foreach ($attendance as $at) {
+                $at->extra_work_id = null; // 取消加班和这条加班记录的关联
+                Attendance::isAbnormal($at);
+                $this_month_attendances = $at->totalAttendance->attendances;
+                TotalAttendance::updateTotal($this_month_attendances, $at, $type='extra');
+            }
         }
         $extra_work->delete();
         session()->flash('success', '成功删除加班记录！');
@@ -79,14 +93,33 @@ class ExtraWorksController extends Controller
             'approve' => 'required',
             'note'=>'max:140',
         ]);
-
-
-
         $extra_work = new ExtraWork();
         $extra_work->staff_id = $request->get('staff_id');
         $extra_work->extra_work_type = $request->get('extra_work_type');
         $extra_work->extra_work_start_time = $request->get('extra_work_start_time');
         $extra_work->extra_work_end_time = $request->get('extra_work_end_time');
+
+        $staff = Staff::find($extra_work->staff_id);
+        $y_m_d = explode('-',date("Y-m-d", strtotime($extra_work->extra_work_start_time)));
+        $attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
+        if ($attendance != null)
+        {
+            foreach($attendance as $at)
+            {
+                $start = $at->actual_work_time; // H:i
+                $end = $at->actual_home_time; // H:i
+                if ($at->actual_duration != null)
+                {
+                    // 工作日，已经打卡，加班时间段必须在打卡时间内
+                    if (strtotime(date("H:i",strtotime($extra_work->extra_work_start_time)))<strtotime($start) || strtotime(date("H:i",strtotime($extra_work->extra_work_end_time)))>strtotime($end))
+                    {
+                        session()->flash('danger','加班时间需要在打卡时间内！');
+                        return redirect()->back()->withInput();
+                    }
+                }
+            }
+        }
+
         // 加班必须在同一天
         if (date("Y-m-d", strtotime($extra_work->extra_work_start_time)) !== date("Y-m-d", strtotime($extra_work->extra_work_end_time)))
         {
@@ -103,7 +136,6 @@ class ExtraWorksController extends Controller
         // 判断新的请假时间是否与该员工原来的某段请假时间重叠，如不重叠才能创建成功。
         $ew_start_time = strtotime($extra_work->extra_work_start_time);
         $ew_end_time = strtotime($extra_work->extra_work_end_time);
-        $staff = Staff::find($extra_work->staff_id);
         $extra_works = $staff->extraWorks;
         foreach ($extra_works as $ew) {
             $old_ew_start_time = strtotime($ew->extra_work_start_time);
@@ -116,12 +148,11 @@ class ExtraWorksController extends Controller
 
         $extra_work->approve = $request->get('approve');
         $extra_work->note = $request->get('note');
-        // $extra_work->duration = 0.9;
+        if ($extra_work->extra_work_type == "调休" && $extra_work->approve == false) {
+            session()->flash('danger','调休需要批准！');
+            return redirect()->back()->withInput();
+        }
         $extra_work->duration = $extra_work->calDuration($extra_work->extra_work_start_time, $extra_work->extra_work_end_time);
-
-        // $now = $staff->extra_works()->value('duration'); //取在staffscontroller里duration的值，此处用不上。
-        // dump($staff);
-        // exit();
 
         //把被批准的调休类加班存进lieus表
         if ($extra_work->extra_work_type == "调休" && $extra_work->approve == true){
@@ -137,20 +168,20 @@ class ExtraWorksController extends Controller
                 $lieu->remaining_time = $extra_work->duration;
             }
 
-            if ($extra_work->save()) {
-                $lieu->save();
-                session()->flash('success','保存成功！');
-                return redirect('extra_works'); //应导向列表
-            } else {
-                session()->flash('danger','保存失败！');
-                return redirect()->back()->withInput();
-            }
-        } elseif ($extra_work->extra_work_type == "调休" && $extra_work->approve == false) {
-            session()->flash('danger','调休需要批准！');
-            return redirect()->back()->withInput();
+            $lieu->save();
         }
 
         if ($extra_work->save()) {
+            if ($attendance!=null)
+            {
+                foreach ($attendance as $at) {
+                    $at->extra_work_id = $extra_work->id;
+                    Attendance::isAbnormal($at);
+                    $this_month_attendances = $at->totalAttendance->attendances;
+                    TotalAttendance::updateTotal($this_month_attendances, $at, $type='extra');
+                    return redirect()->route('attendances.show',$at->totalAttendance->id); //应导向列表
+                }
+            }
             session()->flash('success','保存成功！');
             return redirect('extra_works'); //应导向列表
         } else {

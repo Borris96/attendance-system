@@ -79,6 +79,18 @@ class AttendancesController extends Controller
     }
 
 
+    public function createExtra($id)
+    {
+        $attendance = Attendance::find($id);
+        $total_attendance = $attendance->totalAttendance;
+        $staff = Staff::find($attendance->staff_id);
+        $year = $attendance->year;
+        $month = $attendance->month;
+        $date = $attendance->date;
+        $staffs = null;
+        return view('extra_works/create',compact('staffs','staff','year','month','date','attendance','total_attendance'));
+    }
+
     public function changeAbnormal($id)
     {
         $attendance = Attendance::find($id);

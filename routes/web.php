@@ -33,6 +33,10 @@ Route::resource('/attendances','AttendancesController');
 
 Route::post('/attendances/import','AttendancesController@import')->name('attendances.import');
 
+Route::get('/attendances/{attendance}/createExtra', 'AttendancesController@createExtra')->name('attendances.createExtra');
+
+// Route::get('/attendances/{attendance}/createAbsence', 'AttendancesController@createAbsence')->name('attendances.createAbsence');
+
 Route::patch('/attendances/{attendance}/changeAbnormal', 'AttendancesController@changeAbnormal')->name('attendances.changeAbnormal');
 
 Route::get('/attendances/{attendance}/clock', 'AttendancesController@clock')->name('attendances.clock');

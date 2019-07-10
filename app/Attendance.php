@@ -147,8 +147,8 @@ class Attendance extends Model
     /**
      * 录入基础考勤数据(除请假)
      * @param object $worksheet
-     * @param int $c
-     * @param int $r
+     * @param int $c column
+     * @param int $r row
      * @param object $attendance
      * @param collection $staff
      * @param collection $get_holidays
@@ -301,124 +301,6 @@ class Attendance extends Model
         $attendance->basic_duration = Attendance::calBasic($attendance, $extra_work_id);
         $attendance->save();
     }
-
-
-    /**
-     *
-     * @param collection $absences
-     * @param object $staff
-     * @return void
-     *
-     */
-    public static function postAbsences($absences, $staff)
-    {
-        $weekarray=array("日","一","二","三","四","五","六");
-        if (count($absences) != 0)
-        {
-            foreach ($absences as $absence) {
-                // 分别对每一段请假记录进行拆分
-                $date_day = [];
-                // 存起止日的工作时长
-                $duration_array = [];
-                // 以下都是赋值给一条请假的
-                $absence_id = $absence->id;
-                $absence_type = $absence->absence_type;
-                $absence_start_time = $absence->absence_start_time;
-                $absence_end_time = $absence->absence_end_time;
-                // 第一天到最后一天，日期及星期返回至数组(key为星期,value为日期)
-                $date_day = Attendance::separateAbsence($absence_start_time, $absence_end_time, $date_day);
-
-                $last_day = end($date_day);
-                $first_day = reset($date_day);
-
-                if (count($date_day) == 1) // 只请了一天的假
-                {
-                    $workday_name = $weekarray[date('w',strtotime($date_day[0]))];
-                    $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
-                    foreach ($this_workday as $twd) {
-                        $first_day_home_time = $twd->work_time;
-                        $last_day_work_time = $twd->home_time;
-                    }
-                    $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array);
-                    foreach ($date_day as $date) {
-                        // 找到这个日期的考勤
-                        // 考勤表中年月日时分开的
-                        $y_m_d = explode('-', $date);
-                        $this_attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
-                        // dump($this_attendance);
-                        // exit();
-                        foreach ($this_attendance as $at) {
-                            $at->absence_id = $absence_id;
-                            $at->absence_duration = $duration_array[0];
-                            $at->absence_type = $absence_type;
-                            $at->save();
-                        }
-                    }
-                }
-                elseif (count($date_day) >1) // 请假天数大于一天
-                {
-                    // 先录入起止日的请假数据
-                    $first_absence_day_name = $weekarray[date('w',strtotime($first_day))];
-                    $first_absence_day = $staff->staffworkdays->where('workday_name',$first_absence_day_name);
-
-                    $last_absence_day_name = $weekarray[date('w',strtotime($last_day))];
-                    $last_absence_day = $staff->staffworkdays->where('workday_name',$last_absence_day_name);
-                    foreach ($first_absence_day as $fad) {
-                        $first_day_home_time = $fad->home_time;
-                    }
-                    foreach ($last_absence_day as $lad) {
-                        $last_day_work_time = $lad->work_time;
-                    }
-                    $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence_start_time, $absence_end_time, $duration_array);
-                    // 找到起止日的考勤
-                    // 起
-                    $f_y_m_d = explode('-', $first_day);
-                    $first_absence_day_attendance = Attendance::where('staff_id',$staff->id)->where('year',$f_y_m_d[0])->where('month',$f_y_m_d[1])->where('date',$f_y_m_d[2])->get();
-
-                    foreach ($first_absence_day_attendance as $at) {
-                        $at->absence_id = $absence_id;
-                        $at->absence_duration = $duration_array[0];
-                        $at->absence_type = $absence_type;
-                        $at->save();
-                    }
-
-                    // 止
-                    $l_y_m_d = explode('-', $last_day);
-                    $last_absence_day_attendance = Attendance::where('staff_id',$staff->id)->where('year',$l_y_m_d[0])->where('month',$l_y_m_d[1])->where('date',$l_y_m_d[2])->get();
-
-                    foreach ($last_absence_day_attendance as $at) {
-                        $at->absence_id = $absence_id;
-                        $at->absence_duration = $duration_array[1];
-                        $at->absence_type = $absence_type;
-                        $at->save();
-                    }
-
-                    // 录入中间日期的请假时长
-                    $count = count($date_day)-2; // 减去了起止日期
-                    for ($j=1; $j<=$count; $j++)
-                    {
-                        $workday_name = $weekarray[date('w',strtotime($date_day[$j]))];
-                        // 寻找这一天（星期）的该员工工作时长
-                        $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
-                        foreach ($this_workday as $twd) {
-                            $absence_duration = $twd->duration;
-                        }
-                        $y_m_d = explode('-', $date_day[$j]);
-                        $this_attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
-                        // dump($this_attendance);
-                        foreach ($this_attendance as $at) {
-                            $at->absence_id = $absence_id;
-                            $at->absence_duration = $absence_duration;
-                            $at->absence_type = $absence_type;
-                            $at->save();
-                        }
-                        // exit();
-                    }
-                }
-            }
-        }
-    }
-
 
     /**
      *

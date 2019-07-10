@@ -160,7 +160,7 @@ class TotalAttendance extends Model
             $attendance->totalAttendance->abnormal = true;
         }
 
-        if ($type == 'clock')
+        if ($type == 'clock' || $type == 'extra')
         {
         $total_should_duration = 0;
         $total_actual_duration = 0;
@@ -180,7 +180,7 @@ class TotalAttendance extends Model
         $total_add_duration = 0;
 
         foreach ($this_month_attendances as $at) {
-            if ($type == 'clock')
+            if ($type == 'clock' || $type == 'extra')
             {
                 if ($at->should_duration != null)
                 {
@@ -251,7 +251,7 @@ class TotalAttendance extends Model
             $attendance->totalAttendance->abnormal = true;
         }
 
-        if ($type == 'clock')
+        if ($type == 'clock' || $type == 'extra')
         {
             $attendance->totalAttendance->total_should_duration = $total_should_duration;
             $attendance->totalAttendance->total_actual_duration = $total_actual_duration;
@@ -259,7 +259,7 @@ class TotalAttendance extends Model
             $attendance->totalAttendance->actual_attend = $actual_attend;
             $attendance->totalAttendance->total_extra_work_duration = $total_extra_work_duration;
             $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
-            $attendance->totalAttendance->total_basic_duration = $total_basic_duration - $total_extra_work_duration;
+            $attendance->totalAttendance->total_basic_duration = $total_basic_duration;
             $attendance->totalAttendance->difference = $attendance->totalAttendance->total_basic_duration - $total_should_duration;
             $attendance->totalAttendance->total_lieu_work_duration = $total_lieu_work_duration;
             $attendance->totalAttendance->total_salary_work_duration = $total_extra_work_duration-$total_lieu_work_duration;
@@ -279,6 +279,10 @@ class TotalAttendance extends Model
         elseif ($type == 'clock')
         {
             session()->flash('success','补打卡成功！');
+        }
+        elseif ($type == 'extra')
+        {
+            session()->flash('success','更新考勤成功！');
         }
     }
 

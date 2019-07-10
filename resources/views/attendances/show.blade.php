@@ -156,30 +156,63 @@
                     <!-- <li><a href="#">Tablet</a></li> -->
                   </ul>
                 </div>
-                <form action="{{ route('attendances.clock', $attendance->id) }}" method="GET" style="display: inline-block;">
 
-                  <button type="submit" class="btn btn-success" type="button"
-                  @if ($attendance->actual_work_time != null && $attendance->actual_home_time != null)
-                  disabled
-                  @endif
-                  @if ($attendance->abnormal == false)
-                  disabled
-                  @endif
-                  >补打卡</button>
-                </form>
-                <form action="{{ route('attendances.addTime', $attendance->id) }}" method="GET" style="display: inline-block;">
-                  <button type="submit" class="btn btn-info" type="button"
-                  @if ($attendance->actual_work_time == null || $attendance->should_work_time == null || $attendance->should_home_time == null || $attendance->actual_home_time == null)
-                  disabled
-                  @endif
-                  @if ($attendance->abnormal == false)
-                  disabled
-                  @endif
-                  >增补工时</button>
-                </form>
-                <form action="{{ route('attendances.basic',$attendance->id) }}" method="GET" style="display: inline-block;">
+
+                <div class="btn-group">
+                  <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                  增补操作 <span class="caret"></span></button>
+                  <ul class="dropdown-menu" role="menu">
+
+                    <form action="{{ route('attendances.clock', $attendance->id) }}" method="GET" style="display: inline-block;">
+
+                      <button type="submit" class="btn btn-link" type="button"
+                      @if ($attendance->actual_work_time != null && $attendance->actual_home_time != null)
+                      disabled
+                      @endif
+                      @if ($attendance->abnormal == false)
+                      disabled
+                      @endif
+                      >补打卡</button>
+                    </form>
+
+                    <form action="{{ route('attendances.addTime', $attendance->id) }}" method="GET" style="display: inline-block;">
+                      <button type="submit" class="btn btn-link" type="button"
+                      @if ($attendance->actual_work_time == null || $attendance->should_work_time == null || $attendance->should_home_time == null || $attendance->actual_home_time == null)
+                      disabled
+                      @endif
+                      @if ($attendance->abnormal == false)
+                      disabled
+                      @endif
+                      >补工时</button>
+                    </form>
+                    <br>
+                    <!-- <li><a href="#">Tablet</a></li> -->
+                    <form action="{{ route('attendances.createExtra', $attendance->id)}}" method="GET" style="display: inline-block;">
+                      <button type="submit" class="btn btn-link" type="button"
+                      @if ($attendance->extra_work_id != null)
+                      disabled
+                      @endif
+                      @if ($attendance->should_duration != null)
+                        @if ($attendance->should_home_time == null || $attendance->actual_home_time == null)
+                          disabled
+                        @endif
+                      @endif
+                      >补加班</button>
+                    </form>
+
+                    <form action="{{ route('absences.create') }}" method="GET" style="display: inline-block;">
+                      <button type="submit" class="btn btn-link" type="button"
+                      @if ($attendance->absence_id != null)
+                      disabled
+                      @endif
+                      >补请假</button>
+                    </form>
+                  </ul>
+                </div>
+
+                <form action="{{ route('attendances.basic',$attendance->id) }}" method="GET" style="display: inline-block; margin: 4px;">
                   {{ csrf_field() }}
-                  <button type="submit" class="btn" type="button"
+                  <button type="submit" class="btn btn-info" type="button"
                   @if ($attendance->basic_duration == null)
                   disabled
                   @endif
