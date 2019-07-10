@@ -7,6 +7,8 @@ use App\Staff;
 use App\Absence;
 use App\Attendance;
 use App\Lieu;
+use App\SeparateAbsence;
+use App\TotalAttendance;
 
 class AbsencesController extends Controller
 {
@@ -38,7 +40,8 @@ class AbsencesController extends Controller
     public function create()
     {
         $staffs = Staff::where('status',true)->get();
-        return view('absences/create',compact('staffs'));
+        $attendance = null;
+        return view('absences/create',compact('staffs','attendance'));
     }
 
     public function edit($id) {
@@ -70,6 +73,13 @@ class AbsencesController extends Controller
             $absence->staff->lieu->save();
         }
 
+        if ($absence->separateAbsences != null)
+        {
+            foreach ($absence->separateAbsences as $s_a) {
+                $s_a->delete();
+            }
+        }
+
         $absence->delete();
         session()->flash('success', '成功删除请假记录！');
         return back();
@@ -91,32 +101,48 @@ class AbsencesController extends Controller
         $absence->absence_type = $request->get('absence_type');
         $absence->absence_start_time = $request->get('absence_start_time');
         $absence->absence_end_time = $request->get('absence_end_time');
+        $absence->approve = $request->get('approve');
+        $absence->note = $request->get('note');
+
+        $staff = Staff::find($absence->staff_id);
+
         if ($absence->absence_start_time>$absence->absence_end_time){
             session()->flash('danger','日期填写错误！');
             return redirect()->back()->withInput();
         }
 
-        $staff = Staff::find($absence->staff_id);
+        if ($absence->absence_type == "调休" && $absence->approve == false) {
+            session()->flash('danger','调休需要批准！');
+            return redirect()->back()->withInput();
+        }
+
+        if ($absence->absence_type == "年假" && $absence->approve == false) {
+            session()->flash('danger','年假需要批准！');
+            return redirect()->back()->withInput();
+        }
+
         $absence_start_time = strtotime($absence->absence_start_time);
         $absence_end_time = strtotime($absence->absence_end_time);
 
         // 计算请假天数的差值
         $days_difference = (strtotime(date('Y-m-d',$absence_end_time))-strtotime(date('Y-m-d',$absence_start_time)))/(60*60*24);
 
-        // 判断请假的天数中是否有该员工的假期
+        // 判断请假的起止日期中是否有该员工的假期
         $weekarray=array("日","一","二","三","四","五","六");
-        for ($i=0; $i<=$days_difference; $i++)
+        $first_day = $weekarray[date('w', $absence_start_time)];
+        $last_day = $weekarray[date('w', $absence_start_time+60*60*24*$days_difference)];
+        $first_workdays = $staff->staffworkdays->where('workday_name',$first_day);
+        foreach ($first_workdays as $fwd) { // 其实只有一个值
+            $is_work_first = $fwd->is_work;
+        }
+        $last_workdays = $staff->staffworkdays->where('workday_name',$last_day);
+        foreach ($last_workdays as $lwd) { // 其实只有一个值
+            $is_work_last = $lwd->is_work;
+        }
+        if ($is_work_first == false || $is_work_last == false)
         {
-            $this_day = $weekarray[date('w', $absence_start_time+60*60*24*$i)];
-            $workdays = $staff->staffworkdays->where('workday_name',$this_day);
-            foreach ($workdays as $wd) { // 其实只有一个值
-                $is_work = $wd->is_work;
-            }
-            if ($is_work == false)
-            {
-                session()->flash('danger','请假时间包含非工作日！');
-                return redirect()->back()->withInput();
-            }
+            session()->flash('danger','起止时间包含非工作日！');
+            return redirect()->back()->withInput();
         }
 
         // 开始查找该员工的工作日上下班数据
@@ -172,35 +198,107 @@ class AbsencesController extends Controller
                 return redirect()->back()->withInput();
             }
         }
-
-        $absence->approve = $request->get('approve');
-        $absence->note = $request->get('note');
         // $absence->duration = 0.9;
         // $absence->duration = $absence->calDuration($first_day_home_time, $last_day_work_time, $work_duration, $absence->absence_start_time, $absence->absence_end_time);
 
-
         $duration_array = [];
+        // 获取请假起止日的时长
         $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence->absence_start_time, $absence->absence_end_time, $duration_array);
 
+        // 请假只有一天时
         if (count($duration_array) == 1)
-        {
-            $absence->duration = array_sum($duration_array);
+        {   // 将请假日的年-月-日分开
+
+
+            $y_m_d = explode('-',date("Y-m-d", strtotime($absence->absence_start_time)));
+            $attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
+            if ($attendance != null)
+            {
+                foreach($attendance as $at) // 其实只有一条
+                {
+                    if ($at->actual_duration != null) // 如果实际时间非空，看是不是和实际上班时间有交集
+                    {
+                        $start = $at->actual_work_time; // H:i
+                        $end = $at->actual_home_time; // H:i
+                        $str_start = strtotime(date("Y-m-d", strtotime($absence->absence_start_time)).' '.$start);
+                        $str_end = strtotime(date("Y-m-d", strtotime($absence->absence_start_time)).' '.$end);
+                        // 工作日，已经打卡，请假时间段必须在打卡时间外
+                        if($absence->isCrossing($absence_start_time, $absence_end_time, $str_start, $str_end))
+                        {
+                            session()->flash('danger','请假时间需要在打卡时间外！');
+                            return redirect()->back()->withInput();
+                        }
+                    }
+                }
+            }
+
+            $separate_absence = new SeparateAbsence();
+            $y_m_d = explode('-', date('Y-m-d',$absence_start_time));
+            $separate_absence->year = $y_m_d[0];
+            $separate_absence->month = $y_m_d[1];
+            $separate_absence->date = $y_m_d[2];
+            $separate_absence->duration = array_sum($duration_array);
+            $absence->duration = $separate_absence->duration;
+            $separate_absence->save();
         }
+        // 不止一天时
         elseif (count($duration_array) == 2)
         {
+            // 不止一天时，暂不支持在考勤记录上更新请假。
+            $y_m_d_s = explode('-',date("Y-m-d", strtotime($absence->absence_start_time)));
+            $attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d_s[0])->where('month',$y_m_d_s[1])->where('date',$y_m_d_s[2])->get();
+
+            if ($attendance != null)
+            {
+                session()->flash('warning','暂不支持补录多日的请假记录');
+                return redirect()->back()->withInput();
+            }
+
             $middle_duration = 0;
             // 将每一天分开，请假除去收尾的天按当日工作时长计算请假时长
             $date_day = [];
             $date_day = Attendance::separateAbsence($absence->absence_start_time, $absence->absence_end_time, $date_day);
+
+            // 录入第一天
+            $separate_absence_start = new SeparateAbsence();
+            $y_m_d = explode('-', date('Y-m-d',$absence_start_time));
+            $separate_absence_start->year = $y_m_d[0];
+            $separate_absence_start->month = $y_m_d[1];
+            $separate_absence_start->date = $y_m_d[2];
+            $separate_absence_start->duration = $duration_array[0];
+            $separate_absence_start->save();
+            // 录入最后一天
+            $separate_absence_end = new SeparateAbsence();
+            $y_m_d = explode('-', date('Y-m-d',$absence_end_time));
+            $separate_absence_end->year = $y_m_d[0];
+            $separate_absence_end->month = $y_m_d[1];
+            $separate_absence_end->date = $y_m_d[2];
+            $separate_absence_end->duration = $duration_array[1];
+            $separate_absence_end->save();
+
             // 计算中间日期的请假总时长
             $count = count($date_day)-2; // 减去了起止日期
+            $middle_absence_array = [];
             for ($j=1; $j<=$count; $j++)
             {
                 $workday_name = $weekarray[date('w',strtotime($date_day[$j]))];
                 // 寻找这一天（星期）的该员工工作时长
                 $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
                 foreach ($this_workday as $twd) { // 其实只有一个 workday
-                    $middle_duration += $twd->duration;
+                    if ($twd->duration != null)
+                    {
+                        if ($twd->duration != 0)
+                        {
+                            $middle_absence_array[$j] = new SeparateAbsence();
+                            $y_m_d = explode('-', date('Y-m-d',strtotime($date_day[$j])));
+                            $middle_absence_array[$j]->year = $y_m_d[0];
+                            $middle_absence_array[$j]->month = $y_m_d[1];
+                            $middle_absence_array[$j]->date = $y_m_d[2];
+                            $middle_absence_array[$j]->duration = $twd->duration;
+                            $middle_absence_array[$j]->save();
+                            $middle_duration += $middle_absence_array[$j]->duration;
+                        }
+                    }
                 }
             }
             $absence->duration = array_sum($duration_array) + $middle_duration;
@@ -212,31 +310,26 @@ class AbsencesController extends Controller
         }
 
         // 只有年假，且被批准情况下计算剩余年假
-        if ($absence->absence_type == "年假" && $absence->approve == true){
+
+        if ($absence->absence_type == "年假"){
             $staff = Staff::find($absence->staff_id);
             $staff->remaining_annual_holiday -= $absence->duration;
             if ($staff->remaining_annual_holiday<0){
                 session()->flash('danger','年假余额不足，不能请假！');
                 return redirect()->back()->withInput();
             }
-
-            if ($absence->save() && $staff->save()) {
-                session()->flash('success','保存成功！');
-                return redirect('absences'); //应导向列表
-            } else {
-                session()->flash('danger','年假更新失败！');
-                return redirect()->back()->withInput();
+            else
+            {
+                $staff->save();
             }
-        } elseif ($absence->absence_type == "年假" && $absence->approve == false) {
-            session()->flash('danger','年假需要批准！');
-            return redirect()->back()->withInput();
         }
 
-        if ($absence->absence_type == "调休" && $absence->approve == true){
+        // 只有调休，且被批准情况下计算剩余调休
+        if ($absence->absence_type == "调休"){
             //把这个员工的那一条调休记录调出来！！！
             $this_lieu = $absence->staff->lieu;
             if ($this_lieu == null) {
-                session()->flash('danger','调休剩余时间不足！');
+                session()->flash('danger','调休剩余时间不足，不能请假！！');
                 return redirect()->back()->withInput();
             }
             $this_lieu->remaining_time -= $absence->duration;
@@ -244,20 +337,48 @@ class AbsencesController extends Controller
                 session()->flash('danger','调休剩余时间不足，不能请假！');
                 return redirect()->back()->withInput();
             }
-
-            if ($absence->save() && $this_lieu->save()) {
-                session()->flash('success','保存成功！');
-                return redirect('absences'); //应导向列表
-            } else {
-                session()->flash('danger','调休更新失败！');
-                return redirect()->back()->withInput();
+            else
+            {
+                $this_lieu->save();
             }
-        } elseif ($absence->absence_type == "调休" && $absence->approve == false) {
-            session()->flash('danger','调休需要批准！');
-            return redirect()->back()->withInput();
         }
 
         if ($absence->save()) {
+            // 把请假申请的id录入分日请假--此时这些请假分日才被关联
+            if (count($duration_array) == 1)
+            {
+                $separate_absence->absence_id = $absence->id;
+                $separate_absence->staff_id = $absence->staff_id;
+                $separate_absence->save();
+                if ($attendance!=null)
+                {
+                    foreach ($attendance as $at) {
+                        $at->absence_id = $absence->id;
+                        $at->absence_duration = $absence->duration;
+                        $at->absence_type = $absence->absence_type;
+                        Attendance::isAbnormal($at);
+                        $this_month_attendances = $at->totalAttendance->attendances;
+                        TotalAttendance::updateTotal($this_month_attendances, $at, $type='absence');
+                        return redirect()->route('attendances.show',$at->totalAttendance->id); //应导向列表
+                    }
+                }
+            }
+            elseif (count($duration_array) ==2)
+            {
+                $separate_absence_start->absence_id = $absence->id;
+                $separate_absence_start->staff_id = $absence->staff_id;
+                $separate_absence_start->save();
+                $separate_absence_end->absence_id = $absence->id;
+                $separate_absence_end->staff_id = $absence->staff_id;
+                $separate_absence_end->save();
+                foreach ($middle_absence_array as $maa) {
+                    $maa->absence_id = $absence->id;
+                    $maa->staff_id = $absence->staff_id;
+                    $maa->save();
+                }
+            }
+
+            // 如果attendnce查到了，还需要把attendance和absence_id关联
             session()->flash('success','保存成功！');
             return redirect('absences'); //应导向列表
         } else {
@@ -275,11 +396,24 @@ class AbsencesController extends Controller
         ]);
 
         $absence = Absence::find($id);
+
         $origin_duration = $absence->duration; // 获取之前时长，重新计算年假时要用
         $absence->absence_start_time = $request->get('absence_start_time');
         $absence->absence_end_time = $request->get('absence_end_time');
         if ($absence->absence_start_time>$absence->absence_end_time){ //开始时间不能比结束时间早
             session()->flash('danger','日期填写错误！');
+            return redirect()->back()->withInput();
+        }
+
+        $absence->approve = $request->get('approve');
+        $absence->note = $request->get('note');
+        if ($absence->absence_type == "调休" && $absence->approve == false) {
+            session()->flash('danger','调休需要批准！');
+            return redirect()->back()->withInput();
+        }
+
+        if ($absence->absence_type == "年假" && $absence->approve == false) {
+            session()->flash('danger','年假需要批准！');
             return redirect()->back()->withInput();
         }
 
@@ -293,22 +427,35 @@ class AbsencesController extends Controller
         // 计算请假天数的差值
         $days_difference = (strtotime(date('Y-m-d',$absence_end_time))-strtotime(date('Y-m-d',$absence_start_time)))/(60*60*24);
 
-        // 判断请假的天数中是否有该员工的假期
-        $weekarray=array("日","一","二","三","四","五","六");
-        for ($i=0; $i<=$days_difference; $i++)
-        {
-            $this_day = $weekarray[date('w', $absence_start_time+60*60*24*$i)];
-            $workdays = $staff->staffworkdays->where('workday_name',$this_day);
-            foreach ($workdays as $wd) { // 其实只有一个值
-                $is_work = $wd->is_work;
-            }
-            if ($is_work == false)
-            {
-                session()->flash('danger','请假时间包含非工作日！');
-                return redirect()->back()->withInput();
-            }
+        // 判断请假的起止日中是否有该员工的假期
+        $first_day = $weekarray[date('w', $absence_start_time)];
+        $last_day = $weekarray[date('w', $absence_start_time+60*60*24*$days_difference)];
+        $first_workdays = $staff->staffworkdays->where('workday_name',$first_day);
+        foreach ($first_workdays as $fwd) { // 其实只有一个值
+            $is_work_first = $fwd->is_work;
         }
-
+        $last_workdays = $staff->staffworkdays->where('workday_name',$last_day);
+        foreach ($last_workdays as $lwd) { // 其实只有一个值
+            $is_work_last = $lwd->is_work;
+        }
+        if ($is_work_first == false || $is_work_last == false)
+        {
+            session()->flash('danger','起止时间包含非工作日！');
+            return redirect()->back()->withInput();
+        }
+        // for ($i=0; $i<=$days_difference; $i++)
+        // {
+        //     $this_day = $weekarray[date('w', $absence_start_time+60*60*24*$i)];
+        //     $workdays = $staff->staffworkdays->where('workday_name',$this_day);
+        //     foreach ($workdays as $wd) { // 其实只有一个值
+        //         $is_work = $wd->is_work;
+        //     }
+        //     if ($is_work == false)
+        //     {
+        //         session()->flash('danger','请假时间包含非工作日！');
+        //         return redirect()->back()->withInput();
+        //     }
+        // }
 
         $absence_start_day = $weekarray[date('w', $absence_start_time)]; // 请假开始那天是周几
         $absence_end_day = $weekarray[date('w', $absence_end_time)]; // 请假结束那天是周几
@@ -363,18 +510,28 @@ class AbsencesController extends Controller
             }
         }
 
-
-        $absence->approve = $request->get('approve');
-        $absence->note = $request->get('note');
-
         // $absence->duration = $absence->calDuration($first_day_home_time, $last_day_work_time, $work_duration, $absence->absence_start_time, $absence->absence_end_time);
-
+        // 先把之前存过的Separate Absence删掉，后面重新计算，这样就和新建一样了。
+        if ($absence->separateAbsences != null)
+        {
+            foreach ($absence->separateAbsences as $s_a) {
+                $s_a->delete();
+            }
+        }
         $duration_array = [];
         $duration_array = $absence->separateDuration($first_day_home_time, $last_day_work_time, $absence->absence_start_time, $absence->absence_end_time, $duration_array);
 
+        // 请假只有一天时
         if (count($duration_array) == 1)
-        {
-            $absence->duration = array_sum($duration_array);
+        {   // 将请假日的年-月-日分开
+            $separate_absence = new SeparateAbsence();
+            $y_m_d = explode('-', date('Y-m-d',$absence_start_time));
+            $separate_absence->year = $y_m_d[0];
+            $separate_absence->month = $y_m_d[1];
+            $separate_absence->date = $y_m_d[2];
+            $separate_absence->duration = array_sum($duration_array);
+            $absence->duration = $separate_absence->duration;
+            $separate_absence->save();
         }
         elseif (count($duration_array) == 2)
         {
@@ -382,15 +539,48 @@ class AbsencesController extends Controller
             // 将每一天分开，请假除去收尾的天按当日工作时长计算请假时长
             $date_day = [];
             $date_day = Attendance::separateAbsence($absence->absence_start_time, $absence->absence_end_time, $date_day);
+
+            // 新代码
+            // 录入第一天
+            $separate_absence_start = new SeparateAbsence();
+            $y_m_d = explode('-', date('Y-m-d',$absence_start_time));
+            $separate_absence_start->year = $y_m_d[0];
+            $separate_absence_start->month = $y_m_d[1];
+            $separate_absence_start->date = $y_m_d[2];
+            $separate_absence_start->duration = $duration_array[0];
+            $separate_absence_start->save();
+            // 录入最后一天
+            $separate_absence_end = new SeparateAbsence();
+            $y_m_d = explode('-', date('Y-m-d',$absence_end_time));
+            $separate_absence_end->year = $y_m_d[0];
+            $separate_absence_end->month = $y_m_d[1];
+            $separate_absence_end->date = $y_m_d[2];
+            $separate_absence_end->duration = $duration_array[1];
+            $separate_absence_end->save();
+
             // 计算中间日期的请假总时长
             $count = count($date_day)-2; // 减去了起止日期
+            $middle_absence_array = [];
             for ($j=1; $j<=$count; $j++)
             {
                 $workday_name = $weekarray[date('w',strtotime($date_day[$j]))];
                 // 寻找这一天（星期）的该员工工作时长
                 $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
                 foreach ($this_workday as $twd) { // 其实只有一个 workday
-                    $middle_duration += $twd->duration;
+                    if ($twd->duration != null)
+                    {
+                        if ($twd->duration != 0)
+                        {
+                            $middle_absence_array[$j] = new SeparateAbsence();
+                            $y_m_d = explode('-', date('Y-m-d',strtotime($date_day[$j])));
+                            $middle_absence_array[$j]->year = $y_m_d[0];
+                            $middle_absence_array[$j]->month = $y_m_d[1];
+                            $middle_absence_array[$j]->date = $y_m_d[2];
+                            $middle_absence_array[$j]->duration = $twd->duration;
+                            $middle_absence_array[$j]->save();
+                            $middle_duration += $middle_absence_array[$j]->duration;
+                        }
+                    }
                 }
             }
             $absence->duration = array_sum($duration_array) + $middle_duration;
@@ -401,18 +591,8 @@ class AbsencesController extends Controller
             return redirect()->back()->withInput();
         }
 
-        if ($absence->absence_type == "调休" && $absence->approve == false) {
-            session()->flash('danger','调休需要批准！');
-            return redirect()->back()->withInput();
-        }
-
-        if ($absence->absence_type == "年假" && $absence->approve == false) {
-            session()->flash('danger','年假需要批准！');
-            return redirect()->back()->withInput();
-        }
-
         // 只有年假，且被批准情况下计算剩余年假
-        if ($absence->absence_type == "年假" && $absence->approve == true){
+        if ($absence->absence_type == "年假"){
             $staff = $absence->staff;
             $remaining = $staff->remaining_annual_holiday;
             // 新的剩余年假：把之前减去的时长加上，再减去新的时长
@@ -422,36 +602,50 @@ class AbsencesController extends Controller
                 session()->flash('danger','年假余额不足，不能请假！');
                 return redirect()->back()->withInput();
             }
-            if ($absence->save() && $staff->save()) {
-                session()->flash('success','年假更新成功！');
-                return redirect('absences'); //应导向列表
-            } else {
-                session()->flash('danger','年假更新失败！');
-                return redirect()->back()->withInput();
+            else
+            {
+                $staff->save();
             }
         }
 
         // 计算修改过的调休
-        if ($absence->absence_type == "调休" && $absence->approve == true){
+        if ($absence->absence_type == "调休"){
             $lieu = $absence->staff->lieu;
             $remaining = $lieu->remaining_time;
             // 新的剩余调休：把之前减去的时长加上，再减去新的时长
             $lieu->remaining_time = $remaining + $origin_duration - $absence->duration;
-
             if ($lieu->remaining_time<0){
                 session()->flash('danger','调休余额不足，不能请假！');
                 return redirect()->back()->withInput();
             }
-            if ($absence->save() && $lieu->save()) {
-                session()->flash('success','调休更新成功！');
-                return redirect('absences'); //应导向列表
-            } else {
-                session()->flash('danger','调休更新失败！');
-                return redirect()->back()->withInput();
+            else
+            {
+                $lieu->save();
             }
         }
 
         if ($absence->save()) {
+            // 把请假申请的id录入分日请假
+            if (count($duration_array) == 1)
+            {
+                $separate_absence->absence_id = $absence->id;
+                $separate_absence->staff_id = $absence->staff_id;
+                $separate_absence->save();
+            }
+            elseif (count($duration_array) ==2)
+            {
+                $separate_absence_start->absence_id = $absence->id;
+                $separate_absence_start->staff_id = $absence->staff_id;
+                $separate_absence_start->save();
+                $separate_absence_end->absence_id = $absence->id;
+                $separate_absence_end->staff_id = $absence->staff_id;
+                $separate_absence_end->save();
+                foreach ($middle_absence_array as $maa) {
+                    $maa->absence_id = $absence->id;
+                    $maa->staff_id = $absence->staff_id;
+                    $maa->save();
+                }
+            }
             session()->flash('success','更新成功！');
             return redirect('absences'); //应导向列表
         } else {
