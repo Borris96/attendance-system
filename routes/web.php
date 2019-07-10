@@ -35,7 +35,7 @@ Route::post('/attendances/import','AttendancesController@import')->name('attenda
 
 Route::get('/attendances/{attendance}/createExtra', 'AttendancesController@createExtra')->name('attendances.createExtra');
 
-// Route::get('/attendances/{attendance}/createAbsence', 'AttendancesController@createAbsence')->name('attendances.createAbsence');
+Route::get('/attendances/{attendance}/createAbsence', 'AttendancesController@createAbsence')->name('attendances.createAbsence');
 
 Route::patch('/attendances/{attendance}/changeAbnormal', 'AttendancesController@changeAbnormal')->name('attendances.changeAbnormal');
 

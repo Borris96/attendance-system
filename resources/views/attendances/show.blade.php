@@ -191,18 +191,30 @@
                       <button type="submit" class="btn btn-link" type="button"
                       @if ($attendance->extra_work_id != null)
                       disabled
-                      @endif
-                      @if ($attendance->should_duration != null)
-                        @if ($attendance->should_home_time == null || $attendance->actual_home_time == null)
+                      @elseif ($attendance->should_duration == null)
+                        @if (($attendance->actual_work_time == null && $attendance->actual_home_time != null) || ($attendance->actual_work_time != null && $attendance->actual_home_time == null))
+                          disabled
+                        @endif
+                      @elseif ($attendance->should_duration != null)
+                        @if ($attendance->actual_work_time == null || $attendance->actual_home_time == null)
                           disabled
                         @endif
                       @endif
                       >补加班</button>
                     </form>
 
-                    <form action="{{ route('absences.create') }}" method="GET" style="display: inline-block;">
+                    <form action="{{ route('attendances.createAbsence', $attendance->id) }}" method="GET" style="display: inline-block;">
                       <button type="submit" class="btn btn-link" type="button"
                       @if ($attendance->absence_id != null)
+                      disabled
+                      @elseif ($attendance->should_duration == null)
+                      disabled
+                      @endif
+                      @if ($attendance->should_duration != null)
+                        @if (($attendance->actual_work_time == null && $attendance->actual_home_time != null) || ($attendance->actual_work_time != null && $attendance->actual_home_time == null))
+                          disabled
+                        @endif
+                      @elseif ($attendance->abnormal == false)
                       disabled
                       @endif
                       >补请假</button>

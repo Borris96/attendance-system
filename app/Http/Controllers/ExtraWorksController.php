@@ -39,7 +39,7 @@ class ExtraWorksController extends Controller
 
 
 
-    public function create(Request $request)
+    public function create()
     {
         $staffs = Staff::where('status',true)->get();
         $attendance = null;
