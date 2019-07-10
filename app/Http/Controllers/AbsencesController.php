@@ -232,8 +232,6 @@ class AbsencesController extends Controller
                 }
             }
 
-
-
             $separate_absence = new SeparateAbsence();
             $y_m_d = explode('-', date('Y-m-d',$absence_start_time));
             $separate_absence->year = $y_m_d[0];
@@ -246,6 +244,16 @@ class AbsencesController extends Controller
         // 不止一天时
         elseif (count($duration_array) == 2)
         {
+            // 不止一天时，暂不支持在考勤记录上更新请假。
+            $y_m_d_s = explode('-',date("Y-m-d", strtotime($absence->absence_start_time)));
+            $attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d_s[0])->where('month',$y_m_d_s[1])->where('date',$y_m_d_s[2])->get();
+
+            if ($attendance != null)
+            {
+                session()->flash('warning','暂不支持补录多日的请假记录');
+                return redirect()->back()->withInput();
+            }
+
             $middle_duration = 0;
             // 将每一天分开，请假除去收尾的天按当日工作时长计算请假时长
             $date_day = [];
@@ -342,17 +350,17 @@ class AbsencesController extends Controller
                 $separate_absence->absence_id = $absence->id;
                 $separate_absence->staff_id = $absence->staff_id;
                 $separate_absence->save();
-            }
-            if ($attendance!=null)
-            {
-                foreach ($attendance as $at) {
-                    $at->absence_id = $absence->id;
-                    $at->absence_duration = $absence->duration;
-                    $at->absence_type = $absence->absence_type;
-                    Attendance::isAbnormal($at);
-                    $this_month_attendances = $at->totalAttendance->attendances;
-                    TotalAttendance::updateTotal($this_month_attendances, $at, $type='absence');
-                    return redirect()->route('attendances.show',$at->totalAttendance->id); //应导向列表
+                if ($attendance!=null)
+                {
+                    foreach ($attendance as $at) {
+                        $at->absence_id = $absence->id;
+                        $at->absence_duration = $absence->duration;
+                        $at->absence_type = $absence->absence_type;
+                        Attendance::isAbnormal($at);
+                        $this_month_attendances = $at->totalAttendance->attendances;
+                        TotalAttendance::updateTotal($this_month_attendances, $at, $type='absence');
+                        return redirect()->route('attendances.show',$at->totalAttendance->id); //应导向列表
+                    }
                 }
             }
             elseif (count($duration_array) ==2)
