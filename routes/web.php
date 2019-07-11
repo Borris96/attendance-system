@@ -64,6 +64,10 @@ Route::resource('/holidays','HolidaysController');
 Route::resource('/salarys','SalarysController');
 
 Route::resource('/teachers','TeachersController');
+Route::resource('/lessons','LessonsController');
+Route::resource('/missings','MissingsController');
+Route::resource('/substitutes','SubstitutesController');
+Route::resource('/alters','AltersController');
 
 Route::get('login','SessionsController@create')->name('login');
 Route::post('login','SessionsController@store')->name('login');

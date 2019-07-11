@@ -26,4 +26,9 @@ class TeachersController extends Controller
     {
         return view('teachers/edit');
     }
+
+    public function update(Request $request)
+    {
+
+    }
 }

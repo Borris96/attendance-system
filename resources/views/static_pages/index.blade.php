@@ -60,10 +60,11 @@
           },
           {id:'2',homePage : '1',menu:[{text:'上课考勤管理',items:[
             {id:'1',text:'老师信息管理',href:'{{ route('teachers.index') }}'},
-            {id:'2',text:'课程信息管理',href:''},
-            {id:'3',text:'代课信息管理',href:''},
-            {id:'4',text:'缺课调课管理',href:''},
-            {id:'5',text:'上课考勤查询',href:''}
+            {id:'2',text:'课程信息管理',href:'{{ route('lessons.index') }}'},
+            {id:'3',text:'代课信息管理',href:'{{ route('substitutes.index') }}'},
+            {id:'4',text:'缺课调课管理',href:'{{ route('missings.index') }}'},
+            {id:'5',text:'缺课调课管理',href:'{{ route('alters.index') }}'},
+            {id:'6',text:'上课考勤查询',href:''}
             ]}]
           }];
         new PageUtil.MainPage({

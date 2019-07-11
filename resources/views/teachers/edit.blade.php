@@ -5,7 +5,7 @@
 
 <div class="container">
 @include('shared._errors')
-<form action="" method="post" class="definewidth m20">
+<form action="          " method="post" class="definewidth m20">
   {{ method_field('PATCH') }}
   {{ csrf_field() }}
   <table class="table table-bordered table-hover definewidth m10">
@@ -16,7 +16,7 @@
       <tr>
           <td width="10%" class="tableleft">选择课程</td>
           <td>
-          <select data-placeholder="选择课程..." id="chosen-select" multiple>
+          <select data-placeholder="选择课程..." id="chosen-select" name="lesson_id" multiple>
             <option value=""></option>
             <option value="1">G1 Sun 16:00-18:00-13</option>
             <option value="2">K2 Sat 10:00-14:00-11</option>

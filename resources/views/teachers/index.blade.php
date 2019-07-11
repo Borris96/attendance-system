@@ -4,7 +4,7 @@
 @include('shared._messages')
 
 <form class="form-inline definewidth m20" action="" method="get">
-    员工英文名
+    老师英文名
     <input type="text" name="englishname" id="englishname"class="abc input-default" placeholder="" value="{{ old('englishname') }}">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>
     &nbsp;&nbsp;
@@ -14,7 +14,7 @@
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
-        <th>员工编号</th>
+        <th>老师编号</th>
         <th>英文名</th>
         <th>本月应排课</th>
         <th>本月实际排课</th>
