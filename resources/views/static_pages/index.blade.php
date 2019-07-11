@@ -49,7 +49,23 @@
 <script type="text/javascript" src="{{ asset('js/config-min.js') }}" charset="utf-8"></script>
 <script>
     BUI.use('common/main',function(){
-        var config = [{id:'1',menu:[{text:'上班考勤管理',items:[{id:'1',text:'员工信息管理',href:'{{ route('staffs.index') }}'},{id:'2',text:'请假信息管理',href:'{{ route('absences.index') }}'},{id:'3',text:'加班信息管理',href:'{{ route('extra_works.index') }}'},{id:'4',text:'考勤信息管理',href:'{{ route('attendances.index') }}'},{id:'5',text:'节假日调休管理',href:'{{ route('holidays.index') }}'}]}]},{id:'2',menu:[{text:'上课考勤管理',items:[{id:'99',text:'查询业务',href:''}]}]}];
+        var config =
+          [{id:'1',homePage : '1',menu:[{text:'上班考勤管理', items:[
+            {id:'1',text:'员工信息管理',href:'{{ route('staffs.index') }}'},
+            {id:'2',text:'请假信息管理',href:'{{ route('absences.index') }}'},
+            {id:'3',text:'加班信息管理',href:'{{ route('extra_works.index') }}'},
+            {id:'4',text:'考勤信息管理',href:'{{ route('attendances.index') }}'},
+            {id:'5',text:'节假日调休管理',href:'{{ route('holidays.index') }}'}
+            ]}]
+          },
+          {id:'2',homePage : '1',menu:[{text:'上课考勤管理',items:[
+            {id:'1',text:'老师信息管理',href:'{{ route('teachers.index') }}'},
+            {id:'2',text:'课程信息管理',href:''},
+            {id:'3',text:'代课信息管理',href:''},
+            {id:'4',text:'缺课调课管理',href:''},
+            {id:'5',text:'上课考勤查询',href:''}
+            ]}]
+          }];
         new PageUtil.MainPage({
             modulesConfig : config
         });
