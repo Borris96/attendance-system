@@ -63,8 +63,8 @@
             {id:'2',text:'课程信息管理',href:'{{ route('lessons.index') }}'},
             {id:'3',text:'代课信息管理',href:'{{ route('substitutes.index') }}'},
             {id:'4',text:'缺课调课管理',href:'{{ route('missings.index') }}'},
-            {id:'5',text:'缺课调课管理',href:'{{ route('alters.index') }}'},
-            {id:'6',text:'上课考勤查询',href:''}
+            {id:'5',text:'换课信息管理',href:'{{ route('alters.index') }}'},
+            {id:'6',text:'上课考勤查询',href:'{{ route('lesson_attendances.index') }}'}
             ]}]
           }];
         new PageUtil.MainPage({

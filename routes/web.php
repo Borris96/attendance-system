@@ -68,6 +68,7 @@ Route::resource('/lessons','LessonsController');
 Route::resource('/missings','MissingsController');
 Route::resource('/substitutes','SubstitutesController');
 Route::resource('/alters','AltersController');
+Route::resource('/lesson_attendances','LessonAttendancesController');
 
 Route::get('login','SessionsController@create')->name('login');
 Route::post('login','SessionsController@store')->name('login');
