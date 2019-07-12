@@ -5,7 +5,7 @@
 
 <form class="form-inline definewidth m20" action="{{ route('teachers.role') }}" method="POST">
   {{csrf_field()}}
-    英文名
+    英文姓名
     <select data-placeholder="选择员工..." class="chosen-select" name="staff_ids[]" id="select-staff" multiple>
       @foreach ($staffs as $staff)
       <option value="{{ $staff->id }}">{{ $staff->englishname }}</option>
@@ -15,6 +15,20 @@
     <button type="submit" class="btn btn-success">新增老师</button>
     &nbsp;&nbsp;
     <a href="{{route('leave_teachers.index')}}" class="btn btn-info">查看离职老师</a>
+</form>
+
+<form class="form-inline definewidth m20" action="" method="GET">
+    当前学期
+    <select name="term_id" id="term_id">
+      @foreach ($terms as $term)
+      <option value="{{$term->id}}"
+      @if (old('term_id') == $term->id)
+      selected
+      @endif
+      >{{ $term->term_name }}</option>
+      @endforeach
+    </select>&nbsp;&nbsp;&nbsp;
+    <button type="submit" class="btn btn-primary">选择学期</button>
 </form>
 
 <table class="table table-bordered table-hover definewidth m10">

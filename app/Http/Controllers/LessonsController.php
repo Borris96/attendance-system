@@ -26,9 +26,10 @@ class LessonsController extends Controller
 
     }
 
-    public function edit()
+    public function edit($id)
     {
-        return view('lessons/edit');
+        $lesson = Lesson::find($id);
+        return view('lessons/edit',compact('lesson'));
     }
 
     public function create()

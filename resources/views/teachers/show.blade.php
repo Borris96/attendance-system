@@ -1,9 +1,9 @@
 @extends('layouts.default')
 @section('title','老师信息')
 @section('content')
-<h4 style="margin: 20px;">老师信息 - 此处有个名字</h4>
+<h4 style="margin: 20px;">{{$teacher->staff->englishname}}</h4>
 
-<h5 style="margin: 20px;">上课安排 - 19 Fall</h5>
+<h5 style="margin: 20px;">上课安排 - {{$term->term_name}}</h5>
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
@@ -13,12 +13,14 @@
         <th>时长</th>
     </tr>
     </thead>
+    @foreach ($lessons as $l)
     <tr>
-      <td>G1</td>
-      <td>Sat 19:00-21:00</td>
-      <td>15</td>
-      <td>2</td>
+      <td>{{ $l->lesson_name }}</td>
+      <td>{{$l->day}}-{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}</td>
+      <td>{{$l->classroom}}</td>
+      <td>{{$l->duration}}</td>
     </tr>
+    @endforeach
 </table>
 
 <h5 style="margin: 20px;">每月时长</h5>
