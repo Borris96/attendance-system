@@ -5,7 +5,7 @@
 
 <form class="form-inline definewidth m20" action="" method="GET">
     课程名称
-    <input type="text" name="lessonname" id="lessonname"class="abc input-default" placeholder="" value="{{ old('lessonname') }}">&nbsp;&nbsp;
+    <input type="text" name="lesson_name" id="lesson_name"class="abc input-default" placeholder="" value="{{ old('lesson_name') }}">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>
     &nbsp;&nbsp;
     <a class="btn btn-success" href="{{ route('lessons.create') }}" role="button">新增课程</a>
@@ -24,28 +24,34 @@
     </tr>
     </thead>
     <tbody id="pageInfo">
+      @foreach ($lessons as $l)
        <tr>
-            <td>G1</td>
-            <td>Sat 10:00-12:00</td>
-            <td>5</td>
-            <td>2019 Fall</td>
-            <td>2小时</td>
-            <td>Jack</td>
+            <td>{{$l->lesson_name}}</td>
+            <td>{{$l->day}}-{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}</td>
+            <td>{{$l->classroom}}</td>
+            <td>{{$l->term->term_name}}</td>
+            <td>{{$l->duration}}</td>
+            @if ($l->teacher!=null)
+            <td>{{$l->teacher->staff->englishname}}</td>
+            @else
+            <td></td>
+            @endif
             <td>
-                <a href="{{ route('lessons.edit',1) }}" class="btn btn-primary">编辑</a>
-                <form action="{{ route('lessons.destroy',1) }}" method="POST" style="display: inline-block;">
+                <a href="{{ route('lessons.edit',$l->id) }}" class="btn btn-primary">编辑</a>
+                <form action="{{ route('lessons.destroy',$l->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('DELETE') }}
                   {{ csrf_field() }}
                   <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">删除</button>
                 </form>
             </td>
         </tr>
+      @endforeach
     </tbody>
 </table>
 
-if (count($staffs)>config('page.PAGE_SIZE'))
-include('shared._pagination')
-endif
+@if (count($lessons)>config('page.PAGE_SIZE'))
+@include('shared._pagination')
+@endif
 
 <script>
 

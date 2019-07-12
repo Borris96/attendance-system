@@ -226,7 +226,7 @@ class StaffsTableSeeder extends Seeder
             'staffname'=>'GingerJiao',
             'englishname'=>'GingerJiao',
             'department_id'=>'1',
-            'position_id'=>'9',
+            'position_id'=>'10',
             'department_name'=>'客服部',
             'position_name'=>'实习生',
             'join_company'=>'2017-01-01',
@@ -280,6 +280,7 @@ class StaffsTableSeeder extends Seeder
         // 外教
         DB::table('staffs')->insert([
             'id'=>'2017010102',
+            'teacher_id'=>'1',
             'staffname'=>'Rosalia',
             'englishname'=>'Rosalia',
             'department_id'=>'3',
@@ -294,6 +295,7 @@ class StaffsTableSeeder extends Seeder
 
         DB::table('staffs')->insert([
             'id'=>'2017010110',
+            'teacher_id'=>'2',
             'staffname'=>'Sarah',
             'englishname'=>'Sarah',
             'department_id'=>'3',

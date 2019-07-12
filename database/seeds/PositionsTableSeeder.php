@@ -19,8 +19,9 @@ class PositionsTableSeeder extends Seeder
         '教师', // 6
         '设计', // 7
         '兼职', // 8
-        '实习生', // 9
-        '其他', // 10
+        '兼职教师', // 9
+        '实习生', // 10
+        '其他', // 11
     ];
 
     public function run()

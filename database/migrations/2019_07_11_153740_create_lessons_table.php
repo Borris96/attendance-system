@@ -20,6 +20,7 @@ class CreateLessonsTable extends Migration
             $table->string('day')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
+            $table->decimal('duration',2,1)->nullable();
             $table->unsignedInteger('teacher_id')->nullable();
             $table->unsignedInteger('term_id')->nullable();
             $table->timestamps();

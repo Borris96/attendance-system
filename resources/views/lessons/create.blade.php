@@ -10,19 +10,24 @@
     <tr>
         <td class="tableleft">课程名称*</td>
          <td>
-          <input type="text" name="lessonname" value="{{ old('lessonname') }}">
+          <input type="text" name="lesson_name" value="{{ old('lesson_name') }}">
         </td>
     </tr>
     <tr>
-        <td class="tableleft">课程时间*</td>
+        <td class="tableleft">课程时间</td>
         <td>
           <input type="time" name="lesson_start_time" value="{{ old('lesson_start_time') }}"/>&nbsp;&nbsp;至&nbsp;&nbsp;
           <input type="time" name="lesson_end_time" value="{{ old('lesson_end_time') }}"/>
           <br>
           <select name="day" id="day">
-            <option value="Fri">Fri</option>
-            <option value="Sat">Sat</option>
-            <option value="Sun">Sun</option>
+            <option value="">请选择星期...</option>
+            @foreach ($days as $d)
+            <option value="{{ $d }}"
+            @if (old('day') == $d)
+            selected
+            @endif
+            >{{ $d }}</option>
+            @endforeach
           </select>
         </td>
     </tr>
@@ -36,10 +41,14 @@
         <td class="tableleft">上课学期*</td>
         <td>
           <select name="term_id" id="term_id">
-            <option value="1">2019 Spring</option>
-            <option value="2">2019 Summer</option>
-            <option value="3">2019 Fall</option>
-            <option value="4">2020 Spring</option>
+            <option value="">请选择学期...</option>
+            @foreach ($terms as $term)
+            <option value="{{$term->id}}"
+            @if (old('term_id') == $term->id)
+            selected
+            @endif
+            >{{ $term->term_name }}</option>
+            @endforeach
           </select>
         </td>
     </tr>
@@ -47,10 +56,14 @@
         <td width="10%" class="tableleft">上课老师</td>
         <td>
         <select name="teacher_id" id="name_select">
-          <option value=""> -----请选择----- </option>
-          <option value="1">Jack</option>
-          <option value="2">Mark</option>
-          <option value="3">James</option>
+          <option value="">请选择老师...</option>
+          @foreach ($teachers as $teacher)
+          <option value="{{ $teacher->id }}"
+          @if (old('teacher_id') == $teacher->id)
+          selected
+          @endif
+          >{{ $teacher->staff->englishname }}</option>
+          @endforeach
         </select>
         </td>
     </tr>
