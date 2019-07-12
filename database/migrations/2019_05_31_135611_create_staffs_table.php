@@ -15,7 +15,8 @@ class CreateStaffsTable extends Migration
     {
         Schema::create('staffs', function (Blueprint $table) {
             $table->unsignedInteger('id');
-            $table->string('staffname',50);
+            $table->unsignedInteger('teacher_id')->nullable(); // 如果是老师的话就有id
+            $table->string('staffname',50)->nullable();
             $table->string('englishname',50)->nullable();
             $table->unsignedInteger('department_id')->nullable();
             $table->string('department_name',50)->nullable();

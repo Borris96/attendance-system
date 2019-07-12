@@ -84,6 +84,12 @@ class StaffsController extends Controller
         $staff = Staff::find($id);
         $staff->leave_company = now();
         $staff->status = false;
+        if ($staff->teacher != null)
+        {
+            $staff->teacher->status = false; // 同时在老师名单中移除
+            $staff->teacher->save();
+        }
+
         if ($staff->save()){
             session()->flash('warning','员工离职成功。');
             return redirect()->back();

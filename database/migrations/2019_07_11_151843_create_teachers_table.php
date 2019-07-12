@@ -19,6 +19,7 @@ class CreateTeachersTable extends Migration
             // $table->unsignedInteger('lesson_num')->nullable();
             $table->decimal('total_missing_hours',5,2)->nullable();
             $table->decimal('total_substitute_hours',5,2)->nullable();
+            $table->boolean('status')->nullable();
             $table->timestamps();
         });
     }

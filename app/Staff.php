@@ -43,6 +43,11 @@ class Staff extends Model
         return $this->hasOne(Card::class);
     }
 
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class);
+    }
+
     /**
      * 计算年假
      * @param int $work_year, date $join_company

@@ -1,20 +1,10 @@
 @extends('layouts.default')
-@section('title','老师信息')
+@section('title','离职老师信息')
 @section('content')
 @include('shared._messages')
 
-<form class="form-inline definewidth m20" action="{{ route('teachers.role') }}" method="POST">
-  {{csrf_field()}}
-    英文名
-    <select data-placeholder="选择员工..." class="chosen-select" name="staff_ids[]" id="select-staff" multiple>
-      @foreach ($staffs as $staff)
-      <option value="{{ $staff->id }}">{{ $staff->englishname }}</option>
-      @endforeach
-    </select>
-    &nbsp;&nbsp;
-    <button type="submit" class="btn btn-success">新增老师</button>
-    &nbsp;&nbsp;
-    <a href="{{route('leave_teachers.index')}}" class="btn btn-info">查看离职老师</a>
+<form class="form-inline definewidth m20" action="" method="">
+    <a href="{{route('teachers.index')}}" class="btn btn-info">查看在职老师</a>
 </form>
 
 <table class="table table-bordered table-hover definewidth m10">
@@ -48,12 +38,7 @@
             @endif
             <td>
                 <a href="{{ route('teachers.show',$t->id) }}" class="btn btn-info">查看详情</a>
-                <a href="{{ route('teachers.edit',$t->id) }}" class="btn btn-primary">关联课程</a>
-                <form action="{{ route('teachers.remove',$t->id) }}" method="POST" style="display: inline-block;">
-                  {{ method_field('PATCH') }}
-                  {{ csrf_field() }}
-                  <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">移除老师</button>
-                </form>
+                <button type="submit" class="btn btn-danger" type="button" disabled="">已离职</button>
             </td>
         </tr>
         @endforeach
@@ -66,15 +51,6 @@
 
 <script>
 
-  function delcfm() {
-      if (!confirm("确认操作？")) {
-          window.event.returnValue = false;
-      }
-  };
-
-  $(function(){
-      $('.chosen-select').chosen({no_results_text: "Oops, nothing found!"});
-  });
 </script>
 
 @stop

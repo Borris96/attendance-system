@@ -64,6 +64,10 @@ Route::resource('/holidays','HolidaysController');
 Route::resource('/salarys','SalarysController');
 
 Route::resource('/teachers','TeachersController');
+Route::post('/teachers/role', 'TeachersController@role')->name('teachers.role');
+Route::patch('/teachers/{teacher}/remove', 'TeachersController@remove')->name('teachers.remove');
+Route::resource('/leave_teachers','LeaveTeachersController');
+
 Route::resource('/lessons','LessonsController');
 Route::resource('/missings','MissingsController');
 Route::resource('/substitutes','SubstitutesController');
