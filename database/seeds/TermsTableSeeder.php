@@ -13,7 +13,7 @@ class TermsTableSeeder extends Seeder
     {
         DB::table('terms')->insert([
             'term_name'=>'2019 Spring',
-            'start_date'=>'2019-02-15',
+            'start_date'=>'2018-12-15',
             'end_date'=>'2019-06-30',
             'created_at'=>now(),
             'updated_at'=>now(),

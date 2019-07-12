@@ -44,8 +44,8 @@ class LessonsController extends Controller
     {
         $this->validate($request, [
             'lesson_name'=>'required|max:50',
-            // 'lesson_start_time'=>'required',
-            // 'lesson_end_time' => 'required',
+            'lesson_start_time'=>'required',
+            'lesson_end_time' => 'required',
             // 'day' => 'required',
             'classroom'=>'required|integer|max:20',
             'term_id'=>'required',

@@ -60,7 +60,7 @@
 </table>
 
 <div style="margin: 20px">
-  <a class="btn btn-primary"  href="" role="button">关联课程</a>
+  <a class="btn btn-primary"  href="{{ route('teachers.edit',$teacher->id) }}" role="button">关联课程</a>
   @if ($teacher->status == true)
   <a class="btn btn-success" href="{{ route('teachers.index') }}" role="button">返回列表</a>
   @else

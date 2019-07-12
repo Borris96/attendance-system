@@ -15,16 +15,16 @@ class CreateMonthDurationsTable extends Migration
     {
         Schema::create('month_durations', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('year');
-            $table->unsignedInteger('month');
-            $table->unsignedInteger('term_id');
-            $table->unsignedInteger('teacher_id');
+            $table->unsignedInteger('year')->nullable();
+            $table->unsignedInteger('month')->nullable();
+            $table->unsignedInteger('term_id')->nullable();
+            $table->unsignedInteger('teacher_id')->nullable();
             // 实际排课由这三个数据算出
-            $table->decimal('fri_duration',5,1);
-            $table->decimal('sat_duration',5,1);
-            $table->decimal('sun_duration',5,1);
-            $table->decimal('should_duration',5,1); // 应排课
-            $table->decimal('actual_duration',5,1); // 实际上课，缺少的课时由 应排课-实际上课 得出
+            $table->decimal('fri_duration',5,1)->nullable();
+            $table->decimal('sat_duration',5,1)->nullable();
+            $table->decimal('sun_duration',5,1)->nullable();
+            $table->decimal('should_duration',5,1)->nullable(); // 应排课
+            $table->decimal('actual_duration',5,1)->nullable(); // 实际上课，缺少的课时由 应排课-实际上课 得出
             $table->timestamps();
         });
     }
