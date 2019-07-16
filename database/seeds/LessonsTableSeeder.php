@@ -147,7 +147,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'F1-1',
             'classroom'=>'1',
-            'day'=>'Fri',
+            'day'=>'Mon',
             'start_time'=>'18:00:00',
             'end_time'=>'20:00:00',
             'duration'=>'2.0',
@@ -160,7 +160,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'F2-1',
             'classroom'=>'1',
-            'day'=>'Sat',
+            'day'=>'Mon',
             'start_time'=>'10:00:00',
             'end_time'=>'11:30:00',
             'duration'=>'1.5',
@@ -173,7 +173,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'F1-1',
             'classroom'=>'1',
-            'day'=>'Sat',
+            'day'=>'Mon',
             'start_time'=>'13:00:00',
             'end_time'=>'15:00:00',
             'duration'=>'2.0',
@@ -186,7 +186,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'F1-2',
             'classroom'=>'1',
-            'day'=>'Sat',
+            'day'=>'Wed',
             'start_time'=>'16:00:00',
             'end_time'=>'17:30:00',
             'duration'=>'1.5',
@@ -199,7 +199,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'F2-1',
             'classroom'=>'1',
-            'day'=>'Sat',
+            'day'=>'Wed',
             'start_time'=>'18:00:00',
             'end_time'=>'19:30:00',
             'duration'=>'1.5',
@@ -212,7 +212,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'F2-1',
             'classroom'=>'2',
-            'day'=>'Fri',
+            'day'=>'Wed',
             'start_time'=>'16:00:00',
             'end_time'=>'17:30:00',
             'duration'=>'1.5',
@@ -225,7 +225,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'F2-2',
             'classroom'=>'2',
-            'day'=>'Sat',
+            'day'=>'Wed',
             'start_time'=>'08:00:00',
             'end_time'=>'09:30:00',
             'duration'=>'1.5',
@@ -238,7 +238,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'FAT',
             'classroom'=>'2',
-            'day'=>'Sat',
+            'day'=>'Fri',
             'start_time'=>'10:00:00',
             'end_time'=>'12:00:00',
             'duration'=>'2.0',
@@ -251,7 +251,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'Fridge',
             'classroom'=>'2',
-            'day'=>'Sat',
+            'day'=>'Fri',
             'start_time'=>'13:00:00',
             'end_time'=>'15:00:00',
             'duration'=>'2.0',
@@ -264,7 +264,7 @@ class LessonsTableSeeder extends Seeder
         DB::table('lessons')->insert([
             'lesson_name'=>'FFW',
             'classroom'=>'3',
-            'day'=>'Sat',
+            'day'=>'Fri',
             'start_time'=>'11:30:00',
             'end_time'=>'13:30:00',
             'duration'=>'2.0',

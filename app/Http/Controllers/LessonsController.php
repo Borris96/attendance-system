@@ -44,12 +44,21 @@ class LessonsController extends Controller
         return view('lessons/edit',compact('lesson'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $teachers = Teacher::where('status',true)->get();
-        $terms = Term::all();
-        $days = ['Fri', 'Sat', 'Sun'];
-        return view('lessons/create',compact('teachers','terms','days'));
+        $current_term_id = $request->input('term_id');
+        $term = Term::find($current_term_id);
+        $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->end_date)->get();
+        // $terms = Term::all();
+        if (stristr($term->term_name, 'Summer'))
+        {
+            $days = ['Mon', 'Wed', 'Fri'];
+        }
+        else
+        {
+            $days = ['Fri', 'Sat', 'Sun'];
+        }
+        return view('lessons/create',compact('teachers','term','days'));
     }
 
     public function store(Request $request)

@@ -8,7 +8,7 @@
     <input type="text" name="lesson_name" id="lesson_name"class="abc input-default" placeholder="" value="{{ old('lesson_name') }}">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>
     &nbsp;&nbsp;
-    <a class="btn btn-success" href="{{ route('lessons.create') }}" role="button">新增课程</a>
+    <a class="btn btn-success" href="{{ route('lessons.create',array('term_id'=>$term_id)) }}" role="button">新增课程</a>
 </form>
 
 <form class="form-inline definewidth m20" action="{{route('lessons.index')}}" method="GET">

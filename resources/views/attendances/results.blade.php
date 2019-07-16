@@ -59,7 +59,7 @@
             <td style="color: red;">是</td>
             @endif
             <td>
-                <a style="font-size: 12px;" href="{{ route('attendances.show',$ta->id) }}">查看</a> <!-- route('staffs.edit', $staff->id) -->
+                <a style="font-size: 12px;" href="{{ route('attendances.show',array($ta->id,'year'=>$year,'month'=>$month)) }}">查看</a>
             </td>
         </tr>
       @endforeach

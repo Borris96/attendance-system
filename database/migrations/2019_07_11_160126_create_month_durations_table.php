@@ -23,6 +23,8 @@ class CreateMonthDurationsTable extends Migration
             $table->decimal('fri_duration',5,1)->nullable();
             $table->decimal('sat_duration',5,1)->nullable();
             $table->decimal('sun_duration',5,1)->nullable();
+            $table->decimal('mon_duration',5,1)->nullable();
+            $table->decimal('wed_duration',5,1)->nullable();
             $table->decimal('should_duration',5,1)->nullable(); // 应排课
             $table->decimal('actual_duration',5,1)->nullable(); // 实际上课，缺少的课时由 应排课-实际上课 得出
             $table->timestamps();

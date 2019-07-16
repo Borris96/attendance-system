@@ -20,7 +20,11 @@
        <tr>
             <td>{{ $h->date }}</td>
             <td>{{ $h->holiday_type }}</td>
-            <td>{{ $h->workday_name }}</td>
+            @if ($h->workday_name != null)
+            <td>周{{ $workdays[$h->workday_name] }}</td>
+            @else
+            <td></td>
+            @endif
             <td>{{ $h->note }}</td>
             <td>
                 <a href="{{route('holidays.edit',$h->id)}}" class="btn btn-primary">编辑</a>

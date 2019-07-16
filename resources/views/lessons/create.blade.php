@@ -41,14 +41,7 @@
         <td class="tableleft">上课学期*</td>
         <td>
           <select name="term_id" id="term_id">
-            <option value="">请选择学期...</option>
-            @foreach ($terms as $term)
-            <option value="{{$term->id}}"
-            @if (old('term_id') == $term->id)
-            selected
-            @endif
-            >{{ $term->term_name }}</option>
-            @endforeach
+            <option value="{{$term->id}}">{{ $term->term_name }}</option>
           </select>
         </td>
     </tr>

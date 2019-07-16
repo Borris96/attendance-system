@@ -8,6 +8,7 @@ use App\Staff;
 use App\Lesson;
 use App\Term;
 use App\MonthDuration;
+use App\Holiday;
 
 class TeachersController extends Controller
 {
@@ -45,9 +46,31 @@ class TeachersController extends Controller
         $current_term_id = $request->input('term_id');
         $term = Term::find($current_term_id);
         $teacher = Teacher::find($id);
-        $lessons = Lesson::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('day','asc')->get();
+        $holidays = Holiday::all(); // 在计算实际上课时需要考虑到
+        // 计算每个月应排课（目前默认为一整月时间，不考虑学期具体几号开始）
+        $start_date = $term->start_date;
+        $end_date = $term->end_date;
+        $start_year = date('Y',strtotime($start_date));
+
+        $term_months = Teacher::getTermMonths($start_date, $end_date);
+        $month_should_durations = [];
+        $year = $start_year;
+        foreach ($term_months as $key => $m)
+        {
+            $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
+            $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
+            $month_should_durations[$m] = Teacher::calShouldMonthDuration($teacher, $month_first_day,$month_last_day);
+            if ($term_months[$key] == 12) // 到12月了那么年数加一
+            {
+                $year+=1;
+            }
+        }
+
+        $lessons = Lesson::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('lesson_name','asc')->get();
+        // 本学期每月实际排课
         $month_durations = MonthDuration::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('year','asc')->get();
-        return view('teachers/show',compact('teacher','lessons','term','current_term_id','month_durations'));
+
+        return view('teachers/show',compact('teacher','lessons','term','current_term_id','month_durations', 'month_should_durations'));
     }
 
     public function edit(Request $request, $id)
@@ -102,7 +125,7 @@ class TeachersController extends Controller
         $teacher->leave_date = date('Y-m-d');
         // $teacher->staff->teacher_id = null;
         $teacher->save();
-        session()->flash('warning','移除老师成功！');
+        session()->flash('warning','老师离职成功！');
         return redirect()->back();
     }
 
@@ -123,37 +146,8 @@ class TeachersController extends Controller
             $start_date = $lesson->term->start_date; // 学期开始日 计算第一个月实际排课要用
             $end_date = $lesson->term->end_date; // 学期结束日 计算最后月实际排课要用
             $start_year = date('Y',strtotime($start_date));
-            $end_year = date('Y',strtotime($end_date));
-            $start_month = date('m',strtotime($start_date));
-            $end_month = date('m',strtotime($end_date));
 
-            // 获取这个学期所有的月份
-            $term_months = [];
-            if ($start_year == $end_year) // 学期在同一年时
-            {
-                if ($start_month == $end_month)
-                {
-                    $term_months[] = (int)$start_month;
-                }
-                else
-                {
-                    for ($i = $start_month; $i<=$end_month; $i++)
-                    {
-                        $term_months[] = (int)$i;
-                    }
-                }
-            }
-            else // 当开始年份小于结束年份时(只允许是相邻的两年)
-            {
-                for($i = $start_month; $i<=12; $i++)
-                {
-                    $term_months[] = (int)$i;
-                }
-                for($i = 1; $i<=$end_month; $i++)
-                {
-                    $term_months[] = (int)$i;
-                }
-            }
+            $term_months = Teacher::getTermMonths($start_date, $end_date);
             // 录入该学期每个月的实际排课课时
             foreach ($term_months as $key=>$m)
             {
@@ -174,17 +168,12 @@ class TeachersController extends Controller
                     $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
                     $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
                 }
-                // dump($month_first_day);
-                // dump($month_last_day);
-                // dump($term_months[$key]);
-                // dump($year);
                 Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson,$term_months[$key],$year);
                 if ($term_months[$key] == 12) // 到12月了那么年数加一
                 {
                     $year+=1;
                 }
             }
-            // exit();
         }
         session()->flash('success','关联课程成功！');
         return redirect()->route('teachers.index',compact('term_id'));

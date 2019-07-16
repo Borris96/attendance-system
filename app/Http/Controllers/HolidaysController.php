@@ -14,8 +14,9 @@ class HolidaysController extends Controller
 
     public function index()
     {
+        $workdays = ['日','一','二','三','四','五','六'];
         $holidays = Holiday::orderBy('date','desc')->get();
-        return view('holidays/index',compact('holidays'));
+        return view('holidays/index',compact('holidays','workdays'));
     }
 
     public function destroy($id)

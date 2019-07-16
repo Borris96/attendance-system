@@ -34,14 +34,32 @@
     <thead>
     <tr>
         <th>月份</th>
+        @if (stristr($term->term_name,'Summer'))
+        <th>周一</th>
+        <th>周三</th>
+        <th>周五</th>
+        @else
         <th>周五</th>
         <th>周六</th>
         <th>周日</th>
+        @endif
         <th>实际排课</th>
         <th>应排课</th>
     </tr>
     </thead>
     @if (count($month_durations) != 0)
+    @if (stristr($term->term_name,'Summer'))
+    @foreach ($month_durations as $md)
+    <tr>
+      <td>{{$md->month}}</td>
+      <td>{{$md->mon_duration}}</td>
+      <td>{{$md->wed_duration}}</td>
+      <td>{{$md->fri_duration}}</td>
+      <td>{{$md->actual_duration}}</td>
+      <td>{{$month_should_durations[$md->month]}}</td>
+    </tr>
+    @endforeach
+    @else
     @foreach ($month_durations as $md)
     <tr>
       <td>{{$md->month}}</td>
@@ -49,9 +67,10 @@
       <td>{{$md->sat_duration}}</td>
       <td>{{$md->sun_duration}}</td>
       <td>{{$md->actual_duration}}</td>
-      <td>还没算</td>
+      <td>{{$month_should_durations[$md->month]}}</td>
     </tr>
     @endforeach
+    @endif
 </table>
 @else
 </table>
@@ -74,11 +93,9 @@
 </table>
 
 <div style="margin: 20px">
-  <a class="btn btn-primary"  href="{{ route('teachers.edit',array($teacher->id,'term_id'=>$current_term_id)) }}" role="button">关联课程</a>
   @if ($teacher->status == true)
-  <a class="btn btn-success" href="{{ route('teachers.index',array('term_id'=>$current_term_id)) }}" role="button">返回列表</a>
-<!--   @else
-  <a class="btn btn-success" href="{{ route('leave_teachers.index') }}" role="button">返回列表</a> -->
+  <a class="btn btn-primary"  href="{{ route('teachers.edit',array($teacher->id,'term_id'=>$current_term_id)) }}" role="button">关联课程</a>&nbsp;&nbsp;
   @endif
+  <a class="btn btn-success" href="{{ route('teachers.index',array('term_id'=>$current_term_id)) }}" role="button">返回列表</a>
 </div>
 @stop

@@ -69,13 +69,15 @@ class AttendancesController extends Controller
 
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $month = $request->get('month');
+        $year = $request->get('year');
         $total_attendance = TotalAttendance::find($id); // 这个show的id是属于total attendance的，不是staff!!!
         $staff = $total_attendance->staff;
         // $attendances = $total_attendance->attendances;
         $attendances = Attendance::where('total_attendance_id',$total_attendance->id)->orderBy('date','asc')->get();
-        return view('attendances.show',compact('staff','attendances'));
+        return view('attendances.show',compact('staff','attendances','staff_id','month','year'));
     }
 
 
