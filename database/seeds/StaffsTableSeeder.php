@@ -308,6 +308,21 @@ class StaffsTableSeeder extends Seeder
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
+        DB::table('staffs')->insert([
+            'id'=>'2018010110',
+            'teacher_id'=>'3',
+            'staffname'=>'James',
+            'englishname'=>'James',
+            'department_id'=>'3',
+            'position_id'=>'6',
+            'department_name'=>'外教部',
+            'position_name'=>'教师',
+            'join_company'=>'2018-01-01',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
         // 当月入职
         DB::table('staffs')->insert([
             'id'=>'2019032501',

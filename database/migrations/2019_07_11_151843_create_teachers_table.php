@@ -18,6 +18,8 @@ class CreateTeachersTable extends Migration
             $table->unsignedInteger('staff_id')->nullable();
             // $table->unsignedInteger('lesson_num')->nullable();
             $table->boolean('status')->nullable();
+            $table->date('join_date')->nullable();
+            $table->date('leave_date')->nullable();
             $table->timestamps();
         });
     }

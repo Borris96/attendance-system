@@ -16,30 +16,47 @@ class TeachersController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $terms = Term::all();
-        $teachers = Teacher::where('status',true)->get();
+        $term_id = $request->get('term_id');
+        // 添加老师时使用
         $staffs = Staff::where('status',true)->where('teacher_id',null)->orderBy('id','asc')->get();
-        // $staffs = Staff::where('status',true)->orderBy('id','asc')->get();
-        return view('teachers/index',compact('staffs','teachers','terms'));
+        if ($term_id == null) // 如果没有输入要使用的学期，默认是当日所在的学期
+        {
+            $today = '2019-05-05';
+            // $today = date('Y-m-d'); // 等投入使用之后再改过来
+            foreach ($terms as $t) {
+                if ($today <= $t->end_date && $today >= $t->start_date)
+                {
+                    $term_id = $t->id;
+                }
+            }
+        }
+        $term = Term::find($term_id);
+        // 寻找在这个学期上课的老师，即：入职比学期开始早，离职比学期开始晚
+        $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->end_date)->get();
+        return view('teachers/index',compact('staffs','teachers','terms','term_id'));
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         // 显示这个学期的排课。 目前还没有从用户处获取当前学期的方法。
-        $current_term_id = 1;
+        $current_term_id = $request->input('term_id');
         $term = Term::find($current_term_id);
         $teacher = Teacher::find($id);
-        $lessons = Lesson::where('teacher_id',$id)->where('term_id',1)->orderBy('day','asc')->get();
-        return view('teachers/show',compact('teacher','lessons','term'));
+        $lessons = Lesson::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('day','asc')->get();
+        $month_durations = MonthDuration::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('year','asc')->get();
+        return view('teachers/show',compact('teacher','lessons','term','current_term_id','month_durations'));
     }
 
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
+        $current_term_id = $request->get('term_id');
+        $term = Term::find($current_term_id);
         $teacher = Teacher::find($id);
-        $lessons = Lesson::whereNull('teacher_id')->whereNotNull('day')->get();
-        return view('teachers/edit',compact('lessons','teacher'));
+        $lessons = Lesson::where('term_id',$current_term_id)->whereNull('teacher_id')->whereNotNull('day')->get();
+        return view('teachers/edit',compact('term','lessons','teacher','current_term_id'));
     }
 
     // 新增老师(从员工中选择)
@@ -64,6 +81,9 @@ class TeachersController extends Controller
             // 目前新增老师的操作是将老师id和员工id建立关联
             $teacher->staff_id = $staff_id;
             $teacher->status = true;
+            // 方便查询离职老师
+            $teacher->join_date = $teacher->staff->join_company;
+            $teacher->leave_date = $teacher->staff->leave_company;
             if ($teacher->save())
             {
                 $staff->teacher_id = $teacher->id;
@@ -79,6 +99,7 @@ class TeachersController extends Controller
         $teacher = Teacher::find($id);
         // 移除老师操作，目前是移除老师id和员工id的关联
         $teacher->status = false;
+        $teacher->leave_date = date('Y-m-d');
         // $teacher->staff->teacher_id = null;
         $teacher->save();
         session()->flash('warning','移除老师成功！');
@@ -90,6 +111,7 @@ class TeachersController extends Controller
         $this->validate($request, [
             'lesson_id'=>'required',
         ]);
+        $term_id = $request->get('term_id');
         $lesson_ids = $request->input('lesson_id');
         foreach($lesson_ids as $id)
         {
@@ -141,10 +163,6 @@ class TeachersController extends Controller
                     $first_month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
                     $month_last_day = date('Y-m-d', strtotime("$first_month_first_day +1 month -1 day"));
                     $month_first_day = $start_date;
-                    if ($term_months[$key] == 12) // 到12月了那么年数加一
-                    {
-                        $year+=1;
-                    }
                 }
                 elseif ($key == count($term_months)-1) //最后一个月
                 {
@@ -155,20 +173,20 @@ class TeachersController extends Controller
                 {
                     $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
                     $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
-                    if ($term_months[$key] == 12)
-                    {
-                        $year+=1;
-                    }
                 }
                 // dump($month_first_day);
                 // dump($month_last_day);
                 // dump($term_months[$key]);
                 // dump($year);
                 Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson,$term_months[$key],$year);
+                if ($term_months[$key] == 12) // 到12月了那么年数加一
+                {
+                    $year+=1;
+                }
             }
             // exit();
         }
         session()->flash('success','关联课程成功！');
-        return redirect('teachers');
+        return redirect()->route('teachers.index',compact('term_id'));
     }
 }

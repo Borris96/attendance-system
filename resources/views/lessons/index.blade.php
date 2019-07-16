@@ -11,6 +11,19 @@
     <a class="btn btn-success" href="{{ route('lessons.create') }}" role="button">新增课程</a>
 </form>
 
+<form class="form-inline definewidth m20" action="{{route('lessons.index')}}" method="GET">
+    当前学期
+    <select name="term_id" id="term_id">
+      @foreach ($terms as $term)
+      <option value="{{$term->id}}"
+      @if ($term_id == $term->id)
+      selected
+      @endif
+      >{{ $term->term_name }}</option>
+      @endforeach
+    </select>&nbsp;&nbsp;&nbsp;
+    <button type="submit" class="btn btn-primary">选择学期</button>
+</form>
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
@@ -23,6 +36,7 @@
         <th>操作</th>
     </tr>
     </thead>
+    @if (count($lessons) != 0)
     <tbody id="pageInfo">
       @foreach ($lessons as $l)
        <tr>
@@ -48,6 +62,10 @@
       @endforeach
     </tbody>
 </table>
+@else
+</table>
+@include('shared._nothing')
+@endif
 
 @if (count($lessons)>config('page.PAGE_SIZE'))
 @include('shared._pagination')

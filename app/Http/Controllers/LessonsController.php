@@ -14,11 +14,23 @@ class LessonsController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $current_term_id = '1';
-        $lessons = Lesson::where('term_id',$current_term_id)->orderBy('id')->get();
-        return view('lessons/index',compact('lessons'));
+        $terms = Term::all();
+        $term_id = $request->get('term_id');
+        if ($term_id == null) // 如果没有输入要使用的学期，默认是当日所在的学期
+        {
+            $today = '2019-05-05';
+            // $today = date('Y-m-d'); // 等投入使用之后再改过来
+            foreach ($terms as $t) {
+                if ($today <= $t->end_date && $today >= $t->start_date)
+                {
+                    $term_id = $t->id;
+                }
+            }
+        }
+        $lessons = Lesson::where('term_id',$term_id)->orderBy('lesson_name')->get();
+        return view('lessons/index',compact('lessons','terms','term_id'));
     }
 
     public function destroy()

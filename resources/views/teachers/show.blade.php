@@ -13,15 +13,21 @@
         <th>时长</th>
     </tr>
     </thead>
+
+    @if (count($lessons) != 0)
     @foreach ($lessons as $l)
-    <tr>
-      <td>{{ $l->lesson_name }}</td>
-      <td>{{$l->day}}-{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}</td>
-      <td>{{$l->classroom}}</td>
-      <td>{{$l->duration}}</td>
-    </tr>
+      <tr>
+        <td>{{ $l->lesson_name }}</td>
+        <td>{{$l->day}}-{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}</td>
+        <td>{{$l->classroom}}</td>
+        <td>{{$l->duration}}</td>
+      </tr>
     @endforeach
 </table>
+@else
+</table>
+@include('shared._nothing')
+@endif
 
 <h5 style="margin: 20px;">每月时长</h5>
 <table class="table table-bordered table-hover definewidth m10">
@@ -35,15 +41,23 @@
         <th>应排课</th>
     </tr>
     </thead>
+    @if (count($month_durations) != 0)
+    @foreach ($month_durations as $md)
     <tr>
-      <td>3</td>
-      <td>10小时</td>
-      <td>40小时</td>
-      <td>10小时</td>
-      <td>60小时</td>
-      <td>70小时</td>
+      <td>{{$md->month}}</td>
+      <td>{{$md->fri_duration}}</td>
+      <td>{{$md->sat_duration}}</td>
+      <td>{{$md->sun_duration}}</td>
+      <td>{{$md->actual_duration}}</td>
+      <td>还没算</td>
     </tr>
+    @endforeach
 </table>
+@else
+</table>
+@include('shared._nothing')
+@endif
+
 <br>
 <br>
 <table class="table table-bordered table-hover definewidth m10">
@@ -60,11 +74,11 @@
 </table>
 
 <div style="margin: 20px">
-  <a class="btn btn-primary"  href="{{ route('teachers.edit',$teacher->id) }}" role="button">关联课程</a>
+  <a class="btn btn-primary"  href="{{ route('teachers.edit',array($teacher->id,'term_id'=>$current_term_id)) }}" role="button">关联课程</a>
   @if ($teacher->status == true)
-  <a class="btn btn-success" href="{{ route('teachers.index') }}" role="button">返回列表</a>
-  @else
-  <a class="btn btn-success" href="{{ route('leave_teachers.index') }}" role="button">返回列表</a>
+  <a class="btn btn-success" href="{{ route('teachers.index',array('term_id'=>$current_term_id)) }}" role="button">返回列表</a>
+<!--   @else
+  <a class="btn btn-success" href="{{ route('leave_teachers.index') }}" role="button">返回列表</a> -->
   @endif
 </div>
 @stop

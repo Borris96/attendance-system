@@ -19,6 +19,11 @@ class Teacher extends Model
         return $this->hasMany(Lesson::class);
     }
 
+    public function monthDurations()
+    {
+        return $this->hasMany(MonthDuration::class);
+    }
+
     /**
      * 为老师关联课程后，自动计算该学期每个月份的实际排课课时
      * @param date $month_first_day Y-m-d
