@@ -65,6 +65,8 @@ class TeachersController extends Controller
                 $year+=1;
             }
         }
+        // dump($month_should_durations);
+        // exit();
 
         $lessons = Lesson::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('lesson_name','asc')->get();
         // 本学期每月实际排课

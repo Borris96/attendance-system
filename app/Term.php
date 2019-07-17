@@ -12,4 +12,10 @@ class Term extends Model
     {
         return $this->hasMany(Lesson::class);
     }
+
+    public function substitutes()
+    {
+        return $this->hasMany(Substitute::class);
+    }
+
 }

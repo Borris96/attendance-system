@@ -5,10 +5,24 @@
 
 <form class="form-inline definewidth m20" action="" method="GET">
     课程名称
-    <input type="text" name="lessonname" id="lessonname"class="abc input-default" placeholder="" value="{{ old('lessonname') }}">&nbsp;&nbsp;
+    <input type="text" name="lesson_name" id="lesson_name"class="abc input-default" placeholder="" value="{{ old('lesson_name') }}">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>
     &nbsp;&nbsp;
-    <a class="btn btn-success" href="{{ route('substitutes.create') }}" role="button">新增代课</a>
+    <a class="btn btn-success" href="{{ route('substitutes.create',array('term_id'=>$term_id)) }}" role="button">新增代课缺课</a>
+</form>
+
+<form class="form-inline definewidth m20" action="{{route('substitutes.index')}}" method="GET">
+    当前学期
+    <select name="term_id" id="term_id">
+      @foreach ($terms as $term)
+      <option value="{{$term->id}}"
+      @if ($term_id == $term->id)
+      selected
+      @endif
+      >{{ $term->term_name }}</option>
+      @endforeach
+    </select>&nbsp;&nbsp;&nbsp;
+    <button type="submit" class="btn btn-primary">选择学期</button>
 </form>
 
 <table class="table table-bordered table-hover definewidth m10">
@@ -24,30 +38,41 @@
         <th>操作</th>
     </tr>
     </thead>
+    @if (count($substitutes) != 0)
     <tbody id="pageInfo">
+      @foreach ($substitutes as $s)
        <tr>
-            <td>G1</td>
-            <td>5/26 Sat 10:00-12:00</td>
-            <td>5</td>
-            <td>2019 Fall</td>
-            <td>2小时</td>
-            <td>Jack</td>
-            <td>James</td>
+            <td>{{ $s->lesson->lesson_name }}</td>
+            <td>{{$s->lesson_date}}&nbsp;{{$s->lesson->day}}-{{ date('H:i',strtotime($s->lesson->start_time))}}-{{ date('H:i',strtotime($s->lesson->end_time)) }}</td>
+            <td>{{ $s->lesson->classroom }}</td>
+            <td>{{ $s->term->term_name }}</td>
+            <td>{{ $s->lesson->duration }}</td>
+            <td>{{ $s->teacher->staff->englishname }}</td>
+            @if ($s->subTeacher != null)
+            <td>{{ $s->subTeacher->staff->englishname }}</td>
+            @else
+            <td></td>
+            @endif
             <td>
-                <a href="{{ route('substitutes.edit',1) }}" class="btn btn-primary">编辑</a>
-                <form action="{{ route('substitutes.destroy',1) }}" method="POST" style="display: inline-block;">
+                <a href="{{ route('substitutes.edit',$s->id) }}" class="btn btn-primary">编辑</a>
+                <form action="{{ route('substitutes.destroy',$s->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('DELETE') }}
                   {{ csrf_field() }}
                   <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">删除</button>
                 </form>
             </td>
         </tr>
+        @endforeach
     </tbody>
 </table>
+@else
+</table>
+@include('shared._nothing')
+@endif
 
-if (count($staffs)>config('page.PAGE_SIZE'))
-include('shared._pagination')
-endif
+@if (count($substitutes)>config('page.PAGE_SIZE'))
+@include('shared._pagination')
+@endif
 
 <script>
 

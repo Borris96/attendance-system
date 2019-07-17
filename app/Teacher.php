@@ -25,6 +25,16 @@ class Teacher extends Model
         return $this->hasMany(MonthDuration::class);
     }
 
+    public function substitutes()
+    {
+        return $this->hasMany(Substitute::class);
+    }
+
+    public function termTotal()
+    {
+        return $this->hasMany(TermTotal::class);
+    }
+
     /**
      * 获取这个学期所有月份
      * @param date $start_date Y-m-d
@@ -142,6 +152,7 @@ class Teacher extends Model
      * @return int $duration
      *
      */
+    // 考虑到员工可能每周排班都会变化，之后要根据排班的起止时间来获取工作时长
     public static function calShouldMonthDuration($teacher, $month_first_day, $month_last_day){
 
         $day_array = [0=>'日', 1=>'一', 2=>'二', 3=>'三', 4=>'四', 5=>'五', 6=>'六'];
@@ -149,6 +160,7 @@ class Teacher extends Model
         $office_duration = 0;
         $work_hour = 8;
         $teacher_work_days = $teacher->staff->staffworkdays; // 获取老师的工作日
+
         $str_this_date = strtotime($month_first_day);
         // 这个月应上班总时长（默认标准工作时间）
         while($str_this_date<=strtotime($month_last_day))

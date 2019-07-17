@@ -58,7 +58,7 @@ class LessonsController extends Controller
         {
             $days = ['Fri', 'Sat', 'Sun'];
         }
-        return view('lessons/create',compact('teachers','term','days'));
+        return view('lessons/create',compact('teachers','term','days','current_term_id'));
     }
 
     public function store(Request $request)
@@ -72,7 +72,6 @@ class LessonsController extends Controller
             'term_id'=>'required',
             // 'teacher_id'=>'required'
         ]);
-
         $lesson = new Lesson();
         $lesson->lesson_name = $request->get('lesson_name');
         $lesson->start_time = $request->get('lesson_start_time');
@@ -108,10 +107,11 @@ class LessonsController extends Controller
         // 计算时长
         $lesson->duration = ($str_end-$str_start)/3600;
 
+        $term_id = $lesson->term_id;
         if ($lesson->save())
         {
             session()->flash('success','新建课程成功！');
-            return redirect('lessons');
+            return redirect()->route('lessons.index',compact('term_id'));
         }
     }
 

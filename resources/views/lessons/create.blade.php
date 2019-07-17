@@ -4,7 +4,7 @@
 <div class="container">
 @include('shared._messages')
 @include('shared._errors')
-<form action="{{ route('lessons.store') }}" method="POST" class="definewidth m20">
+<form action="{{ route('lessons.store',array('term_id'=>$current_term_id)) }}" method="POST" class="definewidth m20">
 <table class="table table-bordered table-hover definewidth m10">
   {{ csrf_field() }}
     <tr>
@@ -63,7 +63,7 @@
     <tr>
         <td class="tableleft"></td>
         <td>
-            <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('lessons.index') }}" role="button">返回课程管理</a>
+            <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('lessons.index',array('term_id'=>$current_term_id)) }}" role="button">返回课程管理</a>
         </td>
     </tr>
 </table>

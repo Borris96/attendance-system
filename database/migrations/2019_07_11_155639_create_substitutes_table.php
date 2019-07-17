@@ -18,6 +18,8 @@ class CreateSubstitutesTable extends Migration
             $table->unsignedInteger('lesson_id')->nullable();
             $table->unsignedInteger('teacher_id')->nullable(); // 原上课老师的id
             $table->unsignedInteger('substitute_teacher_id')->nullable(); // 代课老师的id, null说明缺课
+            $table->unsignedInteger('term_id')->nullable();
+            $table->date('lesson_date');
             $table->timestamps();
         });
     }

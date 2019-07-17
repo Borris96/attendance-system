@@ -18,6 +18,10 @@ class Lesson extends Model
         return $this->belongsTo(Teacher::class);
     }
 
+    public function substitute()
+    {
+        return $this->hasOne(Substitute::class);
+    }
     /**
      * 计算起始时间是否和之前的记录重叠
      * @param timestamp $ew_start_time
