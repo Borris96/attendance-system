@@ -91,29 +91,32 @@ class TeachersController extends Controller
         //     'id'=>'integer|required|unique:staffs',
         // ]);
         $staff_ids = $request->input('staff_ids');
-        foreach($staff_ids as $staff_id)
+        if ($staff_ids != null)
         {
-            $staff = Staff::find($staff_id);
-            // 如果之前没当过老师，新建；如果之前当过，找到之前的老师id，重新建立关联
-            if ($staff->teacher==null)
+            foreach($staff_ids as $staff_id)
             {
-                $teacher = new Teacher();
-            }
-            else // 虽然下面代码写了，但是暂时不考虑重新回来当老师的情况
-            {
-                $teacher = Teacher::find($staff->teacher_id);
-            }
-            // 目前新增老师的操作是将老师id和员工id建立关联
-            $teacher->staff_id = $staff_id;
-            $teacher->status = true;
-            // 方便查询离职老师
-            $teacher->join_date = $teacher->staff->join_company;
-            $teacher->leave_date = $teacher->staff->leave_company;
-            if ($teacher->save())
-            {
-                $staff->teacher_id = $teacher->id;
-                $staff->save();
-                session()->flash('success','添加老师成功！');
+                $staff = Staff::find($staff_id);
+                // 如果之前没当过老师，新建；如果之前当过，找到之前的老师id，重新建立关联
+                if ($staff->teacher == null)
+                {
+                    $teacher = new Teacher();
+                }
+                else // 虽然下面代码写了，但是暂时不考虑重新回来当老师的情况
+                {
+                    $teacher = Teacher::find($staff->teacher_id);
+                }
+                // 目前新增老师的操作是将老师id和员工id建立关联
+                $teacher->staff_id = $staff_id;
+                $teacher->status = true;
+                // 方便查询离职老师
+                $teacher->join_date = $teacher->staff->join_company;
+                $teacher->leave_date = $teacher->staff->leave_company;
+                if ($teacher->save())
+                {
+                    $staff->teacher_id = $teacher->id;
+                    $staff->save();
+                    session()->flash('success','添加老师成功！');
+                }
             }
         }
         return redirect()->back();
@@ -148,34 +151,7 @@ class TeachersController extends Controller
             $start_date = $lesson->term->start_date; // 学期开始日 计算第一个月实际排课要用
             $end_date = $lesson->term->end_date; // 学期结束日 计算最后月实际排课要用
             $start_year = date('Y',strtotime($start_date));
-
-            $term_months = Teacher::getTermMonths($start_date, $end_date);
-            // 录入该学期每个月的实际排课课时
-            foreach ($term_months as $key=>$m)
-            {
-                if ($key == 0) // 第一个月
-                {
-                    $year = $start_year;
-                    $first_month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
-                    $month_last_day = date('Y-m-d', strtotime("$first_month_first_day +1 month -1 day"));
-                    $month_first_day = $start_date;
-                }
-                elseif ($key == count($term_months)-1) //最后一个月
-                {
-                    $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key])); // 最后一月的第一天
-                    $month_last_day = $end_date;
-                }
-                else // 中间月份
-                {
-                    $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
-                    $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
-                }
-                Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson,$term_months[$key],$year);
-                if ($term_months[$key] == 12) // 到12月了那么年数加一
-                {
-                    $year+=1;
-                }
-            }
+            Teacher::calTermDuration($start_date, $end_date, $lesson);
         }
         session()->flash('success','关联课程成功！');
         return redirect()->route('teachers.index',compact('term_id'));

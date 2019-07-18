@@ -22,6 +22,11 @@ class Lesson extends Model
     {
         return $this->hasOne(Substitute::class);
     }
+
+    public function lessonUpdates()
+    {
+        return $this->hasMany(LessonUpdate::class);
+    }
     /**
      * 计算起始时间是否和之前的记录重叠
      * @param timestamp $ew_start_time

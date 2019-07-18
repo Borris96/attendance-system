@@ -243,4 +243,43 @@ class Teacher extends Model
         $duration = $work_duration - $office_duration;
         return $duration;
     }
+
+    /**
+     * 计算一段时间内（几个月时间）
+     * @param date $start_date Y-m-d
+     * @param date $end_date Y-m-d
+     * @return int $duration
+     *
+     */
+    public static function calTermDuration($start_date, $end_date, $lesson)
+    {
+        // 录入该学期每个月的实际排课课时
+        $start_year = date('Y',strtotime($start_date));
+        $term_months = Teacher::getTermMonths($start_date, $end_date);
+        foreach ($term_months as $key=>$m)
+        {
+            if ($key == 0) // 第一个月
+            {
+                $year = $start_year;
+                $first_month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
+                $month_last_day = date('Y-m-d', strtotime("$first_month_first_day +1 month -1 day"));
+                $month_first_day = $start_date;
+            }
+            elseif ($key == count($term_months)-1) //最后一个月
+            {
+                $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key])); // 最后一月的第一天
+                $month_last_day = $end_date;
+            }
+            else // 中间月份
+            {
+                $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
+                $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
+            }
+            Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson,$term_months[$key],$year);
+            if ($term_months[$key] == 12) // 到12月了那么年数加一
+            {
+                $year+=1;
+            }
+        }
+    }
 }

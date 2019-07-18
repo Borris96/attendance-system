@@ -19,6 +19,11 @@
           <input type="time" name="lesson_start_time" value="{{ old('lesson_start_time') }}"/>&nbsp;&nbsp;至&nbsp;&nbsp;
           <input type="time" name="lesson_end_time" value="{{ old('lesson_end_time') }}"/>
           <br>
+          @if (stristr($term->term_name,'Summer'))
+          <select name="day" id="day">
+            <option value="All">Mon, Wed, Fri</option>
+          </select>
+          @else
           <select name="day" id="day">
             <option value="">请选择星期...</option>
             @foreach ($days as $d)
@@ -29,6 +34,7 @@
             >{{ $d }}</option>
             @endforeach
           </select>
+          @endif
         </td>
     </tr>
     <tr>

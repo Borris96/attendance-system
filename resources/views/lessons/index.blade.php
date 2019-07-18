@@ -51,7 +51,14 @@
             <td></td>
             @endif
             <td>
-                <a href="{{ route('lessons.edit',$l->id) }}" class="btn btn-primary">编辑</a>
+                <a href="{{ route('lessons.edit',array($l->id, 'term_id'=>$term_id)) }}" class="btn btn-primary">编辑课程</a>
+                <form action="{{ route('lessons.edit',array($l->id, 'term_id'=>$term_id)) }}" method="GET" style="display: inline-block;">
+                  <button type="submit" class="btn btn-info"
+                    @if ($l->teacher_id == null)
+                      disabled
+                    @endif
+                  >更换老师</button>
+                </form>
                 <form action="{{ route('lessons.destroy',$l->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('DELETE') }}
                   {{ csrf_field() }}
