@@ -59,16 +59,25 @@
               无
               @endif
             </td>
-            @if ($t->total_missing_hours != null)
-            <td>{{$t->total_missing_hours}}小时</td>
-            @else
-            <td>0小时</td>
-            @endif
-            @if ($t->total_substitute_hours != null)
-            <td>{{$t->total_substitute_hours}}小时</td>
-            @else
-            <td>0小时</td>
-            @endif
+            <td>
+              @if ($t->termTotals != null)
+                @foreach ($t->termTotals as $tt)
+                  @if ($tt->term_id == $term_id)
+                    {{ $tt->total_missing_hours }}
+                  @endif
+                @endforeach
+              @endif
+            </td>
+            <td>
+              @if ($t->termTotals != null)
+                @foreach ($t->termTotals as $tt)
+                  @if ($tt->term_id == $term_id)
+                    {{ $tt->total_substitute_hours }}
+                  @endif
+                @endforeach
+              @endif
+            </td>
+
             <td>
                 <a href="{{ route('teachers.show',array($t->id,'term_id'=>$term_id)) }}" class="btn btn-info">查看详情</a>
                 @if ($t->status == true)

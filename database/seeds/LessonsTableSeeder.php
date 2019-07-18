@@ -18,7 +18,7 @@ class LessonsTableSeeder extends Seeder
             'start_time'=>'18:00:00',
             'end_time'=>'20:00:00',
             'duration'=>'2.0',
-            // 'teacher_id'=>'1;
+            // 'teacher_id'=>'1',
             'term_id'=>'1',
             'created_at'=>now(),
             'updated_at'=>now(),
@@ -31,7 +31,7 @@ class LessonsTableSeeder extends Seeder
             'start_time'=>'10:00:00',
             'end_time'=>'11:30:00',
             'duration'=>'1.5',
-            // 'teacher_id'=>'1;
+            // 'teacher_id'=>'2',
             'term_id'=>'1',
             'created_at'=>now(),
             'updated_at'=>now(),

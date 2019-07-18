@@ -30,7 +30,7 @@ class Teacher extends Model
         return $this->hasMany(Substitute::class);
     }
 
-    public function termTotal()
+    public function termTotals()
     {
         return $this->hasMany(TermTotal::class);
     }
@@ -258,22 +258,31 @@ class Teacher extends Model
         $term_months = Teacher::getTermMonths($start_date, $end_date);
         foreach ($term_months as $key=>$m)
         {
-            if ($key == 0) // 第一个月
+            if (count($term_months) == 1) // 学期只有一个月时，首尾日期就是学期起止日期
             {
                 $year = $start_year;
-                $first_month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
-                $month_last_day = date('Y-m-d', strtotime("$first_month_first_day +1 month -1 day"));
                 $month_first_day = $start_date;
-            }
-            elseif ($key == count($term_months)-1) //最后一个月
-            {
-                $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key])); // 最后一月的第一天
                 $month_last_day = $end_date;
             }
-            else // 中间月份
+            else
             {
-                $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
-                $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
+                if ($key == 0) // 第一个月
+                {
+                    $year = $start_year;
+                    $first_month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
+                    $month_last_day = date('Y-m-d', strtotime("$first_month_first_day +1 month -1 day"));
+                    $month_first_day = $start_date;
+                }
+                elseif ($key == count($term_months)-1) //最后一个月
+                {
+                    $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key])); // 最后一月的第一天
+                    $month_last_day = $end_date;
+                }
+                else // 中间月份
+                {
+                    $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
+                    $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
+                }
             }
             Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson,$term_months[$key],$year);
             if ($term_months[$key] == 12) // 到12月了那么年数加一

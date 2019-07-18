@@ -30,8 +30,10 @@ class LessonsController extends Controller
                 }
             }
         }
+        $term = Term::find($term_id);
+        $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->start_date)->get();
         $lessons = Lesson::where('term_id',$term_id)->orderBy('lesson_name')->get();
-        return view('lessons/index',compact('lessons','terms','term_id'));
+        return view('lessons/index',compact('lessons','terms','term_id','teachers'));
     }
 
     public function destroy()
@@ -139,6 +141,7 @@ class LessonsController extends Controller
                 $lesson_update->day = $lesson->day;
                 $lesson_update->start_date = $lesson->term->start_date;
                 $lesson_update->end_date = $lesson->term->end_date;
+                $lesson_update->teacher_id = $lesson->teacher_id;
                 $lesson_update->save();
                 // 随后计算这个学期每月实际排课 (不考虑节假日调休情况)
                 // $start_date = $lesson->term->start_date; // 学期开始日 计算第一个月实际排课要用
@@ -170,13 +173,13 @@ class LessonsController extends Controller
         $term_id = $lesson->term_id;
         $origin_day = $lesson->day;
         $origin_duration = $lesson->duration;
+        $origin_teacher_id = $lesson->teacher_id;
 
         $lesson->lesson_name = $request->get('lesson_name');
         $lesson->start_time = $request->get('lesson_start_time');
         $lesson->end_time = $request->get('lesson_end_time');
         $lesson->day = $request->get('day');
         $lesson->classroom = $request->get('classroom');
-        $lesson->teacher_id = $request->get('teacher_id');
 
         $str_start = strtotime($lesson->start_time);
         $str_end = strtotime($lesson->end_time);
@@ -193,7 +196,7 @@ class LessonsController extends Controller
                     $str_old_end = strtotime($r->end_time);
                     if (Lesson::isCrossing($str_start, $str_end, $str_old_start, $str_old_end))
                     {
-                        session()->flash('danger','该时间段已排课！');
+                        session()->flash('danger','该时间段已排课！'.$r->lesson_name.' '.$r->day.'-'.date('H:i',strtotime($r->start_time)).'-'.date('H:i',strtotime($r->end_time)).'-'.$r->classroom);
                         return redirect()->back()->withInput();
                     }
                 }
@@ -214,6 +217,16 @@ class LessonsController extends Controller
             return redirect()->back()->withInput();
         }
 
+        // 如果之前有过更新记录，那么这次的生效时间不能比之前的生效时间早
+        foreach ($lesson->lessonUpdates as $r)
+        {
+            if (strtotime($request->get('effective_date'))<strtotime($r->start_date))
+            {
+                session()->flash('danger','生效时间早于上次更新！');
+                return redirect()->back()->withInput();
+            }
+        }
+
 
         // 计算时长
         // 要考虑课程编辑之后，更新的数据在什么时候生效的问题。
@@ -223,74 +236,59 @@ class LessonsController extends Controller
 
         if ($lesson->save())
         {
-            // 只有当星期变了或者时长变了时才需要记录这次更改的生效
+
+            // 当星期变了或者时长变了时需要记录这次更改的生效时间, 需要重新计算被关联老师（或者原老师）的实际排课
             if ($lesson->duration != $origin_duration || $lesson->day != $origin_day)
             {
+                // 未分配老师的，直接在原来的更新记录上修改
+                // 分配过老师的，新建一个更新记录
                 $lesson_updates = $lesson->lessonUpdates;
-                if (count($lesson_updates)==0) // 之前这门课从未改过,建立两个更新记录
-                {
-                    $lesson_update_1 = new LessonUpdate();
-                    $lesson_update_1->lesson_id = $lesson->id;
-                    $lesson_update_1->duration = $origin_duration;
-                    $lesson_update_1->day = $origin_day;
-                    $lesson_update_1->start_date = $lesson->term->start_date;
-                    $lesson_update_1->end_date = $request->get('effective_date');
-                    $lesson_update_1->save();
+                // 修改最后一次更新记录的end_date为新记录的effective_date, 新记录的end_date为term->end_date
+                $count = count($lesson_updates);
 
-                    $lesson_update_2 = new LessonUpdate();
-                    $lesson_update_2->lesson_id = $lesson->id;
-                    $lesson_update_2->duration = $lesson->duration;
-                    $lesson_update_2->day = $lesson->day;
-                    $lesson_update_2->start_date = $request->get('effective_date');
-                    $lesson_update_2->end_date = $lesson->term->end_date;
-                    $lesson_update_2->save();
+                foreach ($lesson_updates as $key => $lu) {
+                    if ($key == ($count-1))
+                    {
+                        if ($lesson->teacher_id != null)
+                        {
+                            $lu->end_date = $request->get('effective_date');
+                            $lu->save();
+                            $new_update = new LessonUpdate();
+                            $new_update->lesson_id = $lesson->id;
+                            $new_update->duration = $lesson->duration;
+                            $new_update->day = $lesson->day;
+                            $new_update->start_date = $request->get('effective_date');
+                            $new_update->end_date = $lesson->term->end_date;
+                            $new_update->save();
+                        }
+                        else
+                        {
+                            $lu->start_date = $request->get('effective_date');
+                            $lu->duration = $lesson->duration;
+                            $lu->day = $lesson->day;
+                            $lu->save();
+                        }
+                    }
                 }
-                // 如果之前有记录那么，只修改最近一次的更新记录，并创建新的更新记录
             }
 
-            // 重新计算
-            $all_updates = $lesson->lessonUpdates;
-            foreach ($all_updates as $au)
-            {
-                $start_date = $au->start_date;
-                $end_date = $au->end_date;
-                $start_year = date('Y',strtotime($start_date));
-            }
-            // 随后计算这个学期每月实际排课 (不考虑节假日调休情况)
-            $start_date = $lesson->term->start_date; // 学期开始日 计算第一个月实际排课要用
-            $end_date = $lesson->term->end_date; // 学期结束日 计算最后月实际排课要用
-            $start_year = date('Y',strtotime($start_date));
+                // 如果课程已经被关联了，重新计算每月实际排课 -> 这个稍后做吧
+                // 即：学期开始后，课程的时长或者哪一天上课发生变动。这种情况下需要重新计算老师的应排课。
+                if ($lesson->teacher_id != null)
+                {
+                    // 只重新计算关联了老师的更新记录
+                    // $all_updates = $lesson->lessonUpdates;
+                    // foreach ($all_updates as $au) {
+                    //     $start_date = $au->start_date;
+                    //     $end_date = $au->end_date;
+                    //     Teacher::calTermDuration($start_date, $end_date, $lesson);
+                    // }
 
-            $term_months = Teacher::getTermMonths($start_date, $end_date);
-            // 录入该学期每个月的实际排课课时
-            foreach ($term_months as $key=>$m)
-            {
-                if ($key == 0) // 第一个月
-                {
-                    $year = $start_year;
-                    $first_month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
-                    $month_last_day = date('Y-m-d', strtotime("$first_month_first_day +1 month -1 day"));
-                    $month_first_day = $start_date;
+                    // 12.15~2.16~6.30
                 }
-                elseif ($key == count($term_months)-1) //最后一个月
-                {
-                    $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key])); // 最后一月的第一天
-                    $month_last_day = $end_date;
-                }
-                else // 中间月份
-                {
-                    $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
-                    $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
-                }
-                Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson,$term_months[$key],$year);
-                if ($term_months[$key] == 12) // 到12月了那么年数加一
-                {
-                    $year+=1;
-                }
-            }
         }
 
-        session()->flash('success','更新课程成功！');
+        session()->flash('success','更新'.$lesson->lesson_name.'课程成功！');
         return redirect()->route('lessons.index',compact('term_id'));
     }
 }

@@ -17,6 +17,7 @@ class CreateLessonUpdatesTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('lesson_id')->nullable();
             $table->decimal('duration',5,1)->nullable();
+            $table->unsignedInteger('teacher_id')->nullable();
             $table->string('day')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

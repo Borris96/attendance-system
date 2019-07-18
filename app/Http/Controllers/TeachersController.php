@@ -9,6 +9,7 @@ use App\Lesson;
 use App\Term;
 use App\MonthDuration;
 use App\Holiday;
+use App\TermTotal;
 
 class TeachersController extends Controller
 {
@@ -36,7 +37,7 @@ class TeachersController extends Controller
         }
         $term = Term::find($term_id);
         // 寻找在这个学期上课的老师，即：入职比学期开始早，离职比学期开始晚
-        $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->end_date)->get();
+        $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->start_date)->get();
         return view('teachers/index',compact('staffs','teachers','terms','term_id'));
     }
 
@@ -48,6 +49,7 @@ class TeachersController extends Controller
         $teacher = Teacher::find($id);
         $holidays = Holiday::all(); // 在计算实际上课时需要考虑到
         // 计算每个月应排课（目前默认为一整月时间，不考虑学期具体几号开始）
+        // 需要改。
         $start_date = $term->start_date;
         $end_date = $term->end_date;
         $start_year = date('Y',strtotime($start_date));
@@ -150,7 +152,7 @@ class TeachersController extends Controller
             // 随后计算这个学期每月实际排课 (不考虑节假日调休情况)
             $start_date = $lesson->term->start_date; // 学期开始日 计算第一个月实际排课要用
             $end_date = $lesson->term->end_date; // 学期结束日 计算最后月实际排课要用
-            $start_year = date('Y',strtotime($start_date));
+            // $start_year = date('Y',strtotime($start_date));
             Teacher::calTermDuration($start_date, $end_date, $lesson);
         }
         session()->flash('success','关联课程成功！');

@@ -49,34 +49,41 @@
     <tr>
         <td width="10%" class="tableleft">上课老师</td>
         <td>
-        <select name="teacher_id" id="name_select">
-          <option value="">请选择老师...</option>
-          @foreach ($teachers as $teacher)
-          <option value="{{ $teacher->id }}"
-          @if (old('teacher_id') == $teacher->id)
-          selected
-          @endif
-          >{{ $teacher->staff->englishname }}</option>
-          @endforeach
-        </select>
+          暂无
+        </td>
+    </tr>
+    <tr>
+        <td class="tableleft">生效日期*</td>
+         <td>
+          <input type="date" name="effective_date" value="{{ $lesson->term->start_date }}">
         </td>
     </tr>
     @else
     <tr>
       <td width="10%" class="tableleft">上课老师</td>
       <td>
-        <select name="teacher_id">
-          <option value="{{ $lesson->teacher->id }}">{{ $lesson->teacher->staff->englishname }}</option>
-        </select>
+        {{ $lesson->teacher->staff->englishname }}
       </td>
     </tr>
-    @endif
     <tr>
         <td class="tableleft">生效日期*</td>
          <td>
           <input type="date" name="effective_date" value="{{ date('Y-m-d') }}">
         </td>
     </tr>
+    @endif
+    @if (count($lesson->lessonUpdates) > 1)
+    <tr>
+      <td width="10%" class="tableleft">历史记录</td>
+      <td>
+        @foreach ($lesson->lessonUpdates as $key=>$lu)
+          @if ($key != count($lesson->lessonUpdates)-1)
+          星期:{{$lu->day}}&nbsp;时长:{{$lu->duration}}&nbsp;有效日期:{{ $lu->start_date }}~{{ $lu->end_date }}<br>
+          @endif
+        @endforeach
+      </td>
+    </tr>
+    @endif
     <tr>
         <td class="tableleft"></td>
         <td>

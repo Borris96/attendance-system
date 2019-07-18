@@ -79,13 +79,11 @@
 @endif
 
 <script>
-
   function delcfm() {
       if (!confirm("确认操作？")) {
           window.event.returnValue = false;
       }
   }
-
 </script>
 
 @stop

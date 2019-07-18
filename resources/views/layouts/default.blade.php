@@ -35,6 +35,32 @@
             }
         }
 
+        .black_overlay{
+            display: none;
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index:1001;
+            -moz-opacity: 0.8;
+            opacity:.30;
+            filter: alpha(opacity=88);
+        }
+        .white_content {
+            display: none;
+            position: absolute;
+            top: 25%;
+            left: 35%;
+            width: 25%;
+            height: 25%;
+            padding: 10px;
+            /*border: 10px solid orange;*/
+            background-color: white;
+            z-index:1002;
+            overflow: auto;
+        }
 
     </style>
 </head>

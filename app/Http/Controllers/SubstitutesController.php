@@ -31,7 +31,7 @@ class SubstitutesController extends Controller
                 }
             }
         }
-        $substitutes = Substitute::where('term_id',$term_id)->orderBy('lesson_id')->get();
+        $substitutes = Substitute::where('term_id',$term_id)->orderBy('lesson_date')->get();
         return view('substitutes/index',compact('substitutes','terms','term_id'));
     }
 
@@ -111,7 +111,7 @@ class SubstitutesController extends Controller
         // 缺课老师这学期缺课记录更新
         $teacher = Teacher::find($substitute->teacher_id);
         // 查找是否有这个学期的总缺课记录
-        $teacher_term_total = Substitute::where('teacher_id',$substitute->teacher_id)->where('term_id',$substitute->term_id);
+        $teacher_term_total = TermTotal::where('teacher_id',$substitute->teacher_id)->where('term_id',$substitute->term_id);
 
         if (count($teacher_term_total->get())!=0) // 这条记录存在
         {
@@ -136,7 +136,7 @@ class SubstitutesController extends Controller
 
 
             // 查找是否有这个学期的总代课缺课记录
-            $substitute_teacher_term_total = Substitute::where('teacher_id',$substitute->substitute_teacher_id)->where('term_id',$substitute->term_id);
+            $substitute_teacher_term_total = TermTotal::where('teacher_id',$substitute->substitute_teacher_id)->where('term_id',$substitute->term_id);
 
             if (count($substitute_teacher_term_total->get())!=0) // 这条记录存在
             {
