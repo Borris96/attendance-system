@@ -21,19 +21,19 @@
       <tr>
         @if ($td != null)
           <td>{{$m}}</td>
-          <td>80（样本）</td>
+          <td>{{$td[0]}}</td>
           <td>{{$td[1]}}</td>
-          <td>71.5（样本）</td>
-          <td>8.5（样本）</td>
+          <td>{{$td[2]}}</td>
+          <td>{{$td[3]}}</td>
         @endif
       </tr>
       @endforeach
       <tr>
           <td>合计</td>
-          <td>80（样本）</td>
+          <td>{{$all_teacher_total_durations[$key][0]}}</td>
           <td>{{$all_teacher_total_durations[$key][1]}}</td>
-          <td>71.5（样本）</td>
-          <td>8.5（样本）</td>
+          <td>{{$all_teacher_total_durations[$key][2]}}</td>
+          <td>{{$all_teacher_total_durations[$key][3]}}</td>
       </tr>
     </tbody>
 </table>
