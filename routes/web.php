@@ -73,6 +73,8 @@ Route::resource('/missings','MissingsController');
 Route::resource('/substitutes','SubstitutesController');
 Route::resource('/alters','AltersController');
 Route::resource('/lesson_attendances','LessonAttendancesController');
+Route::get('teacher_results','LessonAttendancesController@index')->name('lesson_attendances.teacher_results');
+Route::get('teacher_multiple_results','LessonAttendancesController@index')->name('lesson_attendances.teacher_multiple_results');
 
 Route::get('login','SessionsController@create')->name('login');
 Route::post('login','SessionsController@store')->name('login');
