@@ -144,7 +144,7 @@ class Teacher extends Model
     }
 
     /**
-     * 计算老师实际排课
+     * 计算老师应排课
      * @param object $teacher
      * @param date $month_first_day Y-m-d
      * @param date $month_last_day Y-m-d
@@ -152,7 +152,7 @@ class Teacher extends Model
      * @return int $duration
      *
      */
-    // 考虑到员工可能每周排班都会变化，之后要根据排班的起止时间来获取工作时长
+    // 考虑到员工可能每周排班都会变化，之后要根据排班的起止时间来获取坐班工作时长
     public static function calShouldMonthDuration($teacher, $month_first_day, $month_last_day){
 
         $day_array = [0=>'日', 1=>'一', 2=>'二', 3=>'三', 4=>'四', 5=>'五', 6=>'六'];
@@ -163,18 +163,19 @@ class Teacher extends Model
 
         $str_this_date = strtotime($month_first_day);
         // 这个月应上班总时长（默认标准工作时间）
+        // 学期首月首周和末月末周的应上班: 由于学期开始不一定在周一，结束不一定在周日，所以要把首末月起止时间往前往后推移。
         while($str_this_date<=strtotime($month_last_day))
         {
             $this_day = date('w',$str_this_date); // 获取这一天是星期几
             $this_date = date('Y-m-d',$str_this_date); // 这一天日期
-            $holiday = Holiday::where('date',$this_date);
+            $holiday = Holiday::where('date',$this_date); // 查询这一天是否有节假日调休
             if ($this_day != 0 && $this_day != 6)
             {
                 if (count($holiday->get()) == 0)
                 {
                     $work_duration += $work_hour; // 这个月应该工作的时长
                 }
-                else
+                else // 这一天是节假日调休
                 {
                     if ($holiday->value('holiday_type') != '休息')
                     {
@@ -182,8 +183,9 @@ class Teacher extends Model
                     }
                 }
             }
-            else // 周六周日上班的话
+            else // 周六周日
             {
+                // 上班的话
                 if ($holiday->value('holiday_type') == '上班')
                 {
                     $work_duration += $work_hour;
@@ -193,6 +195,7 @@ class Teacher extends Model
         }
 
         $str_this_date = strtotime($month_first_day);
+
         // 这个月老师的坐班时间
         while($str_this_date<=strtotime($month_last_day))
         {
@@ -240,12 +243,12 @@ class Teacher extends Model
             $str_this_date = $str_this_date+3600*24; // 加一天
         }
 
-        $duration = $work_duration - $office_duration;
+        $duration = $work_duration - $office_duration; // 应排课 = 应上班时长-坐班时长
         return $duration;
     }
 
     /**
-     * 计算一段时间内（几个月时间）
+     * 计算一段时间内（几个月时间）的每月实际上课
      * @param date $start_date Y-m-d
      * @param date $end_date Y-m-d
      * @return int $duration
@@ -284,7 +287,7 @@ class Teacher extends Model
                     $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
                 }
             }
-            Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson,$term_months[$key],$year);
+            Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson,$term_months[$key],$year); // 实际上课时长
             if ($term_months[$key] == 12) // 到12月了那么年数加一
             {
                 $year+=1;

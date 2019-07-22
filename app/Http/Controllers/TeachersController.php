@@ -10,6 +10,7 @@ use App\Term;
 use App\MonthDuration;
 use App\Holiday;
 use App\TermTotal;
+use App\LessonAttendance;
 
 class TeachersController extends Controller
 {
@@ -59,8 +60,32 @@ class TeachersController extends Controller
         $year = $start_year;
         foreach ($term_months as $key => $m)
         {
-            $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
-            $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
+            $term = Term::find($current_term_id);
+            $s_m_y = $year.'-'.$term_months[$key];
+            $month_f_l = LessonAttendance::decideMonthFirstLast($term->start_date, $term->end_date, $s_m_y); // 计算学期内的一个月的首末日期
+            // $month_first_day = date('Y-m-01',strtotime($year.'-'.$term_months[$key]));
+            // $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
+            $month_first_day = $month_f_l[0];
+            $month_last_day = $month_f_l[1];
+
+            // 学期首月首周和末月末周的应上班: 由于学期开始不一定在周一，结束不一定在周日，所以要把首末月起止时间往前往后推移。
+            if ($key == 0) // 首月补满首周
+            {
+                while (date('w',strtotime($month_first_day)) != 1)
+                {
+                    $month_first_day = date('Y-m-d', strtotime("$month_first_day -1 day"));
+                }
+            }
+            elseif ($key == count($term_months)-1) // 末月补满末周
+            {
+                while (date('w',strtotime($month_last_day)) != 0)
+                {
+                    $month_last_day = date('Y-m-d', strtotime("$month_last_day +1 day"));
+                }
+                // dump($month_last_day);
+                // exit();
+            }
+
             $month_should_durations[$m] = Teacher::calShouldMonthDuration($teacher, $month_first_day,$month_last_day);
             if ($term_months[$key] == 12) // 到12月了那么年数加一
             {
@@ -73,8 +98,9 @@ class TeachersController extends Controller
         $lessons = Lesson::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('lesson_name','asc')->get();
         // 本学期每月实际排课
         $month_durations = MonthDuration::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('year','asc')->get();
+        $term_totals = TermTotal::where('teacher_id',$id)->where('term_id',$current_term_id)->get();
 
-        return view('teachers/show',compact('teacher','lessons','term','current_term_id','month_durations', 'month_should_durations'));
+        return view('teachers/show',compact('teacher','lessons','term','term_totals','current_term_id','month_durations', 'month_should_durations'));
     }
 
     public function edit(Request $request, $id)

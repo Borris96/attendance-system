@@ -86,11 +86,26 @@
         <th>代课课时(学期累计)</th>
     </tr>
     </thead>
+    @if (count($term_totals) != 0)
     <tr>
-      <td>30小时</td>
-      <td>16小时</td>
+      @foreach ($term_totals as $tt)
+      @if ($tt->total_missing_hours != null)
+      <td>{{ $tt->total_missing_hours }}小时</td>
+      @else
+      <td>0小时</td>
+      @endif
+      @if  ($tt->total_substitute_hours != null)
+      <td>{{ $tt->total_substitute_hours}}小时</td>
+      @else
+      <td>0小时</td>
+      @endif
+      @endforeach
     </tr>
 </table>
+@else
+</table>
+@include('shared._nothing')
+@endif
 
 <div style="margin: 20px">
   @if ($teacher->status == true)
