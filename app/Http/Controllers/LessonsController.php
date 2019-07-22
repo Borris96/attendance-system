@@ -37,9 +37,23 @@ class LessonsController extends Controller
         return view('lessons/index',compact('lessons','terms','term_id','teachers'));
     }
 
-    public function destroy()
+    public function destroy($id)
     {
-
+        $lesson = Lesson::find($id);
+        $lesson_updates = $lesson->lessonUpdates;
+        // 不仅要删除课程本身，还要将其关联的所有老师的实际排课时长删除
+        foreach ($lesson_updates as $lu) {
+            $start_date = $lu->start_date;
+            $end_date = $lu->end_date;
+            if ($lu->teacher_id != null)
+            {
+                Teacher::calTermDuration($start_date, $end_date, $lu, $option = 'substract');
+            }
+            $lu->delete();
+        }
+        $lesson->delete();
+        session()->flash('success','删除课程成功！');
+        return redirect()->back()->withInput();
     }
 
     public function edit(Request $request, $id)
