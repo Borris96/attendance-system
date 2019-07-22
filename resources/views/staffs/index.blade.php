@@ -56,7 +56,7 @@
                 <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('PATCH') }}
                   {{ csrf_field() }}
-                  <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">办理离职</button>
+                  <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">员工离职</button>
                 </form>
             </td>
         </tr>

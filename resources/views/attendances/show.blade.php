@@ -236,7 +236,7 @@
 </table>
 
 <div style="margin: 20px">
-  <input class="btn btn-primary" type="button" name="Submit" onclick="javascript:history.back(-1);" value="返回上一页">
+  <a class="btn btn-primary" href="{{ route('attendances.results',array('year'=>$year,'month'=>$month)) }}" role="button">返回考勤汇总</a>
   <a class="btn btn-primary" href="{{ route('attendances.results') }}" role="button">返回查询界面</a>
 </div>
 
