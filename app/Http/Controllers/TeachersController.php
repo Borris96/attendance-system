@@ -95,13 +95,13 @@ class TeachersController extends Controller
         }
         // dump($month_should_durations);
         // exit();
-
+        $lesson_updates = LessonUpdate::where('teacher_id',$id)->orderBy('lesson_id')->get();
         $lessons = Lesson::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('lesson_name','asc')->get();
         // 本学期每月实际排课
         $month_durations = MonthDuration::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('year','asc')->get();
         $term_totals = TermTotal::where('teacher_id',$id)->where('term_id',$current_term_id)->get();
 
-        return view('teachers/show',compact('teacher','lessons','term','term_totals','current_term_id','month_durations', 'month_should_durations'));
+        return view('teachers/show',compact('teacher','lessons','lesson_updates','term','term_totals','current_term_id','month_durations', 'month_should_durations'));
     }
 
     public function edit(Request $request, $id)

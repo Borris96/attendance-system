@@ -214,9 +214,6 @@ class Teacher extends Model
                     }
                     $month_duration->actual_duration -= $real_duration;
                 }
-                dump($this_day);
-                dump($month_duration->actual_duration);
-
                 $str_this_date = $str_this_date+3600*24;
             }
         }
