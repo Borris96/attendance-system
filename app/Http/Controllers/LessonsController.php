@@ -363,15 +363,16 @@ class LessonsController extends Controller
                 // 即：学期开始后，课程的时长或者哪一天上课发生变动。这种情况下需要重新计算老师的应排课。
                 if ($lesson->teacher_id != null)
                 {
-                    // 只重新计算关联了老师的更新记录
-                    // $all_updates = $lesson->lessonUpdates;
-                    // foreach ($all_updates as $au) {
-                    //     $start_date = $au->start_date;
-                    //     $end_date = $au->end_date;
-                    //     Teacher::calTermDuration($start_date, $end_date, $lesson);
-                    // }
+                    // 生效日期之前的实际排课课时不变，生效日期之后实际排课课时发生调整：
+                        // 原来的减去，现在的加上。 - 依据是 $new_update
+                    $start_date = $new_update->start_date;
+                    $end_date = $new_update->end_date;
+                    // 由于$new_update的老师id是新老师的，所以要在调用调用下面函数时添加一个原老师id的参数。
+                    // 这个老师的这门课原时长减去 （星期或者时长的变动，所以需要增加原时长和原星期数据）
+                    Teacher::calTermDuration($start_date, $end_date, $new_update, $option = 'substract','', $origin_duration, $origin_day);
+                    // 这个老师的这门课新时长加上
+                    Teacher::calTermDuration($start_date, $end_date, $new_update, $option = 'add');
 
-                    // 12.15~2.16~6.30
                 }
         }
 
