@@ -35,14 +35,37 @@ class SubstitutesController extends Controller
         return view('substitutes/index',compact('substitutes','terms','term_id'));
     }
 
-    public function destroy()
+    public function destroy($id)
     {
+        // 删除条目的同时，减去缺课老师缺课时长，减去代课老师代课时长
+        $substitute = Substitute::find($id);
+        // 代课老师代课时长减
+        $substitute_teacher_term_total_id = TermTotal::where('teacher_id',$substitute->substitute_teacher_id)->where('term_id',$substitute->term_id)->value('id');
+        if ($substitute_teacher_term_total_id != null)
+        {
+            $substitute_teacher_term_total = TermTotal::find($substitute_teacher_term_total_id);
+            $substitute_teacher_term_total->total_substitute_hours -= $substitute->duration;
+            $substitute_teacher_term_total->save();
+        }
+        // 缺课老师缺课时长减
+        $missing_teacher_term_total_id = TermTotal::where('teacher_id',$substitute->teacher_id)->where('term_id',$substitute->term_id)->value('id');
+        $missing_teacher_term_total = TermTotal::find($missing_teacher_term_total_id);
+        $missing_teacher_term_total->total_missing_hours -= $substitute->duration;
+        $missing_teacher_term_total->save();
+
+        $substitute->delete();
+        session()->flash('success','删除代课缺课记录成功！');
+        return redirect()->back()->withInput();
 
     }
 
-    public function edit()
+    public function edit(Request $request, $id)
     {
-        return view('substitutes/edit');
+        $current_term_id = $request->input('term_id');
+        $term = Term::find($current_term_id);
+        $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->end_date)->get();
+        $substitute = Substitute::find($id);
+        return view('substitutes/edit',compact('current_term_id','term','teachers','substitute'));
     }
 
     public function create(Request $request)
@@ -74,6 +97,7 @@ class SubstitutesController extends Controller
         $substitute->substitute_teacher_id = $request->get('substitute_teacher_id');
         $substitute->lesson_date = $request->get('lesson_date');
         $substitute->term_id = $request->get('current_term_id');
+        $substitute->duration = $lesson->duration;
 
         // 该日这节课是否重复代课
         $find = Substitute::where('lesson_id',$substitute->lesson_id)->where('lesson_date',$substitute->lesson_date)->get();
@@ -167,6 +191,35 @@ class SubstitutesController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->validate($request, [
+            // 'term_name'=>'',
+            // 'lesson_id'=>'required',
+            // 'substitute_teacher_id' => 'required',
+            'lesson_date'=>'required',
+        ]);
 
+        // 更新有如下几种情况
+        // 1. 没有代课老师
+            // 1.1 代课老师修改
+                // 1.1.1 日期修改
+                    // 用那个日期的时长，缺课老师数据增减，代课老师增加
+                // 1.1.2 日期未修改
+                    // 增加代课老师代课时间
+            // 1.2 代课老师未修改
+                // 1.2.1 日期修改
+                    // 用那个日期的时长，缺课老师数据增减
+                // 1.2.2 日期未修改
+                    // 没变化
+        // 2. 有代课老师
+            // 2.1 代课老师修改
+                // 2.1.1 日期修改
+                    // 缺课老师数据增减，原代课老师数据减(按之前日期时长)，新代课老师数据增(按现在日期时长)
+                // 2.1.2 日期未修改
+                    // 原代课老师数据减，新代课老师数据增
+            // 2.2 代课老师未修改
+                // 2.2.1 日期修改
+                    // 代课，缺课老师数据相应增减
+                // 2.2.2 日期未修改
+                    // 没变化
     }
 }

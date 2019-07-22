@@ -123,7 +123,7 @@
     <tr>
       <td>{{ $lu->lesson->lesson_name }}</td>
       <td>{{ $lu->day }}</td>
-      <td>{{ $lu->durtion }}</td>
+      <td>{{ $lu->duration }}</td>
       <td>{{ $lu->teacher->staff->englishname }}</td>
       <td>{{ $lu->start_date}}~{{ $lu->end_date}}</td>
     </tr>

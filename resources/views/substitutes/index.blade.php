@@ -54,8 +54,8 @@
             <td></td>
             @endif
             <td>
-                <a href="{{ route('substitutes.edit',$s->id) }}" class="btn btn-primary">编辑</a>
-                <form action="{{ route('substitutes.destroy',$s->id) }}" method="POST" style="display: inline-block;">
+                <a href="{{ route('substitutes.edit',array($s->id,'term_id'=>$term_id)) }}" class="btn btn-primary">编辑</a>
+                <form action="{{ route('substitutes.destroy',array($s->id,'term_id'=>$term_id)) }}" method="POST" style="display: inline-block;">
                   {{ method_field('DELETE') }}
                   {{ csrf_field() }}
                   <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">删除</button>
