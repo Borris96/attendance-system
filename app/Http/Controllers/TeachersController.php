@@ -11,6 +11,7 @@ use App\MonthDuration;
 use App\Holiday;
 use App\TermTotal;
 use App\LessonAttendance;
+use App\LessonUpdate;
 
 class TeachersController extends Controller
 {
@@ -173,13 +174,31 @@ class TeachersController extends Controller
         {
             $lesson = Lesson::find($id);
             $lesson->teacher_id = $request->get('teacher_id');
-            $lesson->save();
+            if ($lesson->save())
+            {
+                $lesson_updates = $lesson->lessonUpdates;
+                $count = count($lesson_updates);
 
+                foreach ($lesson_updates as $key => $lu) {
+                    if ($key == ($count-1))
+                    {
+                        $lu->teacher_id = $lesson->teacher_id;
+                        $lu->save();
+                    }
+                }
+            }
             // 随后计算这个学期每月实际排课 (不考虑节假日调休情况)
             $start_date = $lesson->term->start_date; // 学期开始日 计算第一个月实际排课要用
             $end_date = $lesson->term->end_date; // 学期结束日 计算最后月实际排课要用
             // $start_year = date('Y',strtotime($start_date));
-            Teacher::calTermDuration($start_date, $end_date, $lesson);
+            $lesson_updates = $lesson->lessonUpdates;
+            foreach ($lesson_updates as $key => $lu) {
+                // 使用最后一段课程更新记录的数据计算老师的学期实际排课时长
+                if ($key == ($count-1) && $lu->teacher_id == $request->get('teacher_id'))
+                {
+                    Teacher::calTermDuration($start_date, $end_date, $lu);
+                }
+            }
         }
         session()->flash('success','关联课程成功！');
         return redirect()->route('teachers.index',compact('term_id'));

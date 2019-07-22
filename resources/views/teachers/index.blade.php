@@ -49,11 +49,11 @@
             <td>{{$t->staff->id}}</td>
             <td>{{$t->staff->englishname}}</td>
             <td>
-              @if ($t->lessons != null)
-                @foreach($t->lessons as $l)
-                  @if($l->term_id == $term_id)
-                    {{$l->lesson_name}}&nbsp;
-                  @endif
+              @if (count($t->lessonUpdates) != 0)
+                @foreach($t->lessonUpdates as $lu)
+                @if ($lu->lesson->term_id == $term_id)
+                  <span style="font-weight: bold;">{{ $lu->lesson->lesson_name }}</span>&nbsp;{{ $lu->lesson->day }}<br>
+                @endif
                 @endforeach
               @else
               无

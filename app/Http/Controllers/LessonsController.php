@@ -7,6 +7,7 @@ use App\Lesson;
 use App\Term;
 use App\Teacher;
 use App\LessonUpdate;
+use App\MonthDuration;
 
 class LessonsController extends Controller
 {
@@ -56,6 +57,88 @@ class LessonsController extends Controller
         }
         $lesson = Lesson::find($id);
         return view('lessons/edit',compact('lesson','term','days','current_term_id','teachers'));
+    }
+
+    public function editTeacher(Request $request, $id)
+    {
+        $current_term_id = $request->input('term_id');
+        $term = Term::find($current_term_id);
+        $lesson = Lesson::find($id);
+        $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->end_date)->get();
+        return view('lessons/edit_teacher',compact('lesson','term','current_term_id','teachers'));
+    }
+
+    public function updateTeacher(Request $request, $id) // 更换老师
+    {
+        $this->validate($request, [
+        'effective_date'=>'required',
+        ]);
+        $current_term_id = $request->input('term_id');
+        $lesson = Lesson::find($id);
+        $teacher = $lesson->teacher;
+        $current_teacher_id = $request->input('current_teacher_id');
+        if ($current_teacher_id == $teacher->id)
+        {
+            session()->flash('danger','上课老师未更改！');
+            return redirect()->back()->withInput();
+        }
+
+        // 判断生效时间是否在学期内
+        if (strtotime($request->get('effective_date'))>strtotime($lesson->term->end_date) || strtotime($request->get('effective_date'))<strtotime($lesson->term->start_date))
+        {
+            session()->flash('danger','生效时间超出范围！');
+            return redirect()->back()->withInput();
+        }
+
+        // 如果之前有过更新记录，那么这次的生效时间不能比之前的生效时间早
+        foreach ($lesson->lessonUpdates as $r)
+        {
+            if (strtotime($request->get('effective_date'))<strtotime($r->start_date))
+            {
+                session()->flash('danger','生效时间早于上次更新！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        $lesson->teacher_id = $current_teacher_id;
+        if ($lesson->save())
+        {
+            $lesson_updates = $lesson->lessonUpdates;
+            // 修改最后一次更新记录的end_date为新记录的effective_date, 新记录的end_date为term->end_date
+            $count = count($lesson_updates);
+
+            foreach ($lesson_updates as $key => $lu) {
+                if ($key == ($count-1))
+                {
+                    $lu->end_date = $request->get('effective_date');
+                    $lu->save();
+                    $new_update = new LessonUpdate();
+                    $new_update->lesson_id = $lesson->id;
+                    $new_update->duration = $lesson->duration;
+                    $new_update->teacher_id = $lesson->teacher_id;
+                    $new_update->day = $lesson->day;
+                    $new_update->start_date = $request->get('effective_date');
+                    $new_update->end_date = $lesson->term->end_date;
+                    $new_update->save();
+                }
+            }
+
+            // 还要重新计算实际排课。原老师减去时长，现老师加上时长。
+            // 这个时间段，就是新老师代课的时间段。也就是说之前的时间，原老师的实际排课时长不变，而在这个时间段里，原老师上这节课的时长要减去。
+            // 这个时间段就是刚才的 $new_update
+
+            $start_date = $new_update->start_date;
+            $end_date = $new_update->end_date;
+            // 由于$new_update的老师id是新老师的，所以要在调用调用下面函数时添加一个原老师id的参数。
+            // 原老师时长减
+            $teacher_id = $teacher->id;
+            Teacher::calTermDuration($start_date, $end_date, $new_update, $option = 'substract', $teacher_id);
+            // 新老师时长加
+            Teacher::calTermDuration($start_date, $end_date, $new_update, $option = 'add');
+
+            session()->flash('success','更换老师成功！');
+            return redirect()->route('lessons.index',compact('current_term_id'));
+        }
     }
 
     public function create(Request $request)
@@ -149,7 +232,10 @@ class LessonsController extends Controller
 
                 $start_date = $lesson_update->start_date;
                 $end_date = $lesson_update->end_date;
-                Teacher::calTermDuration($start_date, $end_date, $lesson);
+                if ($lesson_update->teacher_id != null) // 如果已经分配老师
+                {
+                    Teacher::calTermDuration($start_date, $end_date, $lesson_update);
+                }
             }
         }
         session()->flash('success','新建课程成功！');
@@ -257,6 +343,7 @@ class LessonsController extends Controller
                             $new_update->lesson_id = $lesson->id;
                             $new_update->duration = $lesson->duration;
                             $new_update->day = $lesson->day;
+                            $new_update->teacher_id = $lesson->teacher_id;
                             $new_update->start_date = $request->get('effective_date');
                             $new_update->end_date = $lesson->term->end_date;
                             $new_update->save();

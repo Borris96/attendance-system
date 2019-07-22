@@ -35,6 +35,11 @@ class Teacher extends Model
         return $this->hasMany(TermTotal::class);
     }
 
+    public function lessonUpdates()
+    {
+        return $this->hasMany(LessonUpdate::class);
+    }
+
     /**
      * 获取这个学期所有月份
      * @param date $start_date Y-m-d
@@ -86,15 +91,23 @@ class Teacher extends Model
      * @param date $month_last_day Y-m-d
      * @param int $month
      * @param int $year
-     * @param object $lesson
+     * @param object $lesson_update
      *
      */
-    public static function calMonthDuration($month_first_day,$month_last_day,$lesson,$month,$year)
+    public static function calMonthDuration($month_first_day,$month_last_day,$lesson_update,$month,$year,$option = 'add',$teacher_id = '')
     {
         $lesson_day_array = ['Sun'=>0,'Fri'=>5,'Sat'=>6, 'Mon'=>1, 'Wed'=>3];
-        $want_day = $lesson_day_array[$lesson->day]; // 获取所添加课程的星期并转换为数字
+        $want_day = $lesson_day_array[$lesson_update->day]; // 获取所添加课程的星期并转换为数字
         // 先找一下这个月是否已经有了记录
-        $month_duration_id = MonthDuration::where('teacher_id',$lesson->teacher_id)->where('year',$year)->where('month',$month)->value('id');
+        if ($teacher_id == '')
+        {
+           $month_duration_id = MonthDuration::where('teacher_id',$lesson_update->teacher_id)->where('year',$year)->where('month',$month)->value('id');
+        }
+        else
+        {
+            $month_duration_id = MonthDuration::where('teacher_id',$teacher_id)->where('year',$year)->where('month',$month)->value('id');
+        }
+
         if ($month_duration_id == null)
         {
             $month_duration = new MonthDuration();
@@ -106,38 +119,81 @@ class Teacher extends Model
 
         $month_duration->year = $year;
         $month_duration->month = $month;
-        $month_duration->term_id = $lesson->term_id;
-        $month_duration->teacher_id = $lesson->teacher_id;
+        $month_duration->term_id = $lesson_update->lesson->term_id;
+        if ($teacher_id == '')
+        {
+            $month_duration->teacher_id = $lesson_update->teacher_id;
+        }
+        else
+        {
+            $month_duration->teacher_id = $teacher_id;
+        }
+
         $str_this_date = strtotime($month_first_day);
         // 寻找这个月中是礼拜六的那一天，累加礼拜六上课时长
-        while($str_this_date<=strtotime($month_last_day))
+        if ($option == 'add')
         {
-            $this_day = date('w',$str_this_date); // 获取这一天是星期几
-            if ($this_day == $want_day)
+            while($str_this_date<=strtotime($month_last_day))
             {
-                if ($want_day == 0)
+                $this_day = date('w',$str_this_date); // 获取这一天是星期几
+                if ($this_day == $want_day)
                 {
-                    $month_duration->sun_duration += $lesson->duration;
+                    if ($want_day == 0)
+                    {
+                        $month_duration->sun_duration += $lesson_update->duration;
+                    }
+                    elseif ($want_day == 5)
+                    {
+                       $month_duration->fri_duration += $lesson_update->duration;
+                    }
+                    elseif ($want_day == 6)
+                    {
+                        $month_duration->sat_duration += $lesson_update->duration;
+                    }
+                    elseif ($want_day == 1)
+                    {
+                        $month_duration->mon_duration += $lesson_update->duration;
+                    }
+                    elseif ($want_day == 3)
+                    {
+                        $month_duration->wed_duration += $lesson_update->duration;
+                    }
+                    $month_duration->actual_duration += $lesson_update->duration;
                 }
-                elseif ($want_day == 5)
-                {
-                   $month_duration->fri_duration += $lesson->duration;
-                }
-                elseif ($want_day == 6)
-                {
-                    $month_duration->sat_duration += $lesson->duration;
-                }
-                elseif ($want_day == 1)
-                {
-                    $month_duration->mon_duration += $lesson->duration;
-                }
-                elseif ($want_day == 3)
-                {
-                    $month_duration->wed_duration += $lesson->duration;
-                }
-                $month_duration->actual_duration += $lesson->duration;
+                $str_this_date = $str_this_date+3600*24;
             }
-            $str_this_date = $str_this_date+3600*24;
+        }
+        elseif ($option == 'substract') // 如果这个老师和别的老师换课了，那么这段时间的时长需要减掉
+        {
+            while($str_this_date<=strtotime($month_last_day))
+            {
+                $this_day = date('w',$str_this_date); // 获取这一天是星期几
+                if ($this_day == $want_day)
+                {
+                    if ($want_day == 0)
+                    {
+                        $month_duration->sun_duration -= $lesson_update->duration;
+                    }
+                    elseif ($want_day == 5)
+                    {
+                       $month_duration->fri_duration -= $lesson_update->duration;
+                    }
+                    elseif ($want_day == 6)
+                    {
+                        $month_duration->sat_duration -= $lesson_update->duration;
+                    }
+                    elseif ($want_day == 1)
+                    {
+                        $month_duration->mon_duration -= $lesson_update->duration;
+                    }
+                    elseif ($want_day == 3)
+                    {
+                        $month_duration->wed_duration -= $lesson_update->duration;
+                    }
+                    $month_duration->actual_duration -= $lesson_update->duration;
+                }
+                $str_this_date = $str_this_date+3600*24;
+            }
         }
         // exit();
         $month_duration->save();
@@ -254,7 +310,7 @@ class Teacher extends Model
      * @return int $duration
      *
      */
-    public static function calTermDuration($start_date, $end_date, $lesson)
+    public static function calTermDuration($start_date, $end_date, $lesson_update, $option = 'add', $teacher_id='')
     {
         // 录入该学期每个月的实际排课课时
         $start_year = date('Y',strtotime($start_date));
@@ -287,7 +343,7 @@ class Teacher extends Model
                     $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
                 }
             }
-            Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson,$term_months[$key],$year); // 实际上课时长
+            Teacher::calMonthDuration($month_first_day,$month_last_day,$lesson_update,$term_months[$key],$year,$option,$teacher_id); // 实际上课时长
             if ($term_months[$key] == 12) // 到12月了那么年数加一
             {
                 $year+=1;

@@ -69,9 +69,15 @@ Route::patch('/teachers/{teacher}/remove', 'TeachersController@remove')->name('t
 Route::resource('/leave_teachers','LeaveTeachersController');
 
 Route::resource('/lessons','LessonsController');
+Route::get('/lessons/{lesson}/editTeacher', 'LessonsController@editTeacher')->name('lessons.edit_teacher');
+Route::patch('/lessons/{lesson}/updateTeacher', 'LessonsController@updateTeacher')->name('lessons.update_teacher');
+
 Route::resource('/missings','MissingsController');
+
 Route::resource('/substitutes','SubstitutesController');
+
 Route::resource('/alters','AltersController');
+
 Route::resource('/lesson_attendances','LessonAttendancesController');
 Route::get('teacher_results','LessonAttendancesController@index')->name('lesson_attendances.teacher_results');
 Route::get('teacher_multiple_results','LessonAttendancesController@index')->name('lesson_attendances.teacher_multiple_results');

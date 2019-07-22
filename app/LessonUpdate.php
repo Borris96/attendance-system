@@ -12,4 +12,9 @@ class LessonUpdate extends Model
     {
         return $this->belongsTo(Lesson::class);
     }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
+    }
 }
