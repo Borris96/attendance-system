@@ -52,7 +52,7 @@
               @if (count($t->lessonUpdates) != 0)
                 @foreach($t->lessonUpdates as $lu)
                 @if ($lu->lesson->term_id == $term_id)
-                  <span style="font-weight: bold;">{{ $lu->lesson->lesson_name }}</span>&nbsp;{{ $lu->start_date }}~{{ $lu->end_date }}<br>
+                  <span style="font-weight: bold;">{{ $lu->lesson->lesson_name }}</span>
                 @endif
                 @endforeach
               @else

@@ -8,6 +8,7 @@ use App\Term;
 use App\MonthDuration;
 use App\Teacher;
 use App\Substitute;
+use App\ExtraWork;
 
 class LessonAttendancesController extends Controller
 {
@@ -242,13 +243,34 @@ class LessonAttendancesController extends Controller
                         $all_teacher_total_durations[$index][2] = $actual_goes; // 老师的实际上课时长合计
                         $all_teacher_total_durations[$index][3] = $lack_duration; // 老师的缺少课时合计
 
+                        $term_start_date = date('Y-m-d H:i:s',strtotime($term->start_date));
+                        $term_end_date = date('Y-m-d H:i:s',strtotime($term->end_date));
+
+                        // 加班目前取学期中的所有加班记录(除了调休加班外)
+                        $extra_works = ExtraWork::where('staff_id',$t->staff->id)->where('extra_work_type','<>','调休')->where('extra_work_end_time','<=',$term_end_date)->where('extra_work_end_time','>=',$term_start_date)->get();
+                        // 计算总计加班工时（转换后）
+                        $total = 0;
+                        foreach ($extra_works as $ew) {
+                            if ($ew->extra_work_type == '测试')
+                            {
+                                $total += ($ew->duration)*1.2;
+                            }
+                            else
+                            {
+                                $total += ($ew->duration)*1.0;
+                            }
+
+                        }
+                        $all_teacher_extra_works[$index] = $extra_works;// 所有老师的加班记录
+                        $all_teacher_extra_work_durations[$index] = $total; //所有老师加班记录总时长
                     }
 
                     // dump($all_teacher_total_durations);
                     // dump($all_teacher_durations);
+                    // dump($all_teacher_extra_works);
                     // exit();
 
-                    return view('lesson_attendances/teacher_multiple_results',compact('teachers','all_teacher_durations','all_teacher_total_durations','term'));
+                    return view('lesson_attendances/teacher_multiple_results',compact('teachers','all_teacher_durations','all_teacher_total_durations','all_teacher_extra_works','all_teacher_extra_work_durations','term'));
                 }
             }
         }

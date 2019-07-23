@@ -31,14 +31,14 @@ class LessonAttendance extends Model
             {
                 foreach ($this_teacher_substitutes as $tts) {
                     // 此处需要注意，这里的duration是最新的时长，如果查询的是3月的，而课程5月份时长变了，这个duration数值获取是不准的，缺课记录同理
-                    $month_total_substitute += $tts->lesson->duration;
+                    $month_total_substitute += $tts->duration;
                 }
             }
 
             if (count($this_teacher_missings)!=0)
             {
                 foreach ($this_teacher_missings as $ttm) {
-                    $month_total_missing += $ttm->lesson->duration;
+                    $month_total_missing += $ttm->duration;
                 }
             }
 
