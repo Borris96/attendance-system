@@ -120,6 +120,7 @@
     </thead>
     @if (count($lesson_updates)!=0)
     @foreach ($lesson_updates as $lu)
+    @if ($lu->lesson->term_id == $current_term_id)
     <tr>
       <td>{{ $lu->lesson->lesson_name }}</td>
       <td>{{ $lu->day }}</td>
@@ -127,6 +128,7 @@
       <td>{{ $lu->teacher->staff->englishname }}</td>
       <td>{{ $lu->start_date}}~{{ $lu->end_date}}</td>
     </tr>
+    @endif
     @endforeach
 </table>
 @else

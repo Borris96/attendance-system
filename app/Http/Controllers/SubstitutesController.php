@@ -198,28 +198,250 @@ class SubstitutesController extends Controller
             'lesson_date'=>'required',
         ]);
 
-        // 更新有如下几种情况
-        // 1. 没有代课老师
-            // 1.1 代课老师修改
-                // 1.1.1 日期修改
+        $substitute = Substitute::find($id);
+        $origin_substitute_teacher_id = $substitute->substitute_teacher_id;
+        $origin_lesson_date = $substitute->lesson_date;
+        $substitute->substitute_teacher_id = $request->input('substitute_teacher_id');
+        $substitute->lesson_date = $request->input('lesson_date');
+        $substitute_teacher_term_total = null;
+        $teacher_term_total = null;
+        $origin_substitute_teacher_term_total = null;
+        if ($origin_substitute_teacher_id == null) // 1. 没有代课老师
+        {
+            if ($substitute->substitute_teacher_id != null) // 1.1 代课老师修改
+            {
+                if ($substitute->lesson_date != $origin_lesson_date) // 1.1.1 日期修改
                     // 用那个日期的时长，缺课老师数据增减，代课老师增加
-                // 1.1.2 日期未修改
+                {
+                    $teacher_term_total = TermTotal::where('teacher_id',$substitute->teacher_id)->where('term_id',$substitute->term_id);
+                    $teacher_term_total = TermTotal::find($teacher_term_total->value('id'));
+                    $teacher_term_total->total_missing_hours -= $substitute->duration; // 先把之前的时长减去
+
+                    // 获取这个日期这门课的时长
+                    $lesson = Lesson::find($substitute->lesson_id);
+                    $lesson_updates = $lesson->lessonUpdates;
+                    foreach ($lesson_updates as $lu) {
+                        // 上课日期在这个区间范围里，并且这门课仍然是这个老师上的情况下
+                        if (strtotime($substitute->lesson_date) >= strtotime($lu->start_date) && strtotime($substitute->lesson_date) < strtotime($lu->end_date))
+                        {
+                            if ($lu->teacher_id == $substitute->teacher_id)
+                            {
+                                $substitute->duration = $lu->duration;
+                                $teacher_term_total->total_missing_hours += $lu->duration; // 为缺课老师加上新的时长
+                                $current_duration = $lu->duration;
+                            }
+                            else
+                            {
+                                session()->flash('danger','该日期原上课老师已变更！');
+                                return redirect()->back()->withInput();
+                            }
+                        }
+                    }
+
+                    $substitute_teacher_term_total = TermTotal::where('teacher_id',$substitute->substitute_teacher_id)->where('term_id',$substitute->term_id);
+
+                    if (count($substitute_teacher_term_total->get())!=0) // 这条记录存在
+                    {
+                        $substitute_teacher_term_total = TermTotal::find($substitute_teacher_term_total->value('id'));
+                        $substitute_teacher_term_total->total_substitute_hours += $current_duration;
+                    }
+                    else // 新建一条记录
+                    {
+                        $substitute_teacher_term_total = new TermTotal();
+                        $substitute_teacher_term_total->teacher_id = $substitute->substitute_teacher_id;
+                        $substitute_teacher_term_total->term_id = $substitute->term_id;
+                        $substitute_teacher_term_total->total_substitute_hours = $current_duration;
+                    }
+                }
+                else // 1.1.2 日期未修改
                     // 增加代课老师代课时间
-            // 1.2 代课老师未修改
-                // 1.2.1 日期修改
+                {
+                    $substitute_teacher_term_total = TermTotal::where('teacher_id',$substitute->substitute_teacher_id)->where('term_id',$substitute->term_id);
+
+                    if (count($substitute_teacher_term_total->get())!=0) // 这条记录存在
+                    {
+                        $substitute_teacher_term_total = TermTotal::find($substitute_teacher_term_total->value('id'));
+                        $substitute_teacher_term_total->total_substitute_hours += $substitute->duration;
+                    }
+                    else // 新建一条记录
+                    {
+                        $substitute_teacher_term_total = new TermTotal();
+                        $substitute_teacher_term_total->teacher_id = $substitute->substitute_teacher_id;
+                        $substitute_teacher_term_total->term_id = $substitute->term_id;
+                        $substitute_teacher_term_total->total_substitute_hours = $substitute->duration;
+                    }
+                }
+            }
+            else // 1.2 代课老师未修改
+            {
+                if ($substitute->lesson_date != $origin_lesson_date) // 1.2.1 日期修改
                     // 用那个日期的时长，缺课老师数据增减
-                // 1.2.2 日期未修改
-                    // 没变化
-        // 2. 有代课老师
-            // 2.1 代课老师修改
-                // 2.1.1 日期修改
+                {
+                    $teacher_term_total = TermTotal::where('teacher_id',$substitute->teacher_id)->where('term_id',$substitute->term_id);
+                    $teacher_term_total = TermTotal::find($teacher_term_total->value('id'));
+                    $teacher_term_total->total_missing_hours -= $substitute->duration;
+
+                    // 获取这个日期这门课的时长
+                    $lesson = Lesson::find($substitute->lesson_id);
+                    $lesson_updates = $lesson->lessonUpdates;
+                    foreach ($lesson_updates as $lu) {
+                        // 上课日期在这个区间范围里，并且这门课仍然是这个老师上的情况下
+                        if (strtotime($substitute->lesson_date) >= strtotime($lu->start_date) && strtotime($substitute->lesson_date) < strtotime($lu->end_date))
+                        {
+                            if ($lu->teacher_id == $substitute->teacher_id)
+                            {
+                                $substitute->duration = $lu->duration;
+                                $teacher_term_total->total_missing_hours += $lu->duration;
+                            }
+                            else
+                            {
+                                session()->flash('danger','该日期原上课老师已变更！');
+                                return redirect()->back()->withInput();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else // 2. 有代课老师
+        {
+            if ($substitute->substitute_teacher_id != $origin_substitute_teacher_id) // 2.1 代课老师修改
+            {
+                if ($substitute->lesson_date != $origin_lesson_date) // 2.1.1 日期修改
                     // 缺课老师数据增减，原代课老师数据减(按之前日期时长)，新代课老师数据增(按现在日期时长)
-                // 2.1.2 日期未修改
+                {
+                    $teacher_term_total = TermTotal::where('teacher_id',$substitute->teacher_id)->where('term_id',$substitute->term_id);
+                    $teacher_term_total = TermTotal::find($teacher_term_total->value('id'));
+                    $teacher_term_total->total_missing_hours -= $substitute->duration; // 先把之前的时长减去
+                    // 新代课老师
+                    $substitute_teacher_term_total = TermTotal::where('teacher_id',$substitute->substitute_teacher_id)->where('term_id',$substitute->term_id);
+                    $substitute_teacher_term_total = TermTotal::find($substitute_teacher_term_total->value('id'));
+
+                    // 原代课老师
+                    $origin_substitute_teacher_term_total = TermTotal::where('teacher_id',$origin_substitute_teacher_id)->where('term_id',$substitute->term_id);
+                    $origin_substitute_teacher_term_total = TermTotal::find($origin_substitute_teacher_term_total->value('id'));
+                    // 先把之前的时长减去
+                    $origin_substitute_teacher_term_total->total_substitute_hours -= $substitute->duration;
+
+                    // 获取这个日期这门课的时长
+                    $lesson = Lesson::find($substitute->lesson_id);
+                    $lesson_updates = $lesson->lessonUpdates;
+                    foreach ($lesson_updates as $lu) {
+                        // 上课日期在这个区间范围里，并且这门课仍然是这个老师上的情况下
+                        if (strtotime($substitute->lesson_date) >= strtotime($lu->start_date) && strtotime($substitute->lesson_date) < strtotime($lu->end_date))
+                        {
+                            if ($lu->teacher_id == $substitute->teacher_id)
+                            {
+                                $substitute->duration = $lu->duration;
+                                $teacher_term_total->total_missing_hours += $lu->duration; // 为缺课老师加上新的时长
+                                $current_duration = $lu->duration;
+                            }
+                            else
+                            {
+                                session()->flash('danger','该日期原上课老师已变更！');
+                                return redirect()->back()->withInput();
+                            }
+                        }
+                    }
+                    // 代课老师加上新时长
+                        if (count($substitute_teacher_term_total->get())!=0) // 这条记录存在
+                        {
+                            $substitute_teacher_term_total = TermTotal::find($substitute_teacher_term_total->value('id'));
+                            $substitute_teacher_term_total->total_substitute_hours += $current_duration;
+                        }
+                        else // 新建一条记录
+                        {
+                            $substitute_teacher_term_total = new TermTotal();
+                            $substitute_teacher_term_total->teacher_id = $substitute->substitute_teacher_id;
+                            $substitute_teacher_term_total->term_id = $substitute->term_id;
+                            $substitute_teacher_term_total->total_substitute_hours = $substitute->duration;
+                        }
+                }
+                else // 2.1.2 日期未修改
                     // 原代课老师数据减，新代课老师数据增
-            // 2.2 代课老师未修改
-                // 2.2.1 日期修改
+                {
+                    // 原代课老师
+                    $origin_substitute_teacher_term_total = TermTotal::where('teacher_id',$origin_substitute_teacher_id)->where('term_id',$substitute->term_id);
+                    $origin_substitute_teacher_term_total = TermTotal::find($origin_substitute_teacher_term_total->value('id'));
+                    // 先把之前的时长减去
+                    $origin_substitute_teacher_term_total->total_substitute_hours -= $substitute->duration;
+
+                    // 现代课老师
+                    if ($substitute->substitute_teacher_id!=null) // 有现代课老师就加代课时长，没有就不操作
+                    {
+                        $substitute_teacher_term_total = TermTotal::where('teacher_id',$substitute->substitute_teacher_id)->where('term_id',$substitute->term_id);
+                        if (count($substitute_teacher_term_total->get())!=0) // 这条记录存在
+                        {
+                            $substitute_teacher_term_total = TermTotal::find($substitute_teacher_term_total->value('id'));
+                            $substitute_teacher_term_total->total_substitute_hours += $substitute->duration;
+                        }
+                        else // 新建一条记录
+                        {
+                            $substitute_teacher_term_total = new TermTotal();
+                            $substitute_teacher_term_total->teacher_id = $substitute->substitute_teacher_id;
+                            $substitute_teacher_term_total->term_id = $substitute->term_id;
+                            $substitute_teacher_term_total->total_substitute_hours = $substitute->duration;
+                        }
+                    }
+
+                }
+            }
+            else // 2.2 代课老师未修改
+            {
+                if ($substitute->lesson_date != $origin_lesson_date) // 2.2.1 日期修改
                     // 代课，缺课老师数据相应增减
-                // 2.2.2 日期未修改
-                    // 没变化
+                {
+                    $teacher_term_total = TermTotal::where('teacher_id',$substitute->teacher_id)->where('term_id',$substitute->term_id);
+                    $teacher_term_total = TermTotal::find($teacher_term_total->value('id'));
+                    $teacher_term_total->total_missing_hours -= $substitute->duration; // 先把之前的时长减去
+                    $substitute_teacher_term_total = TermTotal::where('teacher_id',$substitute->substitute_teacher_id)->where('term_id',$substitute->term_id);
+                    $substitute_teacher_term_total = TermTotal::find($substitute_teacher_term_total->value('id'));
+                    $substitute_teacher_term_total->total_substitute_hours -= $substitute->duration;
+
+                    // 获取这个日期这门课的时长
+                    $lesson = Lesson::find($substitute->lesson_id);
+                    $lesson_updates = $lesson->lessonUpdates;
+                    foreach ($lesson_updates as $lu) {
+                        // 上课日期在这个区间范围里，并且这门课仍然是这个老师上的情况下
+                        if (strtotime($substitute->lesson_date) >= strtotime($lu->start_date) && strtotime($substitute->lesson_date) < strtotime($lu->end_date))
+                        {
+                            if ($lu->teacher_id == $substitute->teacher_id)
+                            {
+                                $substitute->duration = $lu->duration;
+                                $teacher_term_total->total_missing_hours += $lu->duration; // 为缺课老师加上新的时长
+                                $current_duration = $lu->duration;
+                            }
+                            else
+                            {
+                                session()->flash('danger','该日期原上课老师已变更！');
+                                return redirect()->back()->withInput();
+                            }
+                        }
+                    }
+                    // 代课老师加上新时长
+                    $substitute_teacher_term_total->total_substitute_hours += $current_duration;
+                }
+            }
+        }
+
+        $term_id = $substitute->term_id;
+        if ($substitute->save())
+        {
+            if ($substitute_teacher_term_total != null)
+            {
+                $substitute_teacher_term_total->save();
+            }
+            if ($teacher_term_total != null)
+            {
+                $teacher_term_total->save();
+            }
+            if ($origin_substitute_teacher_term_total != null)
+            {
+                $origin_substitute_teacher_term_total->save();
+            }
+
+            session()->flash('success','代课缺课记录更新成功！');
+            return redirect()->route('substitutes.index',compact('term_id'));
+        }
     }
 }
