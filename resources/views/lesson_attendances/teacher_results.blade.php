@@ -10,8 +10,10 @@
         <th>老师编号</th>
         <th>英文名</th>
         <th>老师类型</th>
+        <th>应排课</th>
         <th>实际排课</th>
         <th>实际上课</th>
+        <th>缺少课时</th>
     </tr>
     </thead>
     <tbody id="pageInfo">
@@ -20,8 +22,10 @@
             <td>{{ $t->staff->id }}</td>
             <td>{{ $t->staff->englishname }}</td>
             <td>{{ $t->staff->position_name }}</td>
+            <td>{{ $should_durations[$key] }}</td>
             <td>{{ $actual_durations[$key] }}</td>
             <td>{{ $actual_goes[$key] }}</td>
+            <td>{{ $should_durations[$key] - $actual_goes[$key] }}</td>
         </tr>
       @endforeach
     </tbody>

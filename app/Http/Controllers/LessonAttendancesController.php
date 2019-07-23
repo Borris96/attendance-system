@@ -81,19 +81,42 @@ class LessonAttendancesController extends Controller
                     $actual_durations = []; // 实际排课时长
                     $teachers = []; // 老师
                     $actual_goes = []; // 实际上课时长
+                    $should_durations = []; // 应该上课时长
+                    $teachers = [];
 
                     foreach ($this_month_durations as $d) {
                         $teacher_ids[] = $d->teacher_id;
                         $actual_durations[] = $d->actual_duration;
                         $actual_goes[] = LessonAttendance::monthActualGo($month_first_day, $month_last_day, $term_id, $d->actual_duration, $d->teacher_id); // 实际上课时长
+
+                        // 针对开学首周和期末最后一周的应该时常计算
+                        if ($month_first_day == $term->start_date) // 首月补满首周
+                        {
+                            while (date('w',strtotime($month_first_day)) != 1)
+                            {
+                                $month_first_day = date('Y-m-d', strtotime("$month_first_day -1 day"));
+                            }
+                        }
+                        elseif ($month_last_day == $term->end_date) // 末月补满末周
+                        {
+                            while (date('w',strtotime($month_last_day)) != 0)
+                            {
+                                $month_last_day = date('Y-m-d', strtotime("$month_last_day +1 day"));
+                            }
+                            // dump($month_last_day);
+                            // exit();
+                        }
+                        $teachers[] = Teacher::find($d->teacher_id);
+                        $should_durations[] = Teacher::calShouldMonthDuration(Teacher::find($d->teacher_id), $month_first_day,$month_last_day); // 应该排课
+
                     }
                     // 存取老师数据
                     foreach ($teacher_ids as $id) {
-                        $teachers[] = Teacher::find($id);
+
                     }
 
                     $month = $search_start_month;
-                    return view('lesson_attendances/teacher_results',compact('teachers','actual_durations','actual_goes','month','term'));
+                    return view('lesson_attendances/teacher_results',compact('teachers','actual_durations','should_durations','actual_goes','month','term'));
                 }
 
             }
