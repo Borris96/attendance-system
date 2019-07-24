@@ -180,6 +180,10 @@ class Teacher extends Model
                     {
                         $month_duration->wed_duration += $real_duration;
                     }
+                    else
+                    {
+                        $month_duration->other_duration += $real_duration;
+                    }
                     $month_duration->actual_duration += $real_duration;
                 }
                 $str_this_date = $str_this_date+3600*24;
@@ -211,6 +215,10 @@ class Teacher extends Model
                     elseif ($want_day == 3)
                     {
                         $month_duration->wed_duration -= $real_duration;
+                    }
+                    else
+                    {
+                        $month_duration->other_duration += $real_duration;
                     }
                     $month_duration->actual_duration -= $real_duration;
                 }

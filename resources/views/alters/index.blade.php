@@ -9,7 +9,7 @@
     <button type="submit" class="btn btn-primary">查询</button>
     &nbsp;&nbsp;
     <a class="btn btn-success" href="{{ route('alters.create',array('term_id'=>$term_id)) }}" role="button">新增换课</a>
-    <a class="btn btn-success" href="{{ route('alters.create',array('term_id'=>$term_id)) }}" role="button">一键换课</a>
+    <a class="btn btn-success" href="{{ route('alters.one_time',array('term_id'=>$term_id)) }}" role="button">一键换课</a>
 </form>
 
 <form class="form-inline definewidth m20" action="{{route('alters.index')}}" method="GET">
@@ -29,8 +29,8 @@
     <thead>
     <tr>
         <th>课程名称</th>
-        <th>调整日期</th>
         <th>原上课时间</th>
+        <th>调整日期</th>
         <th>教室</th>
         <th>时长</th>
         <th>上课老师</th>
@@ -42,8 +42,8 @@
       @foreach ($alters as $a)
        <tr>
             <td>{{ $a->lesson->lesson_name }}</td>
-            <td>{{ $a->alter_date}} </td>
             <td>{{ $a->lesson_date}},&nbsp;{{$a->lesson->day}}-{{ date('H:i',strtotime($a->lesson->start_time))}}-{{ date('H:i',strtotime($a->lesson->end_time)) }}</td>
+            <td>{{ $a->alter_date}} </td>
             <td>{{ $a->lesson->classroom }}</td>
             <td>{{ $a->duration}}</td>
             <td>{{ $a->teacher->staff->englishname }}</td>
