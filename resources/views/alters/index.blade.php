@@ -42,7 +42,7 @@
       @foreach ($alters as $a)
        <tr>
             <td>{{ $a->lesson->lesson_name }}</td>
-            <td>{{ $a->alter_date}} </td>
+            <td>{{date('w',strtotime($a->alter_date))}}&nbsp;{{ $a->alter_date}} </td>
             <td>{{ $a->lesson_date}},&nbsp;{{$a->lesson->day}}-{{ date('H:i',strtotime($a->lesson->start_time))}}-{{ date('H:i',strtotime($a->lesson->end_time)) }}</td>
             <td>{{ $a->lesson->classroom }}</td>
             <td>{{ $a->duration}}</td>
