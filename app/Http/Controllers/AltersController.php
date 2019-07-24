@@ -223,9 +223,12 @@ class AltersController extends Controller
         return redirect()->back()->withInput();
     }
 
-    public function edit()
+    public function edit(Request $request, $id)
     {
-        return view('alters/edit');
+        $current_term_id = $request->input('term_id');
+        $term = Term::find($current_term_id);
+        $alter = Alter::find($id);
+        return view('alters/edit',compact('current_term_id','term','alter'));
     }
 
     public function create(Request $request)
@@ -468,8 +471,210 @@ class AltersController extends Controller
 
     }
 
+    // 设定原上课日期不可编辑，只能修改调整日期
     public function update(Request $request, $id)
     {
+        $this->validate($request,[
+            'alter_date'=>'required',
+        ]);
 
+        $alter = Alter::find($id);
+        $origin_alter_date = $alter->alter_date;
+        $alter->alter_date = $request->input('alter_date');
+        $term = Term::find($alter->term_id);
+        $month_duration = null; // 原换课月
+        $alter_month_duration = null; // 现换课月
+        // 月份变了
+            // 原月份原星期duration减，现月份现星期duration增
+
+        // 更换的日期有以下情况
+        // 月份没变
+        if (date('Y-m',strtotime($origin_alter_date)) == date('Y-m',strtotime($alter->alter_date)))
+        {
+            // 查找这个老师换课月的实际排课时长
+            $month_duration_id = MonthDuration::where('term_id',$alter->term_id)->where('teacher_id',$alter->teacher_id)->where('month',date('m',strtotime($alter->alter_date)))->value('id');
+            $month_duration = MonthDuration::find($month_duration_id);
+
+            // 星期和原星期不一样
+            if (date('w',strtotime($origin_alter_date)) != date('w',strtotime($alter->alter_date)))
+            {
+                // 原换课时间减，现换课时间增
+                if (stristr($term->term_name,'Summer'))
+                {
+                    if (date('w',strtotime($origin_alter_date)) == 1)
+                    {
+                        $month_duration->mon_duration -= $alter->duration;
+                    }
+                    elseif (date('w',strtotime($origin_alter_date)) == 5)
+                    {
+                        $month_duration->fri_duration -= $alter->duration;
+                    }
+                    elseif (date('w',strtotime($origin_alter_date)) == 3)
+                    {
+                        $month_duration->wed_duration -= $alter->duration;
+                    }
+                    else
+                    {
+                        $month_duration->other_duration -= $alter->duration;
+                    }
+
+                    if (date('w',strtotime($alter->alter_date)) == 1)
+                    {
+                        $month_duration->mon_duration += $alter->duration;
+                    }
+                    elseif (date('w',strtotime($alter->alter_date)) == 5)
+                    {
+                        $month_duration->fri_duration += $alter->duration;
+                    }
+                    elseif (date('w',strtotime($alter->alter_date)) == 3)
+                    {
+                        $month_duration->wed_duration += $alter->duration;
+                    }
+                    else
+                    {
+                        $month_duration->other_duration += $alter->duration;
+                    }
+                }
+                else
+                {
+                    if (date('w',strtotime($origin_alter_date)) == 0)
+                    {
+                        $month_duration->sun_duration -= $alter->duration;
+                    }
+                    elseif (date('w',strtotime($origin_alter_date)) == 5)
+                    {
+                        $month_duration->fri_duration -= $alter->duration;
+                    }
+                    elseif (date('w',strtotime($origin_alter_date)) == 6)
+                    {
+                        $month_duration->sat_duration -= $alter->duration;
+                    }
+                    else
+                    {
+                        $month_duration->other_duration -= $alter->duration;
+                    }
+
+                    if (date('w',strtotime($alter->alter_date)) == 0)
+                    {
+                        $month_duration->sun_duration += $alter->duration;
+                    }
+                    elseif (date('w',strtotime($alter->alter_date)) == 5)
+                    {
+                        $month_duration->fri_duration += $alter->duration;
+                    }
+                    elseif (date('w',strtotime($alter->alter_date)) == 6)
+                    {
+                        $month_duration->sat_duration += $alter->duration;
+                    }
+                    else
+                    {
+                        $month_duration->other_duration += $alter->duration;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // 查找这个老师原换课月的实际排课时长
+            $month_duration_id = MonthDuration::where('term_id',$alter->term_id)->where('teacher_id',$alter->teacher_id)->where('month',date('m',strtotime($origin_alter_date)))->value('id');
+            $month_duration = MonthDuration::find($month_duration_id);
+            // 查找这个老师换课月的实际排课时长
+            $alter_month_duration_id = MonthDuration::where('term_id',$alter->term_id)->where('teacher_id',$alter->teacher_id)->where('month',date('m',strtotime($alter->alter_date)))->value('id');
+            $alter_month_duration = MonthDuration::find($alter_month_duration_id);
+
+            // 原换课月减，现换课月增
+            if (stristr($term->term_name,'Summer'))
+            {
+                if (date('w',strtotime($origin_alter_date)) == 1)
+                {
+                    $month_duration->mon_duration -= $alter->duration;
+                }
+                elseif (date('w',strtotime($origin_alter_date)) == 5)
+                {
+                    $month_duration->fri_duration -= $alter->duration;
+                }
+                elseif (date('w',strtotime($origin_alter_date)) == 3)
+                {
+                    $month_duration->wed_duration -= $alter->duration;
+                }
+                else
+                {
+                    $month_duration->other_duration -= $alter->duration;
+                }
+                $month_duration->actual_duration-=$alter->duration;
+
+                if (date('w',strtotime($alter->alter_date)) == 1)
+                {
+                    $alter_month_duration->mon_duration += $alter->duration;
+                }
+                elseif (date('w',strtotime($alter->alter_date)) == 5)
+                {
+                    $alter_month_duration->fri_duration += $alter->duration;
+                }
+                elseif (date('w',strtotime($alter->alter_date)) == 3)
+                {
+                    $alter_month_duration->wed_duration += $alter->duration;
+                }
+                else
+                {
+                    $alter_month_duration->other_duration += $alter->duration;
+                }
+
+                $alter_month_duration->actual_duration+=$alter->duration;
+            }
+            else
+            {
+                if (date('w',strtotime($origin_alter_date)) == 0)
+                {
+                    $month_duration->sun_duration -= $alter->duration;
+                }
+                elseif (date('w',strtotime($origin_alter_date)) == 5)
+                {
+                    $month_duration->fri_duration -= $alter->duration;
+                }
+                elseif (date('w',strtotime($origin_alter_date)) == 6)
+                {
+                    $month_duration->sat_duration -= $alter->duration;
+                }
+                else
+                {
+                    $month_duration->other_duration -= $alter->duration;
+                }
+                $month_duration->actual_duration-=$alter->duration;
+
+                if (date('w',strtotime($alter->alter_date)) == 0)
+                {
+                    $alter_month_duration->sun_duration += $alter->duration;
+                }
+                elseif (date('w',strtotime($alter->alter_date)) == 5)
+                {
+                    $alter_month_duration->fri_duration += $alter->duration;
+                }
+                elseif (date('w',strtotime($alter->alter_date)) == 6)
+                {
+                    $alter_month_duration->sat_duration += $alter->duration;
+                }
+                else
+                {
+                    $alter_month_duration->other_duration += $alter->duration;
+                }
+                $alter_month_duration->actual_duration+=$alter->duration;
+            }
+        }
+
+        $term_id = $term->id;
+        if ($alter->save())
+        {
+            if ($month_duration != null)
+            {
+                $month_duration->save();
+            }
+            if ($alter_month_duration != null)
+            {
+                $alter_month_duration->save();
+            }
+            session()->flash('success','换课记录更新成功！');
+            return redirect()->route('alters.index',compact('term_id'));
+        }
     }
 }
