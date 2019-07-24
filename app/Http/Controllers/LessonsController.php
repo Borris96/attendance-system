@@ -22,8 +22,8 @@ class LessonsController extends Controller
         $term_id = $request->get('term_id');
         if ($term_id == null) // 如果没有输入要使用的学期，默认是当日所在的学期
         {
-            $today = '2019-05-05';
-            // $today = date('Y-m-d'); // 等投入使用之后再改过来
+            // $today = '2019-05-05';
+            $today = date('Y-m-d'); // 等投入使用之后再改过来
             foreach ($terms as $t) {
                 if ($today <= $t->end_date && $today >= $t->start_date)
                 {
@@ -33,25 +33,46 @@ class LessonsController extends Controller
         }
         $term = Term::find($term_id);
         $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->start_date)->get();
-        $lessons = Lesson::where('term_id',$term_id)->orderBy('lesson_name')->get();
-        return view('lessons/index',compact('lessons','terms','term_id','teachers'));
+        if (stristr($term->term_name,'Summer'))
+        {
+            $lessons = Lesson::where('term_id',$term_id)->where('day','Mon')->orderBy('lesson_name')->get();
+        }
+        else
+        {
+            $lessons = Lesson::where('term_id',$term_id)->orderBy('lesson_name')->get();
+        }
+        return view('lessons/index',compact('lessons','terms','term_id','teachers','term'));
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $lesson = Lesson::find($id);
-        $lesson_updates = $lesson->lessonUpdates;
-        // 不仅要删除课程本身，还要将其关联的所有老师的实际排课时长删除
-        foreach ($lesson_updates as $lu) {
-            $start_date = $lu->start_date;
-            $end_date = $lu->end_date;
-            if ($lu->teacher_id != null)
-            {
-                Teacher::calTermDuration($start_date, $end_date, $lu, $option = 'substract');
-            }
-            $lu->delete();
+        $term_id = $request->input('term_id');
+        $term = Term::find($term_id);
+        if (stristr($term->term_name, 'Summer'))
+        {
+            $count = 2;
         }
-        $lesson->delete();
+        else
+        {
+            $count = 0;
+        }
+
+        for($i = 0; $i<=$count; $i++)
+        {
+            $lesson = Lesson::find($id+$i);
+            $lesson_updates = $lesson->lessonUpdates;
+            // 不仅要删除课程本身，还要将其关联的所有老师的实际排课时长删除
+            foreach ($lesson_updates as $lu) {
+                $start_date = $lu->start_date;
+                $end_date = $lu->end_date;
+                if ($lu->teacher_id != null)
+                {
+                    Teacher::calTermDuration($start_date, $end_date, $lu, $option = 'substract');
+                }
+                $lu->delete();
+            }
+            $lesson->delete();
+        }
         session()->flash('success','删除课程成功！');
         return redirect()->back()->withInput();
     }

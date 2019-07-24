@@ -29,8 +29,8 @@ class TeachersController extends Controller
         $staffs = Staff::where('status',true)->where('teacher_id',null)->orderBy('id','asc')->get();
         if ($term_id == null) // 如果没有输入要使用的学期，默认是当日所在的学期
         {
-            $today = '2019-05-05';
-            // $today = date('Y-m-d'); // 等投入使用之后再改过来
+            // $today = '2019-05-05';
+            $today = date('Y-m-d'); // 等投入使用之后再改过来
             foreach ($terms as $t) {
                 if ($today <= $t->end_date && $today >= $t->start_date)
                 {

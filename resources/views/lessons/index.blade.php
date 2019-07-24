@@ -41,7 +41,11 @@
       @foreach ($lessons as $l)
        <tr>
             <td>{{$l->lesson_name}}</td>
+            @if ($l->day == 'Mon')
+            <td>{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time))}}</td>
+            @else
             <td>{{$l->day}}-{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}</td>
+            @endif
             <td>{{$l->classroom}}</td>
             <td>{{$l->term->term_name}}</td>
             <td>{{$l->duration}}</td>
@@ -57,7 +61,7 @@
                 @else
                 <a href="" class="btn btn-info" disabled>更换老师</a>
                 @endif
-                <form action="{{ route('lessons.destroy',$l->id) }}" method="POST" style="display: inline-block;">
+                <form action="{{ route('lessons.destroy',array($l->id, 'term_id'=>$term_id)) }}" method="POST" style="display: inline-block;">
                   {{ method_field('DELETE') }}
                   {{ csrf_field() }}
                   <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">删除</button>
