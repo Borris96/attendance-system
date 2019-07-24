@@ -67,6 +67,10 @@ Route::resource('/teachers','TeachersController');
 Route::post('/teachers/role', 'TeachersController@role')->name('teachers.role');
 Route::patch('/teachers/{teacher}/remove', 'TeachersController@remove')->name('teachers.remove');
 Route::resource('/leave_teachers','LeaveTeachersController');
+Route::get('create_term', 'TeachersController@createTerm')->name('create_term');
+Route::post('store_term', 'TeachersController@storeTerm')->name('store_term');
+Route::get('edit_term', 'TeachersController@editTerm')->name('edit_term');
+Route::patch('update_term', 'TeachersController@updateTerm')->name('update_term');
 
 Route::resource('/lessons','LessonsController');
 Route::get('/lessons/{lesson}/editTeacher', 'LessonsController@editTeacher')->name('lessons.edit_teacher');

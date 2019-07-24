@@ -28,9 +28,14 @@
       >{{ $term->term_name }}</option>
       @endforeach
     </select>&nbsp;&nbsp;&nbsp;
-    <button type="submit" class="btn btn-primary">选择学期</button>
-</form>
+    <button type="submit" class="btn btn-info">选择学期</button>
+    &nbsp;&nbsp;
+    <!-- <a class="btn btn-primary" href="{{ route('edit_term',array('term_id'=>$term_id)) }}" role="button">修改当前学期</a> -->
+    <a class="btn btn-primary" href="" role="button" disabled>修改当前学期</a>
+    &nbsp;&nbsp;
+    <a class="btn btn-success" href="{{ route('create_term',array('term_id'=>$term_id)) }}" role="button">新增学期</a>
 
+</form>
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>

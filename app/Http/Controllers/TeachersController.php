@@ -12,6 +12,7 @@ use App\Holiday;
 use App\TermTotal;
 use App\LessonAttendance;
 use App\LessonUpdate;
+use App\WorkHistory;
 
 class TeachersController extends Controller
 {
@@ -202,5 +203,111 @@ class TeachersController extends Controller
         }
         session()->flash('success','关联课程成功！');
         return redirect()->route('teachers.index',compact('term_id'));
+    }
+
+    // 新建学期（不可和之前学期重合）
+    // 学期名称中必须包括 summer spring 或者 fall
+    public function createTerm(Request $request)
+    {
+        $term_id = $request->get('term_id');
+        return view('teachers/create_term',compact('term_id'));
+    }
+
+    public function storeTerm(Request $request)
+    {
+        $this->validate($request, [
+            'term_name'=>'required|max:50',
+            'start_date'=>'required',
+            'end_date'=>'required',
+        ]);
+        $term = new Term();
+        $term->term_name = $request->input('term_name');
+        $term->start_date = $request->input('start_date');
+        $term->end_date = $request->input('end_date');
+
+        if (stristr($term->term_name,'Summer')==false && stristr($term->term_name,'Spring')==false && stristr($term->term_name,'Fall')==false)
+        {
+            session()->flash('danger','学期名称必须包括 Spring, Summer 或 Fall！');
+            return redirect()->back()->withInput();
+        }
+        // 需要判断的是起止日是否填反，新建学期是否和已存在学期重合
+        if ($term->start_date>=$term->end_date)
+        {
+            session()->flash('danger','起止日期填反！');
+            return redirect()->back()->withInput();
+        }
+        $terms = Term::all();
+        foreach($terms as $t)
+        {
+            if (WorkHistory::isCrossing($term->start_date,$term->end_date,$t->start_date,$t->end_date))
+            {
+                session()->flash('danger','起止日期与之前学期重合！');
+                return redirect()->back()->withInput();
+            }
+        }
+        $term_id = $request->input('term_id');
+
+        if ($term->save())
+        {
+            session()->flash('success','新建学期成功！');
+            return redirect()->route('teachers.index',compact('term_id'));
+        }
+    }
+
+    // 更新学期（不可和之前学期重合，学期内课程有效期后延，老师实际排课更新）
+    public function editTerm(Request $request)
+    {
+        $term_id = $request->input('term_id');
+        $term = Term::find($term_id);
+        return view('teachers/edit_term',compact('term'));
+    }
+
+    public function updateTerm(Request $request)
+    {
+        $this->validate($request, [
+            'term_name'=>'required|max:50',
+            'start_date'=>'required',
+            'end_date'=>'required',
+        ]);
+        $term = Term::find($request->input('term_id'));
+        $term->term_name = $request->input('term_name');
+        $term->start_date = $request->input('start_date');
+        $term->end_date = $request->input('end_date');
+
+        if (stristr($term->term_name,'Summer')==false && stristr($term->term_name,'Spring')==false && stristr($term->term_name,'Fall')==false)
+        {
+            session()->flash('danger','学期名称必须包括 Spring, Summer 或 Fall！');
+            return redirect()->back()->withInput();
+        }
+        // 需要判断的是起止日是否填反，新建学期是否和已存在学期重合
+        if ($term->start_date>=$term->end_date)
+        {
+            session()->flash('danger','起止日期填反！');
+            return redirect()->back()->withInput();
+        }
+        $terms = Term::where('term_id','<>',$term->id)->get();
+        foreach($terms as $t)
+        {
+            if (WorkHistory::isCrossing($term->start_date,$term->end_date,$t->start_date,$t->end_date))
+            {
+                session()->flash('danger','起止日期与之前学期重合！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        // 需要修改课程的前后有效时间，并且需要修改老师学期首末月实际排课 -- 最后做吧，毕竟不是常用功能
+
+        // 开始时间延后
+        // 开始时间提前
+
+        // 结束时间提前
+        // 结束时间延后
+
+        $term_id = $request->input('term_id');
+        if ($term->save())
+        {
+            session()->flash('success','修改学期成功！');
+            return redirect()->route('teachers.index',compact('term_id'));
+        }
     }
 }
