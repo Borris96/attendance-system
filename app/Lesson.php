@@ -44,4 +44,22 @@ class Lesson extends Model
             return true;
         }
     }
+
+    // 删除课程
+    public static function delLesson($id)
+    {
+        $lesson = Lesson::find($id);
+        $lesson_updates = $lesson->lessonUpdates;
+        // 不仅要删除课程本身，还要将其关联的所有老师的实际排课时长删除
+        foreach ($lesson_updates as $lu) {
+            $start_date = $lu->start_date;
+            $end_date = $lu->end_date;
+            if ($lu->teacher_id != null)
+            {
+                Teacher::calTermDuration($start_date, $end_date, $lu, $option = 'substract');
+            }
+            $lu->delete();
+        }
+        $lesson->delete();
+    }
 }

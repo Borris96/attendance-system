@@ -50,29 +50,15 @@ class LessonsController extends Controller
         $term = Term::find($term_id);
         if (stristr($term->term_name, 'Summer'))
         {
-            $count = 2;
+            Lesson::delLesson($id); // Mon
+            Lesson::delLesson($id+1); // Wed
+            Lesson::delLesson($id+2); // Fri
         }
         else
         {
-            $count = 0;
+            Lesson::delLesson($id);
         }
 
-        for($i = 0; $i<=$count; $i++)
-        {
-            $lesson = Lesson::find($id+$i);
-            $lesson_updates = $lesson->lessonUpdates;
-            // 不仅要删除课程本身，还要将其关联的所有老师的实际排课时长删除
-            foreach ($lesson_updates as $lu) {
-                $start_date = $lu->start_date;
-                $end_date = $lu->end_date;
-                if ($lu->teacher_id != null)
-                {
-                    Teacher::calTermDuration($start_date, $end_date, $lu, $option = 'substract');
-                }
-                $lu->delete();
-            }
-            $lesson->delete();
-        }
         session()->flash('success','删除课程成功！');
         return redirect()->back()->withInput();
     }
