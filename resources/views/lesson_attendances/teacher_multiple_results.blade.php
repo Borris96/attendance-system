@@ -100,7 +100,7 @@
 <div style="margin: 20px">
   <a class="btn btn-success" href="{{ route('lesson_attendances.index',array('term_id'=>$term->term_id)) }}" role="button">返回</a>
   &nbsp;&nbsp;
-  <form action="" method="POST" style="display: inline-block;">
+  <form action="{{ route('lesson_attendances.export_multiple',array('term_id'=>$term->term_id)) }}" method="POST" style="display: inline-block;">
     {{ csrf_field() }}
     <button type="submit" class="btn btn-warning" type="button">导出上课考勤汇总</button>
   </form>

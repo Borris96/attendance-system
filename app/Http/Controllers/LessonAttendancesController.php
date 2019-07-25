@@ -9,6 +9,14 @@ use App\MonthDuration;
 use App\Teacher;
 use App\Substitute;
 use App\ExtraWork;
+use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Writer;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class LessonAttendancesController extends Controller
 {
@@ -111,13 +119,9 @@ class LessonAttendancesController extends Controller
                         $should_durations[] = Teacher::calShouldMonthDuration(Teacher::find($d->teacher_id), $month_first_day,$month_last_day); // 应该排课
 
                     }
-                    // 存取老师数据
-                    foreach ($teacher_ids as $id) {
-
-                    }
 
                     $month = $search_start_month;
-                    return view('lesson_attendances/teacher_results',compact('teachers','actual_durations','should_durations','actual_goes','month','term'));
+                    return view('lesson_attendances/teacher_results',compact('teachers','actual_durations','should_durations','actual_goes','month','term','term_id'));
                 }
 
             }
@@ -278,5 +282,26 @@ class LessonAttendancesController extends Controller
         {
             return view('lesson_attendances/index',compact('terms','term_id'));
         }
+    }
+
+    public function exportOne(Request $request)
+    {
+        $term_id = $request->input('term_id');
+        $start_month = $request->input('start_month');
+
+        $term = Term::find($term_id);
+        // $end_month = $request->input('end_month');
+        $spreadsheet = new Spreadsheet();
+        LessonAttendance::exportTotalOne($spreadsheet, $start_month, $term);
+
+    }
+
+    public function exportMultiple(Request $request)
+    {
+        $term_id = $request->input('term_id');
+        $start_month = $request->input('start_month');
+        $end_month = $request->input('end_month');
+        LessonAttendance::exportTotalMultiple($spreadsheet, $start_month, $end_month);
+
     }
 }

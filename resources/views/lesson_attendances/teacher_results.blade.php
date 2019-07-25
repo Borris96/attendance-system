@@ -3,7 +3,7 @@
 @section('content')
 @include('shared._messages')
 @include('shared._errors')
-<h4 style="text-align: center">{{ $term->term_name }} {{ $month }}月 上课考勤汇总</h4>
+<h4 style="text-align: center">{{ $term->term_name }}-{{ $month }}月 上课考勤汇总</h4>
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
@@ -41,7 +41,7 @@
 <div style="margin: 20px">
   <a class="btn btn-success" href="{{ route('lesson_attendances.index',array('term_id'=>$term->term_id)) }}" role="button">返回</a>
   &nbsp;&nbsp;
-  <form action="" method="POST" style="display: inline-block;">
+  <form action="{{ route('lesson_attendances.export_one', array('term_id'=>$term_id,'start_month'=>$month)) }}" method="POST" style="display: inline-block;">
     {{ csrf_field() }}
     <button type="submit" class="btn btn-warning" type="button">导出上课考勤汇总</button>
   </form>

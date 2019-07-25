@@ -87,6 +87,8 @@ Route::post('/store_all','AltersController@storeAll')->name('alters.store_all');
 Route::resource('/lesson_attendances','LessonAttendancesController');
 Route::get('teacher_results','LessonAttendancesController@index')->name('lesson_attendances.teacher_results');
 Route::get('teacher_multiple_results','LessonAttendancesController@index')->name('lesson_attendances.teacher_multiple_results');
+Route::post('/lesson_attendances/export_one','LessonAttendancesController@exportOne')->name('lesson_attendances.export_one');
+Route::post('/lesson_attendances/export_multiple','LessonAttendancesController@exportMultiple')->name('lesson_attendances.export_multiple');
 
 Route::get('login','SessionsController@create')->name('login');
 Route::post('login','SessionsController@store')->name('login');
