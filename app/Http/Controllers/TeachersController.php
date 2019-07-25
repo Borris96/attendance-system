@@ -39,9 +39,10 @@ class TeachersController extends Controller
             }
         }
         $term = Term::find($term_id);
+        $flag = stristr($term->term_name, 'Summer');
         // 寻找在这个学期上课的老师，即：入职比学期开始早，离职比学期开始晚
         $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->start_date)->get();
-        return view('teachers/index',compact('staffs','teachers','terms','term_id'));
+        return view('teachers/index',compact('staffs','teachers','terms','term_id','flag'));
     }
 
     public function show(Request $request, $id)
@@ -102,7 +103,8 @@ class TeachersController extends Controller
         $month_durations = MonthDuration::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('year','asc')->get();
         $term_totals = TermTotal::where('teacher_id',$id)->where('term_id',$current_term_id)->get();
 
-        return view('teachers/show',compact('teacher','lessons','lesson_updates','term','term_totals','current_term_id','month_durations', 'month_should_durations'));
+        $flag = stristr($term->term_name, 'Summer');
+        return view('teachers/show',compact('teacher','lessons','lesson_updates','term','term_totals','current_term_id','month_durations', 'month_should_durations','flag'));
     }
 
     public function edit(Request $request, $id)
@@ -110,7 +112,15 @@ class TeachersController extends Controller
         $current_term_id = $request->get('term_id');
         $term = Term::find($current_term_id);
         $teacher = Teacher::find($id);
-        $lessons = Lesson::where('term_id',$current_term_id)->whereNull('teacher_id')->whereNotNull('day')->get();
+        if (stristr($term->term_name, 'Summer'))
+        {
+            $lessons = Lesson::where('term_id',$current_term_id)->where('day','Mon')->whereNull('teacher_id')->whereNotNull('day')->get();
+        }
+        else
+        {
+            $lessons = Lesson::where('term_id',$current_term_id)->whereNull('teacher_id')->whereNotNull('day')->get();
+        }
+
         return view('teachers/edit',compact('term','lessons','teacher','current_term_id'));
     }
 
@@ -169,37 +179,28 @@ class TeachersController extends Controller
         $this->validate($request, [
             'lesson_id'=>'required',
         ]);
-        $term_id = $request->get('term_id');
+
+        $term_id = $request->input('term_id');
+        $term = Term::find($term_id);
+
+        $teacher_id = $request->get('teacher_id');
+
+
         $lesson_ids = $request->input('lesson_id');
         foreach($lesson_ids as $id)
         {
-            $lesson = Lesson::find($id);
-            $lesson->teacher_id = $request->get('teacher_id');
-            if ($lesson->save())
-            {
-                $lesson_updates = $lesson->lessonUpdates;
-                $count = count($lesson_updates);
 
-                foreach ($lesson_updates as $key => $lu) {
-                    if ($key == ($count-1))
-                    {
-                        $lu->teacher_id = $lesson->teacher_id;
-                        $lu->save();
-                    }
-                }
+            if (stristr($term->term_name, 'Summer'))
+            {
+                Teacher::linkLessons($id,$teacher_id); // $id 是 lesson_id, 暑期默认是Mon的id
+                Teacher::linkLessons($id+1,$teacher_id); // Wed
+                Teacher::linkLessons($id+2,$teacher_id); // Fri
             }
-            // 随后计算这个学期每月实际排课 (不考虑节假日调休情况)
-            $start_date = $lesson->term->start_date; // 学期开始日 计算第一个月实际排课要用
-            $end_date = $lesson->term->end_date; // 学期结束日 计算最后月实际排课要用
-            // $start_year = date('Y',strtotime($start_date));
-            $lesson_updates = $lesson->lessonUpdates;
-            foreach ($lesson_updates as $key => $lu) {
-                // 使用最后一段课程更新记录的数据计算老师的学期实际排课时长
-                if ($key == ($count-1) && $lu->teacher_id == $request->get('teacher_id'))
-                {
-                    Teacher::calTermDuration($start_date, $end_date, $lu);
-                }
+            else
+            {
+                Teacher::linkLessons($id,$teacher_id); // $id 是 lesson_id
             }
+
         }
         session()->flash('success','关联课程成功！');
         return redirect()->route('teachers.index',compact('term_id'));

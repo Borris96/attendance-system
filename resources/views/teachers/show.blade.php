@@ -17,10 +17,19 @@
     @if (count($lessons) != 0)
     @foreach ($lessons as $l)
       <tr>
-        <td>{{ $l->lesson_name }}</td>
-        <td>{{$l->day}}-{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}</td>
-        <td>{{$l->classroom}}</td>
-        <td>{{$l->duration}}</td>
+        @if ($flag)
+          @if ($l->day == 'Mon')
+          <td>{{ $l->lesson_name }}</td>
+          <td>{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}</td>
+          <td>{{$l->classroom}}</td>
+          <td>{{$l->duration}}</td>
+          @endif
+        @else
+          <td>{{ $l->lesson_name }}</td>
+          <td>{{$l->day}}-{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}</td>
+          <td>{{$l->classroom}}</td>
+          <td>{{$l->duration}}</td>
+        @endif
       </tr>
     @endforeach
 </table>
@@ -101,35 +110,6 @@
       @endif
       @endforeach
     </tr>
-</table>
-@else
-</table>
-@include('shared._nothing')
-@endif
-
-<h5 style="margin: 20px;">课程变更信息</h5>
-<table class="table table-bordered table-hover definewidth m10">
-    <thead>
-    <tr>
-        <th>课程名称</th>
-        <th>星期</th>
-        <th>时长</th>
-        <th>老师</th>
-        <th>生效时间</th>
-    </tr>
-    </thead>
-    @if (count($lesson_updates)!=0)
-    @foreach ($lesson_updates as $lu)
-    @if ($lu->lesson->term_id == $current_term_id)
-    <tr>
-      <td>{{ $lu->lesson->lesson_name }}</td>
-      <td>{{ $lu->day }}</td>
-      <td>{{ $lu->duration }}</td>
-      <td>{{ $lu->teacher->staff->englishname }}</td>
-      <td>{{ $lu->start_date}}~{{ $lu->end_date}}</td>
-    </tr>
-    @endif
-    @endforeach
 </table>
 @else
 </table>

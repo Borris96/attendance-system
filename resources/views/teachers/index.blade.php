@@ -57,7 +57,14 @@
               @if (count($t->lessonUpdates) != 0)
                 @foreach($t->lessonUpdates as $lu)
                 @if ($lu->lesson->term_id == $term_id)
+                  @if ($flag)
+                    @if ($lu->day == 'Mon')
+                    <span style="font-weight: bold;">{{ $lu->lesson->lesson_name }}</span>
+                    @endif
+                  @else
                   <span style="font-weight: bold;">{{ $lu->lesson->lesson_name }}</span>
+                  @endif
+
                 @endif
                 @endforeach
               @else
