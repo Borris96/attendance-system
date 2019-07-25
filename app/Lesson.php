@@ -62,4 +62,9 @@ class Lesson extends Model
         }
         $lesson->delete();
     }
+
+    public static function changeTeacher($id,$current_teacher_id,$effective_date)
+    {
+
+    }
 }

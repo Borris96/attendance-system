@@ -218,7 +218,7 @@ class Teacher extends Model
                     }
                     else
                     {
-                        $month_duration->other_duration += $real_duration;
+                        $month_duration->other_duration -= $real_duration;
                     }
                     $month_duration->actual_duration -= $real_duration;
                 }

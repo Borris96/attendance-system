@@ -20,17 +20,22 @@
           <input type="time" name="lesson_start_time" value="{{ $lesson->start_time }}"/>&nbsp;&nbsp;至&nbsp;&nbsp;
           <input type="time" name="lesson_end_time" value="{{ $lesson->end_time }}"/>
           <br>
-
+          @if (!$flag)
+            <select name="day" id="day">
+              <option value="">请选择星期...</option>
+              @foreach ($days as $d)
+              <option value="{{ $d }}"
+              @if ($lesson->day == $d)
+              selected
+              @endif
+              >{{ $d }}</option>
+              @endforeach
+            </select>
+          @else
           <select name="day" id="day">
-            <option value="">请选择星期...</option>
-            @foreach ($days as $d)
-            <option value="{{ $d }}"
-            @if ($lesson->day == $d)
-            selected
-            @endif
-            >{{ $d }}</option>
-            @endforeach
+            <option value="All">Mon, Wed, Fri</option>
           </select>
+          @endif
         </td>
     </tr>
     <tr>

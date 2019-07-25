@@ -76,8 +76,9 @@ class LessonsController extends Controller
         {
             $days = ['Fri', 'Sat', 'Sun'];
         }
+        $flag = stristr($term->term_name, 'Summer');
         $lesson = Lesson::find($id);
-        return view('lessons/edit',compact('lesson','term','days','current_term_id','teachers'));
+        return view('lessons/edit',compact('lesson','term','days','current_term_id','teachers','flag'));
     }
 
     public function editTeacher(Request $request, $id)
@@ -102,16 +103,20 @@ class LessonsController extends Controller
         $term = Term::find($term_id);
         if (stristr($term->term_name, 'Summer'))
         {
-            $count = 2;
+            $loop_array = [0,1,2];
+            // Lesson::changeTeacher($id,$current_teacher_id,$effective_date);
+            // Lesson::changeTeacher($id+1,$current_teacher_id,$effective_date);
+            // Lesson::changeTeacher($id+2,$current_teacher_id,$effective_date);
         }
         else
         {
-            $count = 0;
+            $loop_array = [0];
+            // Lesson::changeTeacher($id,$current_teacher_id,$effective_date);
         }
 
-        for($i = 0; $i<=$count; $i++)
+        foreach($loop_array as $i)
         {
-            $lesson = Lesson::find($id);
+            $lesson = Lesson::find($id+$i);
             $teacher = $lesson->teacher;
 
             if ($current_teacher_id == $teacher->id)
@@ -292,127 +297,139 @@ class LessonsController extends Controller
             'effective_date'=>'required',
         ]);
 
-        $lesson = Lesson::find($id);
-        $term_id = $lesson->term_id;
-        $origin_day = $lesson->day;
-        $origin_duration = $lesson->duration;
-        $origin_teacher_id = $lesson->teacher_id;
-
-        $lesson->lesson_name = $request->get('lesson_name');
-        $lesson->start_time = $request->get('lesson_start_time');
-        $lesson->end_time = $request->get('lesson_end_time');
-        $lesson->day = $request->get('day');
-        $lesson->classroom = $request->get('classroom');
-
-        $str_start = strtotime($lesson->start_time);
-        $str_end = strtotime($lesson->end_time);
-
-        $results = Lesson::where('term_id',$lesson->term_id)->where('day',$lesson->day)->where('classroom',$lesson->classroom)->get();
-
-        if ($results != null)
+        $term = Term::find($request->get('term_id'));
+        if (stristr($term->term_name,'Summer')) // 暑假一节课 一三五 排课一样
         {
-            foreach($results as $r)
+            $summer_days = ['Mon', 'Wed', 'Fri'];
+        }
+        else
+        {
+            $summer_days = [$request->get('day')];
+        }
+        foreach ($summer_days as $key=>$d)
+        {
+            $new_update = null;
+            $lesson = Lesson::find($id+$key);
+            $term_id = $lesson->term_id;
+            $origin_day = $lesson->day;
+            $origin_duration = $lesson->duration;
+            $origin_teacher_id = $lesson->teacher_id;
+
+            $lesson->lesson_name = $request->get('lesson_name');
+            $lesson->start_time = $request->get('lesson_start_time');
+            $lesson->end_time = $request->get('lesson_end_time');
+            $lesson->day = $d;
+            $lesson->classroom = $request->get('classroom');
+
+            $str_start = strtotime($lesson->start_time);
+            $str_end = strtotime($lesson->end_time);
+
+            $results = Lesson::where('term_id',$lesson->term_id)->where('day',$lesson->day)->where('classroom',$lesson->classroom)->get();
+
+            if ($results != null)
             {
-                if ($r->id != $lesson->id) // 编辑之后，看是否和其他课重合
+                foreach($results as $r)
                 {
-                    $str_old_start = strtotime($r->start_time);
-                    $str_old_end = strtotime($r->end_time);
-                    if (Lesson::isCrossing($str_start, $str_end, $str_old_start, $str_old_end))
+                    if ($r->id != $lesson->id) // 编辑之后，看是否和其他课重合
                     {
-                        session()->flash('danger','该时间段已排课！'.$r->lesson_name.' '.$r->day.'-'.date('H:i',strtotime($r->start_time)).'-'.date('H:i',strtotime($r->end_time)).'-'.$r->classroom);
-                        return redirect()->back()->withInput();
+                        $str_old_start = strtotime($r->start_time);
+                        $str_old_end = strtotime($r->end_time);
+                        if (Lesson::isCrossing($str_start, $str_end, $str_old_start, $str_old_end))
+                        {
+                            session()->flash('danger','该时间段已排课！'.$r->lesson_name.' '.$r->day.'-'.date('H:i',strtotime($r->start_time)).'-'.date('H:i',strtotime($r->end_time)).'-'.$r->classroom);
+                            return redirect()->back()->withInput();
+                        }
                     }
                 }
             }
-        }
 
-        // 判断起止时间是否填反了
-        if (strtotime($lesson->start_time)>strtotime($lesson->end_time))
-        {
-            session()->flash('danger','开始时间晚于结束时间！');
-            return redirect()->back()->withInput();
-        }
-
-        // 判断生效时间是否在学期内
-        if (strtotime($request->get('effective_date'))>strtotime($lesson->term->end_date) || strtotime($request->get('effective_date'))<strtotime($lesson->term->start_date))
-        {
-            session()->flash('danger','生效时间超出范围！');
-            return redirect()->back()->withInput();
-        }
-
-        // 如果之前有过更新记录，那么这次的生效时间不能比之前的生效时间早
-        foreach ($lesson->lessonUpdates as $r)
-        {
-            if (strtotime($request->get('effective_date'))<strtotime($r->start_date))
+            // 判断起止时间是否填反了
+            if (strtotime($lesson->start_time)>strtotime($lesson->end_time))
             {
-                session()->flash('danger','生效时间早于上次更新！');
+                session()->flash('danger','开始时间晚于结束时间！');
                 return redirect()->back()->withInput();
             }
-        }
 
-
-        // 计算时长
-        // 要考虑课程编辑之后，更新的数据在什么时候生效的问题。
-        // 如学期区间1.1~6.30，在3.25课程调整，1.1~3.25该课程仍然按照之前的时长，星期数据计算实际排班，3.25~6.30按照新的时长和星期进行计算。这样需要减去3.25之后的原数据，加上更改的新数据。
-
-        $lesson->duration = ($str_end-$str_start)/3600;
-
-        if ($lesson->save())
-        {
-
-            // 当星期变了或者时长变了时需要记录这次更改的生效时间, 需要重新计算被关联老师（或者原老师）的实际排课
-            if ($lesson->duration != $origin_duration || $lesson->day != $origin_day)
+            // 判断生效时间是否在学期内
+            if (strtotime($request->get('effective_date'))>strtotime($lesson->term->end_date) || strtotime($request->get('effective_date'))<strtotime($lesson->term->start_date))
             {
-                // 未分配老师的，直接在原来的更新记录上修改
-                // 分配过老师的，新建一个更新记录
-                $lesson_updates = $lesson->lessonUpdates;
-                // 修改最后一次更新记录的end_date为新记录的effective_date, 新记录的end_date为term->end_date
-                $count = count($lesson_updates);
+                session()->flash('danger','生效时间超出范围！');
+                return redirect()->back()->withInput();
+            }
 
-                foreach ($lesson_updates as $key => $lu) {
-                    if ($key == ($count-1))
-                    {
-                        if ($lesson->teacher_id != null)
-                        {
-                            $lu->end_date = $request->get('effective_date');
-                            $lu->save();
-                            $new_update = new LessonUpdate();
-                            $new_update->lesson_id = $lesson->id;
-                            $new_update->duration = $lesson->duration;
-                            $new_update->day = $lesson->day;
-                            $new_update->teacher_id = $lesson->teacher_id;
-                            $new_update->start_date = $request->get('effective_date');
-                            $new_update->end_date = $lesson->term->end_date;
-                            $new_update->save();
-                        }
-                        else
-                        {
-                            $lu->start_date = $request->get('effective_date');
-                            $lu->duration = $lesson->duration;
-                            $lu->day = $lesson->day;
-                            $lu->save();
-                        }
-                    }
+            // 如果之前有过更新记录，那么这次的生效时间不能比之前的生效时间早
+            foreach ($lesson->lessonUpdates as $r)
+            {
+                if (strtotime($request->get('effective_date'))<strtotime($r->start_date))
+                {
+                    session()->flash('danger','生效时间早于上次更新！');
+                    return redirect()->back()->withInput();
                 }
             }
 
-                // 如果课程已经被关联了，重新计算每月实际排课 -> 这个稍后做吧
-                // 即：学期开始后，课程的时长或者哪一天上课发生变动。这种情况下需要重新计算老师的应排课。
-                if ($lesson->teacher_id != null)
+
+            // 计算时长
+            // 要考虑课程编辑之后，更新的数据在什么时候生效的问题。
+            // 如学期区间1.1~6.30，在3.25课程调整，1.1~3.25该课程仍然按照之前的时长，星期数据计算实际排班，3.25~6.30按照新的时长和星期进行计算。这样需要减去3.25之后的原数据，加上更改的新数据。
+
+            $lesson->duration = ($str_end-$str_start)/3600;
+
+            if ($lesson->save())
+            {
+
+                // 当星期变了或者时长变了时需要记录这次更改的生效时间, 需要重新计算被关联老师（或者原老师）的实际排课
+                if ($lesson->duration != $origin_duration || $lesson->day != $origin_day)
                 {
-                    // 生效日期之前的实际排课课时不变，生效日期之后实际排课课时发生调整：
-                        // 原来的减去，现在的加上。 - 依据是 $new_update
-                    $start_date = $new_update->start_date;
-                    $end_date = $new_update->end_date;
-                    // 由于$new_update的老师id是新老师的，所以要在调用调用下面函数时添加一个原老师id的参数。
-                    // 这个老师的这门课原时长减去 （星期或者时长的变动，所以需要增加原时长和原星期数据）
-                    Teacher::calTermDuration($start_date, $end_date, $new_update, $option = 'substract','', $origin_duration, $origin_day);
-                    // 这个老师的这门课新时长加上
-                    Teacher::calTermDuration($start_date, $end_date, $new_update, $option = 'add');
+                    // 未分配老师的，直接在原来的更新记录上修改
+                    // 分配过老师的，新建一个更新记录
+                    $lesson_updates = $lesson->lessonUpdates;
+                    // 修改最后一次更新记录的end_date为新记录的effective_date, 新记录的end_date为term->end_date
+                    $count = count($lesson_updates);
 
+                    foreach ($lesson_updates as $key => $lu) {
+                        if ($key == ($count-1))
+                        {
+                            if ($lesson->teacher_id != null)
+                            {
+                                $lu->end_date = $request->get('effective_date');
+                                $lu->save();
+                                $new_update = new LessonUpdate();
+                                $new_update->lesson_id = $lesson->id;
+                                $new_update->duration = $lesson->duration;
+                                $new_update->day = $lesson->day;
+                                $new_update->teacher_id = $lesson->teacher_id;
+                                $new_update->start_date = $request->get('effective_date');
+                                $new_update->end_date = $lesson->term->end_date;
+                                $new_update->save();
+                            }
+                            else
+                            {
+                                $lu->start_date = $request->get('effective_date');
+                                $lu->duration = $lesson->duration;
+                                $lu->day = $lesson->day;
+                                $lu->save();
+                            }
+                        }
+                    }
                 }
-        }
 
+                    // 如果课程已经被关联了，重新计算每月实际排课 -> 这个稍后做吧
+                    // 即：学期开始后，课程的时长或者哪一天上课发生变动。这种情况下需要重新计算老师的应排课。
+                    if ($lesson->teacher_id != null && $new_update != null)
+                    {
+                        // 生效日期之前的实际排课课时不变，生效日期之后实际排课课时发生调整：
+                            // 原来的减去，现在的加上。 - 依据是 $new_update
+                        $start_date = $new_update->start_date;
+                        $end_date = $new_update->end_date;
+                        // 由于$new_update的老师id是新老师的，所以要在调用调用下面函数时添加一个原老师id的参数。
+                        // 这个老师的这门课原时长减去 （星期或者时长的变动，所以需要增加原时长和原星期数据）
+                        Teacher::calTermDuration($start_date, $end_date, $new_update, $option = 'substract','', $origin_duration, $origin_day);
+                        // 这个老师的这门课新时长加上
+                        Teacher::calTermDuration($start_date, $end_date, $new_update, $option = 'add');
+
+                    }
+            }
+        }
         session()->flash('success','更新'.$lesson->lesson_name.'课程成功！');
         return redirect()->route('lessons.index',compact('term_id'));
     }
