@@ -67,6 +67,10 @@ Route::resource('/teachers','TeachersController');
 Route::post('/teachers/role', 'TeachersController@role')->name('teachers.role');
 Route::patch('/teachers/{teacher}/remove', 'TeachersController@remove')->name('teachers.remove');
 Route::resource('/leave_teachers','LeaveTeachersController');
+Route::get('create_term', 'TeachersController@createTerm')->name('create_term');
+Route::post('store_term', 'TeachersController@storeTerm')->name('store_term');
+Route::get('edit_term', 'TeachersController@editTerm')->name('edit_term');
+Route::patch('update_term', 'TeachersController@updateTerm')->name('update_term');
 
 Route::resource('/lessons','LessonsController');
 Route::get('/lessons/{lesson}/editTeacher', 'LessonsController@editTeacher')->name('lessons.edit_teacher');
@@ -77,10 +81,14 @@ Route::resource('/missings','MissingsController');
 Route::resource('/substitutes','SubstitutesController');
 
 Route::resource('/alters','AltersController');
+Route::get('/one_time','AltersController@oneTime')->name('alters.one_time');
+Route::post('/store_all','AltersController@storeAll')->name('alters.store_all');
 
 Route::resource('/lesson_attendances','LessonAttendancesController');
 Route::get('teacher_results','LessonAttendancesController@index')->name('lesson_attendances.teacher_results');
 Route::get('teacher_multiple_results','LessonAttendancesController@index')->name('lesson_attendances.teacher_multiple_results');
+Route::post('/lesson_attendances/export_one','LessonAttendancesController@exportOne')->name('lesson_attendances.export_one');
+Route::post('/lesson_attendances/export_multiple','LessonAttendancesController@exportMultiple')->name('lesson_attendances.export_multiple');
 
 Route::get('login','SessionsController@create')->name('login');
 Route::post('login','SessionsController@store')->name('login');

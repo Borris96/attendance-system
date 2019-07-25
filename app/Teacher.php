@@ -180,6 +180,10 @@ class Teacher extends Model
                     {
                         $month_duration->wed_duration += $real_duration;
                     }
+                    else
+                    {
+                        $month_duration->other_duration += $real_duration;
+                    }
                     $month_duration->actual_duration += $real_duration;
                 }
                 $str_this_date = $str_this_date+3600*24;
@@ -211,6 +215,10 @@ class Teacher extends Model
                     elseif ($want_day == 3)
                     {
                         $month_duration->wed_duration -= $real_duration;
+                    }
+                    else
+                    {
+                        $month_duration->other_duration -= $real_duration;
                     }
                     $month_duration->actual_duration -= $real_duration;
                 }
@@ -369,6 +377,45 @@ class Teacher extends Model
             if ($term_months[$key] == 12) // 到12月了那么年数加一
             {
                 $year+=1;
+            }
+        }
+    }
+
+    /**
+     * 关联课程
+     * @param int $id 课程的id
+     * @param int $teacher_id
+     * @return void
+     *
+     */
+    public static function linkLessons($id,$teacher_id)
+    {
+        $lesson = Lesson::find($id);
+        $lesson->teacher_id = $teacher_id;
+        if ($lesson->save())
+        {
+            $lesson_updates = $lesson->lessonUpdates;
+            $count = count($lesson_updates);
+
+            foreach ($lesson_updates as $key => $lu) {
+                if ($key == ($count-1))
+                {
+                    $lu->teacher_id = $lesson->teacher_id;
+                    $lu->save();
+                }
+            }
+        }
+        // 随后计算这个学期每月实际排课 (不考虑节假日调休情况)
+        $start_date = $lesson->term->start_date; // 学期开始日 计算第一个月实际排课要用
+        $end_date = $lesson->term->end_date; // 学期结束日 计算最后月实际排课要用
+        // $start_year = date('Y',strtotime($start_date));
+
+        $lesson_updates = $lesson->lessonUpdates;
+        foreach ($lesson_updates as $key => $lu) {
+            // 使用最后一段课程更新记录的数据计算老师的学期实际排课时长
+            if ($key == ($count-1) && $lu->teacher_id == $teacher_id)
+            {
+                Teacher::calTermDuration($start_date, $end_date, $lu);
             }
         }
     }

@@ -43,10 +43,10 @@
       @foreach ($substitutes as $s)
        <tr>
             <td>{{ $s->lesson->lesson_name }}</td>
-            <td>{{$s->lesson_date}}&nbsp;{{$s->lesson->day}}-{{ date('H:i',strtotime($s->lesson->start_time))}}-{{ date('H:i',strtotime($s->lesson->end_time)) }}</td>
+            <td>{{$s->lesson_date}},&nbsp;{{$s->lesson->day}}-{{ date('H:i',strtotime($s->lesson->start_time))}}-{{ date('H:i',strtotime($s->lesson->end_time)) }}</td>
             <td>{{ $s->lesson->classroom }}</td>
             <td>{{ $s->term->term_name }}</td>
-            <td>{{ $s->lesson->duration }}</td>
+            <td>{{ $s->duration }}</td>
             <td>{{ $s->teacher->staff->englishname }}</td>
             @if ($s->subTeacher != null)
             <td>{{ $s->subTeacher->staff->englishname }}</td>

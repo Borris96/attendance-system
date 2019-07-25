@@ -4,7 +4,7 @@
 <div class="container">
 @include('shared._messages')
 @include('shared._errors')
-<form action="{{ route('substitutes.update',array('current_term_id'=>$current_term_id)) }}" method="POST" class="definewidth m20">
+<form action="{{ route('substitutes.update',array($substitute->id,'current_term_id'=>$current_term_id)) }}" method="POST" class="definewidth m20">
 <table class="table table-bordered table-hover definewidth m10">
   {{ method_field('PATCH') }}
   {{ csrf_field() }}
@@ -17,7 +17,7 @@
     <tr>
         <td class="tableleft">课程名称*</td>
         <td>
-          {{$substitute->lesson->teacher->staff->englishname}}&nbsp;
+          {{$substitute->teacher->staff->englishname}}&nbsp;
           {{$substitute->lesson->lesson_name}}&nbsp;
           {{$substitute->lesson->day}}-{{ date('H:i',strtotime($substitute->lesson->start_time))}}-{{ date('H:i',strtotime($substitute->lesson->end_time)) }}-{{$substitute->lesson->classroom}}
         </td>

@@ -29,9 +29,16 @@
           @if (count($teacher->lessons) != 0)
             @foreach ($teacher->lessons as $l)
               @if ($l->term_id == $current_term_id)
+                @if ($flag)
+                  @if ($l->day == 'Mon')
+                  {{$l->lesson_name}}&nbsp;
+                  {{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}-{{$l->classroom}}
+                  @endif
+                @else
                 {{$l->lesson_name}}&nbsp;
                 {{$l->day}}-{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}-{{$l->classroom}}
                 <br>
+                @endif
               @endif
             @endforeach
           @else
@@ -46,8 +53,13 @@
             <option value=""></option>
             @foreach ($lessons as $l)
             <option value="{{$l->id}}">
+              @if ($flag)
+              {{$l->lesson_name}}&nbsp;
+              {{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}-{{$l->classroom}}
+              @else
               {{$l->lesson_name}}&nbsp;
               {{$l->day}}-{{ date('H:i',strtotime($l->start_time))}}-{{ date('H:i',strtotime($l->end_time)) }}-{{$l->classroom}}
+              @endif
             </option>
             @endforeach
           </select>

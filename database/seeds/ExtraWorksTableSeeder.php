@@ -109,5 +109,60 @@ class ExtraWorksTableSeeder extends Seeder
             'created_at'=>now(),
             'updated_at'=>now(),
             ]);
+
+        DB::table('extra_works')->insert([
+            'staff_id'=>'2017010102',
+            'extra_work_type'=>'测试',
+            'extra_work_start_time'=>'2019-03-20 09:00:00',
+            'extra_work_end_time'=>'2019-03-20 18:00:00',
+            'duration'=>'8.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
+
+        DB::table('extra_works')->insert([
+            'staff_id'=>'2017010102',
+            'extra_work_type'=>'带薪',
+            'extra_work_start_time'=>'2019-03-21 09:00:00',
+            'extra_work_end_time'=>'2019-03-21 18:00:00',
+            'duration'=>'8.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
+
+        DB::table('extra_works')->insert([
+            'staff_id'=>'2017010102',
+            'extra_work_type'=>'带薪',
+            'extra_work_start_time'=>'2019-06-26 13:00:00',
+            'extra_work_end_time'=>'2019-06-26 18:00:00',
+            'duration'=>'5.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
+
+        DB::table('extra_works')->insert([
+            'staff_id'=>'2017010102',
+            'extra_work_type'=>'测试',
+            'extra_work_start_time'=>'2019-06-27 13:00:00',
+            'extra_work_end_time'=>'2019-06-27 18:00:00',
+            'duration'=>'5.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
+
+        DB::table('extra_works')->insert([
+            'staff_id'=>'2017010102',
+            'extra_work_type'=>'带薪',
+            'extra_work_start_time'=>'2019-07-24 09:00:00',
+            'extra_work_end_time'=>'2019-07-24 18:00:00',
+            'duration'=>'8.00',
+            'approve'=>true,
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            ]);
     }
 }

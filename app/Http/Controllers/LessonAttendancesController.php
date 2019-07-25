@@ -8,6 +8,15 @@ use App\Term;
 use App\MonthDuration;
 use App\Teacher;
 use App\Substitute;
+use App\ExtraWork;
+use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Writer;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class LessonAttendancesController extends Controller
 {
@@ -23,8 +32,8 @@ class LessonAttendancesController extends Controller
         $term_id = $request->get('term_id');
         if ($term_id == null) // 如果没有输入要使用的学期，默认是当日所在的学期
         {
-            $today = '2019-05-05';
-            // $today = date('Y-m-d'); // 等投入使用之后再改过来
+            // $today = '2019-05-05';
+            $today = date('Y-m-d'); // 等投入使用之后再改过来
             foreach ($terms as $t) {
                 if ($today <= $t->end_date && $today >= $t->start_date)
                 {
@@ -38,8 +47,8 @@ class LessonAttendancesController extends Controller
         $term_first_month = $start_year.'-'.date('m',strtotime($term->start_date));
         $term_last_month = $end_year.'-'.date('m',strtotime($term->end_date));
         /////////////// 此处之后要改成真实的今天日期！
-        // $this_today = '2019-05-15'; // 测试用
-        $this_today = date('Y-m-d');
+        $this_today = '2019-09-15'; // 测试用
+        // $this_today = date('Y-m-d');
         // 学期的开始结束年份
         if ($request->get('start_month') != null)
         {
@@ -81,19 +90,38 @@ class LessonAttendancesController extends Controller
                     $actual_durations = []; // 实际排课时长
                     $teachers = []; // 老师
                     $actual_goes = []; // 实际上课时长
+                    $should_durations = []; // 应该上课时长
+                    $teachers = [];
 
                     foreach ($this_month_durations as $d) {
                         $teacher_ids[] = $d->teacher_id;
                         $actual_durations[] = $d->actual_duration;
                         $actual_goes[] = LessonAttendance::monthActualGo($month_first_day, $month_last_day, $term_id, $d->actual_duration, $d->teacher_id); // 实际上课时长
-                    }
-                    // 存取老师数据
-                    foreach ($teacher_ids as $id) {
-                        $teachers[] = Teacher::find($id);
+
+                        // 针对开学首周和期末最后一周的应该时常计算
+                        if ($month_first_day == $term->start_date) // 首月补满首周
+                        {
+                            while (date('w',strtotime($month_first_day)) != 1)
+                            {
+                                $month_first_day = date('Y-m-d', strtotime("$month_first_day -1 day"));
+                            }
+                        }
+                        elseif ($month_last_day == $term->end_date) // 末月补满末周
+                        {
+                            while (date('w',strtotime($month_last_day)) != 0)
+                            {
+                                $month_last_day = date('Y-m-d', strtotime("$month_last_day +1 day"));
+                            }
+                            // dump($month_last_day);
+                            // exit();
+                        }
+                        $teachers[] = Teacher::find($d->teacher_id);
+                        $should_durations[] = Teacher::calShouldMonthDuration(Teacher::find($d->teacher_id), $month_first_day,$month_last_day); // 应该排课
+
                     }
 
                     $month = $search_start_month;
-                    return view('lesson_attendances/teacher_results',compact('teachers','actual_durations','actual_goes','month','term'));
+                    return view('lesson_attendances/teacher_results',compact('teachers','actual_durations','should_durations','actual_goes','month','term','term_id'));
                 }
 
             }
@@ -219,13 +247,34 @@ class LessonAttendancesController extends Controller
                         $all_teacher_total_durations[$index][2] = $actual_goes; // 老师的实际上课时长合计
                         $all_teacher_total_durations[$index][3] = $lack_duration; // 老师的缺少课时合计
 
+                        $term_start_date = date('Y-m-d H:i:s',strtotime($term->start_date));
+                        $term_end_date = date('Y-m-d H:i:s',strtotime($term->end_date));
+
+                        // 加班目前取学期中的所有加班记录(除了调休加班外)
+                        $extra_works = ExtraWork::where('staff_id',$t->staff->id)->where('extra_work_type','<>','调休')->where('extra_work_end_time','<=',$term_end_date)->where('extra_work_end_time','>=',$term_start_date)->get();
+                        // 计算总计加班工时（转换后）
+                        $total = 0;
+                        foreach ($extra_works as $ew) {
+                            if ($ew->extra_work_type == '测试')
+                            {
+                                $total += ($ew->duration)*1.2;
+                            }
+                            else
+                            {
+                                $total += ($ew->duration)*1.0;
+                            }
+
+                        }
+                        $all_teacher_extra_works[$index] = $extra_works;// 所有老师的加班记录
+                        $all_teacher_extra_work_durations[$index] = $total; //所有老师加班记录总时长
                     }
 
                     // dump($all_teacher_total_durations);
                     // dump($all_teacher_durations);
+                    // dump($all_teacher_extra_works);
                     // exit();
 
-                    return view('lesson_attendances/teacher_multiple_results',compact('teachers','all_teacher_durations','all_teacher_total_durations','term'));
+                    return view('lesson_attendances/teacher_multiple_results',compact('teachers','all_teacher_durations','all_teacher_total_durations','all_teacher_extra_works','all_teacher_extra_work_durations','term','search_start_month','search_end_month','term_id'));
                 }
             }
         }
@@ -233,5 +282,29 @@ class LessonAttendancesController extends Controller
         {
             return view('lesson_attendances/index',compact('terms','term_id'));
         }
+    }
+
+    public function exportOne(Request $request)
+    {
+        $term_id = $request->input('term_id');
+        $start_month = $request->input('start_month');
+        $option = $request->input('option');
+        $term = Term::find($term_id);
+        // $end_month = $request->input('end_month');
+        $spreadsheet = new Spreadsheet();
+        LessonAttendance::exportTotalOne($spreadsheet, $start_month, $term, $option);
+
+    }
+
+    public function exportMultiple(Request $request)
+    {
+        $term_id = $request->input('term_id');
+        $start_month = $request->input('start_month');
+        $end_month = $request->input('end_month');
+        $option = $request->input('option');
+        $term = Term::find($term_id);
+        $spreadsheet = new Spreadsheet();
+        LessonAttendance::exportTotalMultiple($spreadsheet, $start_month, $end_month, $term, $option);
+
     }
 }

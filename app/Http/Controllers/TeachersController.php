@@ -12,6 +12,7 @@ use App\Holiday;
 use App\TermTotal;
 use App\LessonAttendance;
 use App\LessonUpdate;
+use App\WorkHistory;
 
 class TeachersController extends Controller
 {
@@ -28,8 +29,8 @@ class TeachersController extends Controller
         $staffs = Staff::where('status',true)->where('teacher_id',null)->orderBy('id','asc')->get();
         if ($term_id == null) // 如果没有输入要使用的学期，默认是当日所在的学期
         {
-            $today = '2019-05-05';
-            // $today = date('Y-m-d'); // 等投入使用之后再改过来
+            // $today = '2019-05-05';
+            $today = date('Y-m-d'); // 等投入使用之后再改过来
             foreach ($terms as $t) {
                 if ($today <= $t->end_date && $today >= $t->start_date)
                 {
@@ -38,9 +39,10 @@ class TeachersController extends Controller
             }
         }
         $term = Term::find($term_id);
+        $flag = stristr($term->term_name, 'Summer');
         // 寻找在这个学期上课的老师，即：入职比学期开始早，离职比学期开始晚
         $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->start_date)->get();
-        return view('teachers/index',compact('staffs','teachers','terms','term_id'));
+        return view('teachers/index',compact('staffs','teachers','terms','term_id','flag'));
     }
 
     public function show(Request $request, $id)
@@ -101,7 +103,8 @@ class TeachersController extends Controller
         $month_durations = MonthDuration::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('year','asc')->get();
         $term_totals = TermTotal::where('teacher_id',$id)->where('term_id',$current_term_id)->get();
 
-        return view('teachers/show',compact('teacher','lessons','lesson_updates','term','term_totals','current_term_id','month_durations', 'month_should_durations'));
+        $flag = stristr($term->term_name, 'Summer');
+        return view('teachers/show',compact('teacher','lessons','lesson_updates','term','term_totals','current_term_id','month_durations', 'month_should_durations','flag'));
     }
 
     public function edit(Request $request, $id)
@@ -109,8 +112,17 @@ class TeachersController extends Controller
         $current_term_id = $request->get('term_id');
         $term = Term::find($current_term_id);
         $teacher = Teacher::find($id);
-        $lessons = Lesson::where('term_id',$current_term_id)->whereNull('teacher_id')->whereNotNull('day')->get();
-        return view('teachers/edit',compact('term','lessons','teacher','current_term_id'));
+        $flag = stristr($term->term_name, 'Summer');
+        if (stristr($term->term_name, 'Summer'))
+        {
+            $lessons = Lesson::where('term_id',$current_term_id)->where('day','Mon')->whereNull('teacher_id')->whereNotNull('day')->get();
+        }
+        else
+        {
+            $lessons = Lesson::where('term_id',$current_term_id)->whereNull('teacher_id')->whereNotNull('day')->get();
+        }
+
+        return view('teachers/edit',compact('term','lessons','teacher','current_term_id','flag'));
     }
 
     // 新增老师(从员工中选择)
@@ -168,39 +180,136 @@ class TeachersController extends Controller
         $this->validate($request, [
             'lesson_id'=>'required',
         ]);
-        $term_id = $request->get('term_id');
+
+        $term_id = $request->input('term_id');
+        $term = Term::find($term_id);
+
+        $teacher_id = $request->get('teacher_id');
+
+
         $lesson_ids = $request->input('lesson_id');
         foreach($lesson_ids as $id)
         {
-            $lesson = Lesson::find($id);
-            $lesson->teacher_id = $request->get('teacher_id');
-            if ($lesson->save())
-            {
-                $lesson_updates = $lesson->lessonUpdates;
-                $count = count($lesson_updates);
 
-                foreach ($lesson_updates as $key => $lu) {
-                    if ($key == ($count-1))
-                    {
-                        $lu->teacher_id = $lesson->teacher_id;
-                        $lu->save();
-                    }
-                }
+            if (stristr($term->term_name, 'Summer'))
+            {
+                Teacher::linkLessons($id,$teacher_id); // $id 是 lesson_id, 暑期默认是Mon的id
+                Teacher::linkLessons($id+1,$teacher_id); // Wed
+                Teacher::linkLessons($id+2,$teacher_id); // Fri
             }
-            // 随后计算这个学期每月实际排课 (不考虑节假日调休情况)
-            $start_date = $lesson->term->start_date; // 学期开始日 计算第一个月实际排课要用
-            $end_date = $lesson->term->end_date; // 学期结束日 计算最后月实际排课要用
-            // $start_year = date('Y',strtotime($start_date));
-            $lesson_updates = $lesson->lessonUpdates;
-            foreach ($lesson_updates as $key => $lu) {
-                // 使用最后一段课程更新记录的数据计算老师的学期实际排课时长
-                if ($key == ($count-1) && $lu->teacher_id == $request->get('teacher_id'))
-                {
-                    Teacher::calTermDuration($start_date, $end_date, $lu);
-                }
+            else
+            {
+                Teacher::linkLessons($id,$teacher_id); // $id 是 lesson_id
             }
+
         }
         session()->flash('success','关联课程成功！');
         return redirect()->route('teachers.index',compact('term_id'));
+    }
+
+    // 新建学期（不可和之前学期重合）
+    // 学期名称中必须包括 summer spring 或者 fall
+    public function createTerm(Request $request)
+    {
+        $term_id = $request->get('term_id');
+        return view('teachers/create_term',compact('term_id'));
+    }
+
+    public function storeTerm(Request $request)
+    {
+        $this->validate($request, [
+            'term_name'=>'required|max:50',
+            'start_date'=>'required',
+            'end_date'=>'required',
+        ]);
+        $term = new Term();
+        $term->term_name = $request->input('term_name');
+        $term->start_date = $request->input('start_date');
+        $term->end_date = $request->input('end_date');
+
+        if (stristr($term->term_name,'Summer')==false && stristr($term->term_name,'Spring')==false && stristr($term->term_name,'Fall')==false)
+        {
+            session()->flash('danger','学期名称必须包括 Spring, Summer 或 Fall！');
+            return redirect()->back()->withInput();
+        }
+        // 需要判断的是起止日是否填反，新建学期是否和已存在学期重合
+        if ($term->start_date>=$term->end_date)
+        {
+            session()->flash('danger','起止日期填反！');
+            return redirect()->back()->withInput();
+        }
+        $terms = Term::all();
+        foreach($terms as $t)
+        {
+            if (WorkHistory::isCrossing($term->start_date,$term->end_date,$t->start_date,$t->end_date))
+            {
+                session()->flash('danger','起止日期与之前学期重合！');
+                return redirect()->back()->withInput();
+            }
+        }
+        $term_id = $request->input('term_id');
+
+        if ($term->save())
+        {
+            session()->flash('success','新建学期成功！');
+            return redirect()->route('teachers.index',compact('term_id'));
+        }
+    }
+
+    // 更新学期（不可和之前学期重合，学期内课程有效期后延，老师实际排课更新）
+    public function editTerm(Request $request)
+    {
+        $term_id = $request->input('term_id');
+        $term = Term::find($term_id);
+        return view('teachers/edit_term',compact('term'));
+    }
+
+    public function updateTerm(Request $request)
+    {
+        $this->validate($request, [
+            'term_name'=>'required|max:50',
+            'start_date'=>'required',
+            'end_date'=>'required',
+        ]);
+        $term = Term::find($request->input('term_id'));
+        $term->term_name = $request->input('term_name');
+        $term->start_date = $request->input('start_date');
+        $term->end_date = $request->input('end_date');
+
+        if (stristr($term->term_name,'Summer')==false && stristr($term->term_name,'Spring')==false && stristr($term->term_name,'Fall')==false)
+        {
+            session()->flash('danger','学期名称必须包括 Spring, Summer 或 Fall！');
+            return redirect()->back()->withInput();
+        }
+        // 需要判断的是起止日是否填反，新建学期是否和已存在学期重合
+        if ($term->start_date>=$term->end_date)
+        {
+            session()->flash('danger','起止日期填反！');
+            return redirect()->back()->withInput();
+        }
+        $terms = Term::where('term_id','<>',$term->id)->get();
+        foreach($terms as $t)
+        {
+            if (WorkHistory::isCrossing($term->start_date,$term->end_date,$t->start_date,$t->end_date))
+            {
+                session()->flash('danger','起止日期与之前学期重合！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        // 需要修改课程的前后有效时间，并且需要修改老师学期首末月实际排课 -- 最后做吧，毕竟不是常用功能
+
+        // 开始时间延后
+        // 开始时间提前
+
+        // 结束时间提前
+        // 结束时间延后
+
+        $term_id = $request->input('term_id');
+        if ($term->save())
+        {
+            session()->flash('success','修改学期成功！');
+            return redirect()->route('teachers.index',compact('term_id'));
+        }
     }
 }
