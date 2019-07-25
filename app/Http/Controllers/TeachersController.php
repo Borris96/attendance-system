@@ -112,6 +112,7 @@ class TeachersController extends Controller
         $current_term_id = $request->get('term_id');
         $term = Term::find($current_term_id);
         $teacher = Teacher::find($id);
+        $flag = stristr($term->term_name, 'Summer');
         if (stristr($term->term_name, 'Summer'))
         {
             $lessons = Lesson::where('term_id',$current_term_id)->where('day','Mon')->whereNull('teacher_id')->whereNotNull('day')->get();
@@ -121,7 +122,7 @@ class TeachersController extends Controller
             $lessons = Lesson::where('term_id',$current_term_id)->whereNull('teacher_id')->whereNotNull('day')->get();
         }
 
-        return view('teachers/edit',compact('term','lessons','teacher','current_term_id'));
+        return view('teachers/edit',compact('term','lessons','teacher','current_term_id','flag'));
     }
 
     // 新增老师(从员工中选择)

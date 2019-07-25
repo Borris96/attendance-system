@@ -47,10 +47,12 @@
         <th>周一</th>
         <th>周三</th>
         <th>周五</th>
+        <th>其他</th>
         @else
         <th>周五</th>
         <th>周六</th>
         <th>周日</th>
+        <th>其他</th>
         @endif
         <th>实际排课</th>
         <th>应排课</th>
@@ -64,6 +66,7 @@
       <td>{{$md->mon_duration}}</td>
       <td>{{$md->wed_duration}}</td>
       <td>{{$md->fri_duration}}</td>
+      <td>{{$md->other_duration}}</td>
       <td>{{$md->actual_duration}}</td>
       <td>{{$month_should_durations[$md->month]}}</td>
     </tr>
@@ -75,6 +78,7 @@
       <td>{{$md->fri_duration}}</td>
       <td>{{$md->sat_duration}}</td>
       <td>{{$md->sun_duration}}</td>
+      <td>{{$md->other_duration}}</td>
       <td>{{$md->actual_duration}}</td>
       <td>{{$month_should_durations[$md->month]}}</td>
     </tr>

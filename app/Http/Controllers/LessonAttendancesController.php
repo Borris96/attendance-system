@@ -39,8 +39,8 @@ class LessonAttendancesController extends Controller
         $term_first_month = $start_year.'-'.date('m',strtotime($term->start_date));
         $term_last_month = $end_year.'-'.date('m',strtotime($term->end_date));
         /////////////// 此处之后要改成真实的今天日期！
-        // $this_today = '2019-05-15'; // 测试用
-        $this_today = date('Y-m-d');
+        $this_today = '2019-09-15'; // 测试用
+        // $this_today = date('Y-m-d');
         // 学期的开始结束年份
         if ($request->get('start_month') != null)
         {

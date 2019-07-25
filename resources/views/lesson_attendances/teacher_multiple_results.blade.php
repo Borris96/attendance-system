@@ -25,7 +25,11 @@
           <td>{{$td[0]}}</td>
           <td>{{$td[1]}}</td>
           <td>{{$td[2]}}</td>
+          @if ($td[3]>0)
           <td>{{$td[3]}}</td>
+          @else
+          <td>0</td>
+          @endif
         @endif
       </tr>
       @endforeach
@@ -34,7 +38,11 @@
           <td>{{$all_teacher_total_durations[$key][0]}}</td>
           <td>{{$all_teacher_total_durations[$key][1]}}</td>
           <td>{{$all_teacher_total_durations[$key][2]}}</td>
+          @if ($all_teacher_total_durations[$key][3])
           <td>{{$all_teacher_total_durations[$key][3]}}</td>
+          @else
+          <td>0</td>
+          @endif
       </tr>
     </tbody>
 </table>
@@ -73,7 +81,11 @@
       <tr>
           <td style="font-weight: bold;">缺少课时</td>
           <td></td>
+          @if (($all_teacher_total_durations[$key][3] - $all_teacher_extra_work_durations[$key])>0)
           <td style="color: red;">{{$all_teacher_total_durations[$key][3] - $all_teacher_extra_work_durations[$key]}}</td>
+          @else
+          <td style="color: red;">0</td>
+          @endif
           <td></td>
       </tr>
     </tbody>

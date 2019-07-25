@@ -25,7 +25,11 @@
             <td>{{ $should_durations[$key] }}</td>
             <td>{{ $actual_durations[$key] }}</td>
             <td>{{ $actual_goes[$key] }}</td>
+            @if ($should_durations[$key] - $actual_goes[$key] > 0)
             <td>{{ $should_durations[$key] - $actual_goes[$key] }}</td>
+            @else
+            <td>0</td>
+            @endif
         </tr>
       @endforeach
     </tbody>
