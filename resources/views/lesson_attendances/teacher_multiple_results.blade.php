@@ -38,7 +38,7 @@
           <td>{{$all_teacher_total_durations[$key][0]}}</td>
           <td>{{$all_teacher_total_durations[$key][1]}}</td>
           <td>{{$all_teacher_total_durations[$key][2]}}</td>
-          @if ($all_teacher_total_durations[$key][3])
+          @if ($all_teacher_total_durations[$key][3]>0)
           <td>{{$all_teacher_total_durations[$key][3]}}</td>
           @else
           <td>0</td>
@@ -100,10 +100,21 @@
 <div style="margin: 20px">
   <a class="btn btn-success" href="{{ route('lesson_attendances.index',array('term_id'=>$term->term_id)) }}" role="button">返回</a>
   &nbsp;&nbsp;
-  <form action="{{ route('lesson_attendances.export_multiple',array('term_id'=>$term->term_id)) }}" method="POST" style="display: inline-block;">
-    {{ csrf_field() }}
-    <button type="submit" class="btn btn-warning" type="button">导出上课考勤汇总</button>
-  </form>
+  <div class="btn-group">
+    <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+    导出上课考勤汇总 <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu">
+    <form action="{{ route('lesson_attendances.export_multiple', array('term_id'=>$term_id,'start_month'=>$search_start_month,'end_month'=>$search_end_month, 'option'=>'全职教师')) }}" method="POST">
+      {{ csrf_field() }}
+      <button type="submit" class="btn btn-link" type="button">全职老师</button>
+    </form>
+
+    <form action="{{ route('lesson_attendances.export_multiple', array('term_id'=>$term_id,'start_month'=>$search_start_month,'end_month'=>$search_end_month, 'option'=>'兼职教师')) }}" method="POST">
+      {{ csrf_field() }}
+      <button type="submit" class="btn btn-link" type="button">兼职老师</button>
+    </form>
+    </ul>
+  </div>
 </div>
 
 

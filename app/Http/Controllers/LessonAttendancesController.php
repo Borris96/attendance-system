@@ -274,7 +274,7 @@ class LessonAttendancesController extends Controller
                     // dump($all_teacher_extra_works);
                     // exit();
 
-                    return view('lesson_attendances/teacher_multiple_results',compact('teachers','all_teacher_durations','all_teacher_total_durations','all_teacher_extra_works','all_teacher_extra_work_durations','term'));
+                    return view('lesson_attendances/teacher_multiple_results',compact('teachers','all_teacher_durations','all_teacher_total_durations','all_teacher_extra_works','all_teacher_extra_work_durations','term','search_start_month','search_end_month','term_id'));
                 }
             }
         }
@@ -288,11 +288,11 @@ class LessonAttendancesController extends Controller
     {
         $term_id = $request->input('term_id');
         $start_month = $request->input('start_month');
-
+        $option = $request->input('option');
         $term = Term::find($term_id);
         // $end_month = $request->input('end_month');
         $spreadsheet = new Spreadsheet();
-        LessonAttendance::exportTotalOne($spreadsheet, $start_month, $term);
+        LessonAttendance::exportTotalOne($spreadsheet, $start_month, $term, $option);
 
     }
 
@@ -301,7 +301,10 @@ class LessonAttendancesController extends Controller
         $term_id = $request->input('term_id');
         $start_month = $request->input('start_month');
         $end_month = $request->input('end_month');
-        LessonAttendance::exportTotalMultiple($spreadsheet, $start_month, $end_month);
+        $option = $request->input('option');
+        $term = Term::find($term_id);
+        $spreadsheet = new Spreadsheet();
+        LessonAttendance::exportTotalMultiple($spreadsheet, $start_month, $end_month, $term, $option);
 
     }
 }
