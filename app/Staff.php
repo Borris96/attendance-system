@@ -55,16 +55,23 @@ class Staff extends Model
      */
 
     public function getAnnualHolidays($work_year, $join_company, $position_name){
-        if (strstri($position_name,'兼职') && $position_name != '实习生')
+        if (!stristr($position_name,'兼职') && $position_name != '实习生')
         {
-            if ($work_year<10 && $work_year>=0){
-                $default_holiday = 5*8;
-            } elseif ($work_year>=10 && $work_year<20){
+            if ($position_name == '全职教师')
+            {
                 $default_holiday = 10*8;
-            } elseif ($work_year>=20){
-                $default_holiday = 15*8;
-            } else {
-                $default_holiday = 0;
+            }
+            else
+            {
+                if ($work_year<10 && $work_year>=0){
+                    $default_holiday = 5*8;
+                } elseif ($work_year>=10 && $work_year<20){
+                    $default_holiday = 10*8;
+                } elseif ($work_year>=20){
+                    $default_holiday = 15*8;
+                } else {
+                    $default_holiday = 0;
+                }
             }
 
             $end_date = strtotime("December 31");

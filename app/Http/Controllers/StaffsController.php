@@ -25,20 +25,32 @@ class StaffsController extends Controller
     {
         if ($request->get('englishname') == null)
         {
-            $staffs = Staff::where('status',true)->orderBy('id','asc')->get();
+            $staffs = Staff::where('status',true)->orderBy('id','asc')->get(); // 除了外教,实习生,兼职之外的员工更新年假
             foreach ($staffs as $staff) {
                 //每年更新一次
                 $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
                 //以每天时间为准，更新参加工作年数
                 if ($updated_at->isLastYear())
                 {
-                    $annual_holiday = $staff->annual_holiday; //原来的年假
-                    $remaining_annual_holiday = $staff->remaining_annual_holiday;
-                    $join_year = (strtotime(date('Y').'-01-01')-strtotime($staff->join_company))/(365*24*3600); // 加入公司的年数
-                    $staff->work_year = $staff->origin_work_year + round($join_year,2); // 目前工作年数 = 加入公司前+加入公司后
-                    $staff->annual_holiday = $staff->updateAnnualHolidays($updated_at, $annual_holiday, $staff->work_year); // 根据工作年数更新年假
-                    $staff->remaining_annual_holiday = $staff->updateAnnualHolidays($updated_at, $remaining_annual_holiday, $staff->work_year); // 根据工作年数更新剩余年假
-                    $staff->save();
+                    if ($staff->position_name != '全职教师' && $staff->position_name != '兼职教师' && $staff->position_name != '实习生' && !stristr($staff->position_name, '兼职'))
+                    {
+                        $annual_holiday = $staff->annual_holiday; //原来的年假
+                        $remaining_annual_holiday = $staff->remaining_annual_holiday;
+                        $join_year = (strtotime(date('Y').'-01-01')-strtotime($staff->join_company))/(365*24*3600); // 加入公司的年数
+                        $staff->work_year = $staff->origin_work_year + round($join_year,2); // 目前工作年数 = 加入公司前+加入公司后
+                        $staff->annual_holiday = $staff->updateAnnualHolidays($updated_at, $annual_holiday, $staff->work_year); // 根据工作年数更新年假
+                        $staff->remaining_annual_holiday = $staff->updateAnnualHolidays($updated_at, $remaining_annual_holiday, $staff->work_year); // 根据工作年数更新剩余年假
+                        $staff->save();
+                    }
+                    elseif ($staff->position_name == '全职教师')
+                    {
+                        if (date('m-d')==date('m-d',strtotime($staff->join_company)) && date('Y')!=date('Y',strtotime($staff->join_company))) // 如果今天是外教的入职日并且不是他入职那一年，更新年假
+                        {
+                            $staff->annual_holiday += 8*10; // 全职外教年假80小时
+                            $staff->remaining_annual_holiday += 8*10;
+                            $staff->save();
+                        }
+                    }
                 }
             }
         }
@@ -232,7 +244,7 @@ class StaffsController extends Controller
             // dump($staffworkday);
         }
 
-        if ($request->get('annual_holiday')!==null){
+        if ($request->get('annual_holiday')!=null){
             $staff->annual_holiday = $request->get('annual_holiday');
         } else {
             $staff->annual_holiday = $staff->getAnnualHolidays($staff->origin_work_year, $staff->join_company, $staff->position_name);
