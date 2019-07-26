@@ -8,11 +8,29 @@
     <input type="text" name="englishname" id="englishname"class="abc input-default" placeholder="" value="{{ old('englishname') }}">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>
     &nbsp;&nbsp;
-    <a class="btn btn-success" href="{{ route('staffs.create') }}" role="button">新增正式员工</a>
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+    新增员工 <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu">
+    <a class="btn btn-link" href="{{ route('staffs.create') }}" role="button">正式员工</a>
     &nbsp;&nbsp;
-    <a class="btn btn-success" href="{{ route('staffs.create_part_time') }}" role="button">新增兼职员工</a>
+    <a class="btn btn-link" href="{{ route('staffs.create_part_time') }}" role="button">兼职员工</a>
+    </ul>
+  </div>
+  &nbsp;&nbsp;
+
+  <div class="btn-group">
+    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+    查看员工 <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu">
+    <a href="{{route('leave_staffs.index')}}" class="btn btn-link">离职员工</a>
     &nbsp;&nbsp;
-    <a href="{{route('leave_staffs.index')}}" class="btn btn-info">查看离职员工</a>
+    <a class="btn btn-link" href="{{ route('staffs.part_time_index') }}">兼职员工</a>
+    </ul>
+  </div>
+
+
+
 </form>
 
 <table class="table table-bordered table-hover definewidth m10">
@@ -53,8 +71,8 @@
             @endif
             <td>
                 <a href="{{ route('staffs.show',$staff->id) }}" class="btn btn-info">详情</a>
-                <a href="{{ route('staffs.edit',$staff->id) }}" class="btn btn-primary">编辑</a>
-
+                <a href="{{ route('staffs.edit',$staff->id) }}" class="btn btn-primary">编辑信息</a>
+                <a href="{{ route('staffs.edit_work_time',$staff->id) }}" class="btn btn-primary">修改排班</a>
                 <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('PATCH') }}
                   {{ csrf_field() }}

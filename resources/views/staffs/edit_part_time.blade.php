@@ -1,11 +1,11 @@
 @extends('layouts.default')
-@section('title','编辑员工')
+@section('title','编辑兼职员工')
 @section('content')
 @include('shared._messages')
 
 <div class="container">
 @include('shared._errors')
-<form action="{{ route('staffs.update', $staff->id) }}" method="post" class="definewidth m20">
+<form action="{{ route('staffs.update_part_time', array('id'=>$staff->id)) }}" method="post" class="definewidth m20">
   {{ method_field('PATCH') }}
   {{ csrf_field() }}
   <table class="table table-bordered table-hover definewidth m10">
@@ -57,28 +57,6 @@
             <input type="date" name="join_company" value="{{$staff->join_company}}" min="" max="{{ date('Y-m-d') }}" disabled />
           </td>
       </tr>
-      <tr>
-          <td class="tableleft">年假小时数</td>
-          <td><input type="text" name="annual_holiday" placeholder="" value="{{ $staff->annual_holiday }}" /></td>
-      </tr>
-      <tr>
-          <td class="tableleft">剩余小时数</td>
-          <td><input type="text" name="remaining_annual_holiday" placeholder="" value="{{ $staff->remaining_annual_holiday }}" /></td>
-      </tr>
-
-      <tr>
-          <td class="tableleft">工作经历</td>
-          <td>
-            @for($i=0;$i<=9;$i++)
-              @if ($i<$count)
-              <input type="date" name="work_experiences[{{$i}}]" value="{{ $work_historys[$i]->work_experience }}"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[{{$i}}]" value="{{ $work_historys[$i]->leave_experience }}"/> <br>
-              @else
-              <input type="date" name="work_experiences[{{$i}}]"/> &nbsp;至&nbsp; <input type="date" name="leave_experiences[{{$i}}]"/> <br>
-              @endif
-            @endfor
-            *修改工作经历会自动更新年假
-          </td>
-      </tr>
 
       <tr>
         <td class="tableleft">工资卡</td>
@@ -101,16 +79,13 @@
       <tr>
           <td class="tableleft"></td>
           <td>
-              <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
+              <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.part_time_index') }}" role="button">返回列表</a>
           </td>
       </tr>
   </table>
 </form>
 
 </div>
-
-
-
 <script>
   var defaultDate = document.querySelectorAll('#date-picker');
   for (var i = 0; i<defaultDate.length; i++) {

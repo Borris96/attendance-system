@@ -25,7 +25,8 @@ class StaffsController extends Controller
     {
         if ($request->get('englishname') == null)
         {
-            $staffs = Staff::where('status',true)->orderBy('id','asc')->get(); // 除了外教,实习生,兼职之外的员工更新年假
+
+            $staffs = Staff::where('status',true)->where('position_id','<>','8')->where('position_id','<>','9')->where('position_id','<>','10')->where('position_id','<>','11')->orderBy('id','asc')->get(); // 除了外教,实习生,兼职之外的员工更新年假
             foreach ($staffs as $staff) {
                 //每年更新一次
                 $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
@@ -67,6 +68,12 @@ class StaffsController extends Controller
         return view('staffs/index',compact('staffs'));
     }
 
+    public function partTimeIndex()
+    {
+        $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('id','asc')->get();
+        return view('staffs/part_time_index',compact('staffs'));
+    }
+
     public function show($id)
     {
         $staff = Staff::find($id);
@@ -81,12 +88,63 @@ class StaffsController extends Controller
         return view('staffs.show',compact('staff','staffworkdays','work_historys','total_duration'));
     }
 
+    public function showPartTime(Request $request)
+    {
+        $id = $request->input('id');
+        $staff = Staff::find($id);
+        $staff_id = $staff->id;
+        $staffworkdays = Staffworkday::where('staff_id',$staff_id)->orderBy('id','asc')->get();
+        // 计算一周总工作时长
+        $total_duration = 0;
+        foreach ($staffworkdays as $workday) {
+            $total_duration += $workday->duration;
+        }
+        return view('staffs.show_part_time',compact('staff','staffworkdays','total_duration'));
+    }
+
     public function create()
     {
         $departments = Department::all();
-        $positions = Position::all();
+        $positions = Position::where('id','<>','8')->where('id','<>','9')->where('id','<>','10')->where('id','<>','11')->get();
         $days = ['一','二','三','四','五','六','日'];
         return view('staffs/create',compact('departments','positions','days'));
+    }
+
+    public function createPartTime()
+    {
+        $departments = Department::all();
+        $positions = Position::where('id','>','7')->where('id','<>','12')->get();
+        $days = ['一','二','三','四','五','六','日'];
+        return view('staffs/create_part_time',compact('departments','positions','days'));
+    }
+
+    public function edit($id) {
+        $staff = Staff::find($id);
+        $workdays = $staff->staffworkdays;
+        $work_historys = $staff->workHistorys;
+        $count = count($work_historys);
+        $departments = Department::all();
+        $positions = Position::where('id','<>','8')->where('id','<>','9')->where('id','<>','10')->where('id','<>','11')->get();
+        $days = ['一','二','三','四','五','六','日'];
+        return view('staffs.edit',compact('staff','workdays','departments','positions','work_historys','count','days'));
+    }
+
+    public function editPartTime(Request $request) {
+        $id = $request->input('id');
+        $staff = Staff::find($id);
+        $workdays = $staff->staffworkdays;
+        $departments = Department::all();
+        $positions = Position::where('id','>','7')->where('id','<>','12')->get();
+        $days = ['一','二','三','四','五','六','日'];
+        return view('staffs.edit_part_time',compact('staff','workdays','departments','positions','days'));
+    }
+
+    public function editWorkTime($id)
+    {
+        $staff = Staff::find($id);
+        $days = ['一','二','三','四','五','六','日'];
+        $workdays = $staff->staffworkdays;
+        return view('staffs/edit_work_time',compact('staff','days','workdays'));
     }
 
 // 任何和该员工有关联的数据都应该删除 （员工ID不是unique的）
@@ -271,15 +329,96 @@ class StaffsController extends Controller
 
     }
 
-    public function edit($id) {
-        $staff = Staff::find($id);
-        $workdays = $staff->staffworkdays;
-        $work_historys = $staff->workHistorys;
-        $count = count($work_historys);
-        $departments = Department::all();
-        $positions = Position::all();
-        $days = ['一','二','三','四','五','六','日'];
-        return view('staffs.edit',compact('staff','workdays','departments','positions','work_historys','count','days'));
+    public function storePartTime(Request $request)
+    {
+        $this->validate($request, [
+            // 'id'=>'integer|required|unique:staffs',
+            'staffname'=>'required|max:50',
+            'englishname'=>'required|max:50|unique:staffs',
+            'join_company' => 'required',
+            'positions'=>'required',
+            // 'annual_holiday'=>'numeric',
+            'card_number'=>'max:23',
+            'bank'=>'max:50',
+        ]);
+
+        $staff = new Staff();
+        // 根据当日日期随机生成id
+        $staff_id = strtotime(date('Y-m-d H:i:s')); // 使用时间戳作为编号
+        $staff->id = $staff_id;
+        $staff->staffname = $request->get('staffname');
+        $staff->englishname = $request->get('englishname');
+        $staff->department_id = $request->get('departments');
+
+        if ($staff->department_id!==null){
+            $staff->department_name = Department::find($staff->department_id)->department_name;
+        }
+        $staff->position_id = $request->get('positions');
+        if ($staff->position_id!==null){
+            $staff->position_name = Position::find($staff->position_id)->position_name;
+        }
+
+        $staff->join_company = $request->get('join_company');
+
+        $work_times = $request->input('work_time');
+        $home_times = $request->input('home_time');
+
+        // 判断填写格式是否正确
+
+        for ($i=0; $i<=6; $i++){
+            if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
+            {
+                session()->flash('warning','时间填写不完整！');
+                return redirect()->back()->withInput();
+            }
+
+            if (strtotime($work_times[$i])>strtotime($home_times[$i]))
+            {
+                session()->flash('warning','上班时间晚于下班时间！');
+                return redirect()->back()->withInput();
+            }
+        }
+
+        $staff->work_year = 0;
+        $staff->origin_work_year = 0;
+
+        // 录入staffworkdays表
+        for ($i=0; $i<=6; $i++){
+            $staffworkday = new Staffworkday();
+            $staffworkday->staff_id = $staff->id;
+            $staffworkday->workday_name = $staffworkday->getWorkdayName($i);
+            $staffworkday->work_time = $work_times[$i];
+            $staffworkday->home_time = $home_times[$i];
+            if ($work_times[$i] != null && $home_times[$i] != null){
+                $staffworkday->is_work = true;
+            }
+            else {
+                $staffworkday->is_work = false;
+            }
+            $staffworkday->duration = Staffworkday::calDuration($work_times[$i],$home_times[$i]);
+            $staffworkday->save();
+            // dump($staffworkday);
+        }
+        $staff->annual_holiday = 0;
+        $staff->remaining_annual_holiday = 0;
+
+        $card_info = new Card();
+        $card_info->card_number = $request->get('card_number');
+        $card_info->bank = $request->get('bank');
+        $card_info->staff_id = $staff->id;
+
+        // 为了在考勤中方便查询在该月离职以及还未离职的员工
+        $staff->leave_company = '2038-01-01';
+        $staff->status = true;
+
+        if ($staff->save()) {
+            $card_info->save();
+            session()->flash('success','保存成功！');
+            return redirect('staffs'); //应导向列表
+        } else {
+            session()->flash('danger','保存失败！');
+            return redirect()->back()->withInput();
+        }
     }
 
     public function update(Request $request, $id) {
@@ -304,24 +443,10 @@ class StaffsController extends Controller
         }
 
         // 获取工作日，工作经历
-        $work_times = $request->input('work_time');
-        $home_times = $request->input('home_time');
+
         $work_experiences_array = $request->input('work_experiences');
         $leave_experiences_array = $request->input('leave_experiences');
-        // 判断填写格式是否正确
-        for ($i=0; $i<=6; $i++){
-            if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
-            {
-                session()->flash('warning','时间填写不完整！');
-                return redirect()->back()->withInput();
-            }
 
-            if (strtotime($work_times[0])>strtotime($home_times[0]))
-            {
-                session()->flash('warning','上班时间晚于下班时间！');
-                return redirect()->back()->withInput();
-            }
-        }
 
         for ($i=0; $i<=9; $i++){
             // 两个时间都非空时
@@ -368,20 +493,7 @@ class StaffsController extends Controller
             return redirect()->back()->withInput();
         }
 
-        // 录入表
-        $origin_workdays = $staff->staffworkdays;
-        for ($i=0; $i<=6; $i++){
-            $origin_workdays[$i]->work_time = $work_times[$i];
-            $origin_workdays[$i]->home_time = $home_times[$i];
-            if ($work_times[$i] != null && $home_times[$i] != null){
-                $origin_workdays[$i]->is_work = true;
-            }
-            else {
-                $origin_workdays[$i]->is_work = false;
-            }
-            $origin_workdays[$i]->duration = Staffworkday::calDuration($work_times[$i],$home_times[$i]);
-            $origin_workdays[$i]->save();
-        }
+
         // 之前存在的 work history，更新
         $origin_work_historys = $staff->workHistorys;
         $count = count($origin_work_historys);
@@ -493,6 +605,89 @@ class StaffsController extends Controller
         } else {
             session()->flash('danger','更新失败！');
             return redirect()->back()->withInput();
+        }
+    }
+
+    public function updatePartTime(Request $request)
+    {
+        $this->validate($request, [
+            'positions'=>'required',
+            'card_number'=>'max:23',
+            'bank'=>'max:50',
+        ]);
+        $id = $request->input('id');
+        $staff = Staff::find($id);
+        // $staff->staffname = $request->get('staffname');
+        // $staff->englishname = $request->get('englishname');
+        $staff->department_id = $request->get('departments');
+        if ($staff->department_id!==null){
+            $staff->department_name = Department::find($staff->department_id)->department_name;
+        }
+        $staff->position_id = $request->get('positions');
+        if ($staff->position_id!==null){
+            $staff->position_name = Position::find($staff->position_id)->position_name;
+        }
+        if ($staff->card == null){
+            $card_info = new Card();
+            $card_info->card_number = $request->get('card_number');
+            $card_info->bank = $request->get('bank');
+            $card_info->staff_id = $staff->id;
+        }
+        else
+        {
+            $card_info = $staff->card;
+            $card_info->card_number = $request->get('card_number');
+            $card_info->bank = $request->get('bank');
+        }
+
+        if ($staff->save()) {
+            $card_info->save();
+            session()->flash('success','更新成功！');
+            $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('id','asc')->get();
+            return view('staffs.part_time_index',compact('staffs')); //应导向列表
+        } else {
+            session()->flash('danger','更新失败！');
+            return redirect()->back()->withInput();
+        }
+
+    }
+
+    public function updateWorkTime($id)
+    {
+        $this->validate($request, [
+            'work_times'=>'required',
+            'home_times'=>'required',
+        ]);
+
+        $work_times = $request->input('work_time');
+        $home_times = $request->input('home_time');
+        // 判断填写格式是否正确
+        for ($i=0; $i<=6; $i++){
+            if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
+            {
+                session()->flash('warning','时间填写不完整！');
+                return redirect()->back()->withInput();
+            }
+
+            if (strtotime($work_times[0])>strtotime($home_times[0]))
+            {
+                session()->flash('warning','上班时间晚于下班时间！');
+                return redirect()->back()->withInput();
+            }
+        }
+        // 录入表
+        $origin_workdays = $staff->staffworkdays;
+        for ($i=0; $i<=6; $i++){
+            $origin_workdays[$i]->work_time = $work_times[$i];
+            $origin_workdays[$i]->home_time = $home_times[$i];
+            if ($work_times[$i] != null && $home_times[$i] != null){
+                $origin_workdays[$i]->is_work = true;
+            }
+            else {
+                $origin_workdays[$i]->is_work = false;
+            }
+            $origin_workdays[$i]->duration = Staffworkday::calDuration($work_times[$i],$home_times[$i]);
+            $origin_workdays[$i]->save();
         }
     }
 }
