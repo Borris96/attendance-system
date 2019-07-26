@@ -14,7 +14,7 @@ class CreateStaffworkdaysTable extends Migration
     public function up()
     {
         Schema::create('staffworkdays', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->unsignedInteger('staff_id');
             $table->string('workday_name',10);
             $table->boolean('is_work');
