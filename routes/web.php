@@ -21,6 +21,15 @@ Route::resource('users', 'UsersController');
 
 Route::resource('/staffs','StaffsController');
 
+Route::get('part_time_index', 'StaffsController@partTimeIndex')->name('staffs.part_time_index');
+Route::get('/create_part_time', 'StaffsController@createPartTime')->name('staffs.create_part_time');
+Route::post('/store_part_time', 'StaffsController@storePartTime')->name('staffs.store_part_time');
+Route::get('/edit_part_time', 'StaffsController@editPartTime')->name('staffs.edit_part_time');
+Route::patch('/update_part_time', 'StaffsController@updatePartTime')->name('staffs.update_part_time');
+Route::get('/show_part_time', 'StaffsController@showPartTime')->name('staffs.show_part_time');
+
+Route::get('/staffs/{staff}/edit_work_time', 'StaffsController@editWorkTime')->name('staffs.edit_work_time');
+Route::patch('/staffs/{staff}/update_work_time', 'StaffsController@updateWorkTime')->name('staffs.update_work_time');
 Route::patch('/staffs/{staff}/leave', 'StaffsController@leave')->name('staffs.leave');
 
 Route::resource('/leave_staffs','LeaveStaffsController');
