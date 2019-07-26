@@ -69,7 +69,7 @@ class ExtraWorksController extends Controller
         }
         $y_m_d = explode('-',date("Y-m-d", strtotime($extra_work->extra_work_start_time)));
         $attendance = Attendance::where('staff_id',$extra_work->staff->id)->where('year',$y_m_d[0])->where('month',$y_m_d[1])->where('date',$y_m_d[2])->get();
-        if ($attendance!=null)
+        if (count($attendance)!=0)
         {
             foreach ($attendance as $at) {
                 $at->extra_work_id = null; // 取消加班和这条加班记录的关联
@@ -172,7 +172,7 @@ class ExtraWorksController extends Controller
         }
 
         if ($extra_work->save()) {
-            if ($attendance!=null)
+            if (count($attendance)!=0)
             {
                 foreach ($attendance as $at) {
                     $at->extra_work_id = $extra_work->id;

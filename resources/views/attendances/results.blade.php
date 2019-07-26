@@ -72,10 +72,35 @@
 <div style="margin: 20px">
   <a class="btn btn-success" href="{{ route('attendances.index') }}" role="button">返回考勤管理</a>
   &nbsp;&nbsp;
-  <form action="{{ route('attendances.export', array('year'=>$year,'month'=>$month)) }}" method="POST" style="display: inline-block;">
-    {{ csrf_field() }}
-    <button type="submit" class="btn btn-warning" type="button">导出考勤汇总</button>
-  </form>
+  <div class="btn-group">
+    <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+    导出考勤汇总 <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu">
+
+    <form action="{{ route('attendances.export', array('year'=>$year,'month'=>$month,'option'=>'全职员工')) }}" method="POST" style="display: inline-block;">
+      {{ csrf_field() }}
+      <button type="submit" class="btn btn-link" type="button">全职员工</button>
+    </form>
+
+    <form action="{{ route('attendances.export', array('year'=>$year,'month'=>$month,'option'=>'全职教师')) }}" method="POST" style="display: inline-block;">
+      {{ csrf_field() }}
+      <button type="submit" class="btn btn-link" type="button">全职教师</button>
+    </form>
+
+    <form action="{{ route('attendances.export', array('year'=>$year,'month'=>$month,'option'=>'兼职批文')) }}" method="POST" style="display: inline-block;">
+      {{ csrf_field() }}
+      <button type="submit" class="btn btn-link" type="button">兼职批文</button>
+    </form>
+
+    <form action="{{ route('attendances.export', array('year'=>$year,'month'=>$month,'option'=>'兼职助教')) }}" method="POST" style="display: inline-block;">
+      {{ csrf_field() }}
+      <button type="submit" class="btn btn-link" type="button">兼职助教</button>
+    </form>
+    </ul>
+  </div>
+
+
+
 </div>
 
 

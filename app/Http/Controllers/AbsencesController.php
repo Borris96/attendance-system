@@ -248,7 +248,7 @@ class AbsencesController extends Controller
             $y_m_d_s = explode('-',date("Y-m-d", strtotime($absence->absence_start_time)));
             $attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d_s[0])->where('month',$y_m_d_s[1])->where('date',$y_m_d_s[2])->get();
 
-            if ($attendance != null)
+            if (count($attendance)!=0)
             {
                 session()->flash('warning','暂不支持补录多日的请假记录');
                 return redirect()->back()->withInput();
@@ -350,7 +350,7 @@ class AbsencesController extends Controller
                 $separate_absence->absence_id = $absence->id;
                 $separate_absence->staff_id = $absence->staff_id;
                 $separate_absence->save();
-                if ($attendance!=null)
+                if (count($attendance)!=0)
                 {
                     foreach ($attendance as $at) {
                         $at->absence_id = $absence->id;

@@ -26,6 +26,7 @@ class TotalAttendance extends Model
     public static function calTotal($total_attendance, $attendances, $staff, $year, $month)
     {
         $total_attendance->staff_id = $staff->id;
+        $total_attendance->position_id = $staff->position_id;
         $total_attendance->department_id = $staff->department_id;
         $total_attendance->year = $year;
         $total_attendance->month = $month;
@@ -295,12 +296,13 @@ class TotalAttendance extends Model
      * @param object $spreadsheet
      * @param int $year
      * @param int $month
+     * @param string $option 选择要导出的职位（全职员工，兼职助教，兼职批文，全职老师）
      * @return void
      */
-    public static function exportTotal($spreadsheet, $year, $month)
+    public static function exportTotal($spreadsheet, $year, $month, $option)
     {
         $worksheet = $spreadsheet->getSheet(0);
-        $title = $year.'_'.$month.' 考勤汇总';
+        $title = $year.'_'.$month.' 考勤汇总'.'-'.$option;
         $worksheet->setTitle('考勤汇总');
         $worksheet->setCellValueByColumnAndRow(1, 1, '考勤汇总表'); // (列，行)
         $worksheet->setCellValueByColumnAndRow(1, 2, '统计日期:');
@@ -372,7 +374,23 @@ class TotalAttendance extends Model
         $worksheet->getStyle('A3:T4')->applyFromArray($title_array)->getFont()->setSize(9);
 
         // 导入员工汇总数据 (不支持单个员工的考勤汇总导出)
-        $this_month_total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->orderBy('department_id');
+        if ($option == '全职员工')
+        {
+            $this_month_total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->where('position_id','<>','6')->where('position_id','<>','8')->where('position_id','<>','9')->where('position_id','<>','10')->orderBy('staff_id','asc');
+        }
+        elseif ($option == '全职教师')
+        {
+            $this_month_total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->where('position_id','6')->orderBy('staff_id','asc');
+        }
+        elseif ($option == '兼职批文')
+        {
+            $this_month_total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->where('position_id','8')->orderBy('staff_id','asc');
+        }
+        elseif ($option == '兼职助教')
+        {
+            $this_month_total_attendances = TotalAttendance::where('year',$year)->where('month',$month)->where('position_id','10')->orderBy('staff_id','asc');
+        }
+
         $count = $this_month_total_attendances->count();
         foreach ($this_month_total_attendances->get() as $key => $tmta) {
             // 数据从第五行开始写入
@@ -456,6 +474,7 @@ class TotalAttendance extends Model
             $staffsheet->setCellValueByColumnAndRow(20,7, '原因');
             $staffsheet->setCellValueByColumnAndRow(21,7, '增补时间');
             $staffsheet->setCellValueByColumnAndRow(22,7, '时长');
+            $staffsheet->setCellValueByColumnAndRow(23,6, '异常备注'); // W6
 
             $staffsheet->mergeCells('A1:V1');
             $staffsheet->mergeCells('A6:A7');
@@ -472,12 +491,13 @@ class TotalAttendance extends Model
             $staffsheet->mergeCells('P6:R6');
             $staffsheet->mergeCells('S6:S7');
             $staffsheet->mergeCells('T6:V6');
+            $staffsheet->mergeCells('W6:W7');
 
             $staffsheet->getStyle('A1')->applyFromArray($title_array)->getFont()->setSize(24);
             $staffsheet->getStyle('A2:B2')->applyFromArray($content_array)->getFont()->setSize(10);
             $staffsheet->getStyle('A3:E3')->applyFromArray($title_array)->getFont()->setSize(9);
             $staffsheet->getStyle('A4:E4')->applyFromArray($content_array)->getFont()->setSize(9);
-            $staffsheet->getStyle('A6:V7')->applyFromArray($title_array)->getFont()->setSize(9);
+            $staffsheet->getStyle('A6:W7')->applyFromArray($title_array)->getFont()->setSize(9);
 
             $count = $tmta->attendances->count();
             // 从该员工每月汇总中取出每日考勤
@@ -485,10 +505,22 @@ class TotalAttendance extends Model
                 $staffsheet->setCellValueByColumnAndRow(1, 8+$key, $at->workday_type);
                 $staffsheet->setCellValueByColumnAndRow(2, 8+$key, $month.'/'.$at->date);
                 $staffsheet->setCellValueByColumnAndRow(3, 8+$key, $at->day);
-                $staffsheet->setCellValueByColumnAndRow(4, 8+$key, date('H:i', strtotime($at->should_work_time)));
-                $staffsheet->setCellValueByColumnAndRow(5, 8+$key, date('H:i', strtotime($at->should_home_time)));
-                $staffsheet->setCellValueByColumnAndRow(6, 8+$key, date('H:i', strtotime($at->actual_work_time)));
-                $staffsheet->setCellValueByColumnAndRow(7, 8+$key, date('H:i', strtotime($at->actual_home_time)));
+                if ($at->should_work_time!=null)
+                {
+                    $staffsheet->setCellValueByColumnAndRow(4, 8+$key, date('H:i', strtotime($at->should_work_time)));
+                }
+                if ($at->should_home_time!=null)
+                {
+                    $staffsheet->setCellValueByColumnAndRow(5, 8+$key, date('H:i', strtotime($at->should_home_time)));
+                }
+                if ($at->actual_work_time!=null)
+                {
+                    $staffsheet->setCellValueByColumnAndRow(6, 8+$key, date('H:i', strtotime($at->actual_work_time)));
+                }
+                if ($at->actual_home_time!=null)
+                {
+                    $staffsheet->setCellValueByColumnAndRow(7, 8+$key, date('H:i', strtotime($at->actual_home_time)));
+                }
                 $staffsheet->setCellValueByColumnAndRow(8, 8+$key, $at->late_work);
                 $staffsheet->setCellValueByColumnAndRow(9, 8+$key, $at->early_home);
 
@@ -528,12 +560,17 @@ class TotalAttendance extends Model
                     $staffsheet->setCellValueByColumnAndRow(21, 8+$key, $time);
                     $staffsheet->setCellValueByColumnAndRow(22, 8+$key, $at->add_duration);
                 }
+                if ($at->abnormalNote != null)
+                {
+                    $staffsheet->setCellValueByColumnAndRow(23, 8+$key, $at->abnormalNote->note);
+                }
             }
-            $staffsheet->getStyle('A8:V'.($count+7))->applyFromArray($content_array)->getFont()->setSize(9);
-            $staffsheet->getStyle('A6:V'.($count+7))->getAlignment()->setWrapText(true);
+            $staffsheet->getStyle('A8:W'.($count+7))->applyFromArray($content_array)->getFont()->setSize(9);
+            $staffsheet->getStyle('A6:W'.($count+7))->getAlignment()->setWrapText(true);
             $staffsheet->getColumnDimension('K')->setAutoSize(true);
             $staffsheet->getColumnDimension('N')->setAutoSize(true);
             $staffsheet->getColumnDimension('U')->setAutoSize(true);
+            $staffsheet->getColumnDimension('W')->setAutoSize(true);
         }
         // 下载
         $filename = $title.'.xlsx';

@@ -541,8 +541,9 @@ class AttendancesController extends Controller
         // $staff_id = $request->input('staff_id');
         $year = $request->input('year');
         $month = $request->input('month');
+        $option = $request->input('option');
         $spreadsheet = new Spreadsheet();
-        TotalAttendance::exportTotal($spreadsheet, $year, $month);
+        TotalAttendance::exportTotal($spreadsheet, $year, $month, $option);
     }
 
     public function basic($id)

@@ -8,7 +8,9 @@
     <input type="text" name="englishname" id="englishname"class="abc input-default" placeholder="" value="{{ old('englishname') }}">&nbsp;&nbsp;
     <button type="submit" class="btn btn-primary">查询</button>
     &nbsp;&nbsp;
-    <a class="btn btn-success" href="{{ route('staffs.create') }}" role="button">新增员工</a>
+    <a class="btn btn-success" href="{{ route('staffs.create') }}" role="button">新增正式员工</a>
+    &nbsp;&nbsp;
+    <a class="btn btn-success" href="{{ route('staffs.create_part_time') }}" role="button">新增兼职员工</a>
     &nbsp;&nbsp;
     <a href="{{route('leave_staffs.index')}}" class="btn btn-info">查看离职员工</a>
 </form>
