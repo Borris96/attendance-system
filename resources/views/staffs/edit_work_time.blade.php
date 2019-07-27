@@ -54,7 +54,7 @@
       <tr>
           <td class="tableleft"></td>
           <td>
-              <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
+              <button type="submit" class="btn btn-primary" type="button" onclick="sure()">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
           </td>
       </tr>
   </table>
@@ -70,36 +70,10 @@
     defaultDate[i].valueAsDate = new Date();
   }
 
-  window.onload=function()
-  {
-    var oT=document.getElementById('card');
-    oT.onkeydown=function(ev)
-    {
-      var oW=oT.value;
-      var oEvent=ev||event;
-      if(oEvent.keyCode==8)
-      {
-        if(oW)
-        {
-          for(var i=0;i<oW.length;i++)
-          {
-            var newStr=oW.replace(/\s$/g,'');
-          }
-          oT.value=newStr
-        }
-      }else{
-        for(var i=0;i<oW.length;i++)
-        {
-          var arr=oW.split('');
-
-          if((i+1)%5==0)
-          {
-            arr.splice(i,0,' ');
-          }
-        }
-        oT.value=arr.join('');
+  function sure() {
+      if (!confirm("提交后该段时间的排班记录不可更改，时间是否无误？")) {
+          window.event.returnValue = false;
       }
-    }
   }
 </script>
 

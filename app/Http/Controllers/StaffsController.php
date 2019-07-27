@@ -679,6 +679,7 @@ class StaffsController extends Controller
 
     }
 
+    // 不仅更新员工排班，还要更新排班更新表：原排班结束时间是生效时间，新排班开始时间是生效时间。
     public function updateWorkTime(Request $request, $id)
     {
         $this->validate($request, [
@@ -716,10 +717,40 @@ class StaffsController extends Controller
                 $origin_workdays[$i]->is_work = false;
             }
             $origin_workdays[$i]->duration = Staffworkday::calDuration($work_times[$i],$home_times[$i]);
-            $origin_workdays[$i]->save();
+
+            // 如果之前有过更新记录，那么这次的生效时间不能比之前的生效时间早
+            foreach ($origin_workdays[$i]->staffworkdayUpdates as $su)
+            {
+                if (strtotime($effective_date)<strtotime($su->start_date))
+                {
+                    session()->flash('danger','生效时间早于上次更新！');
+                    return redirect()->back()->withInput();
+                }
+            }
+
+            if ($origin_workdays[$i]->save())
+            {
+                $count = count($origin_workdays[$i]->staffworkdayUpdates);
+                foreach ($origin_workdays[$i]->staffworkdayUpdates as $key=>$su) {
+                    if ($key == $count-1)
+                    {
+                        $su->end_date = $effective_date;
+                        $su->save(); // 最近一条更新记录的结束日期修改
+                        $new_staffworkday_update = new StaffworkdayUpdate();
+                        $new_staffworkday_update->staffworkday_id = $origin_workdays[$i]->id;
+                        $new_staffworkday_update->staff_id = $origin_workdays[$i]->staff_id;
+                        $new_staffworkday_update->workday_name = $origin_workdays[$i]->workday_name;
+                        $new_staffworkday_update->work_time = $origin_workdays[$i]->work_time;
+                        $new_staffworkday_update->home_time = $origin_workdays[$i]->home_time;
+                        $new_staffworkday_update->duration = $origin_workdays[$i]->duration;
+                        $new_staffworkday_update->is_work = $origin_workdays[$i]->is_work;
+                        $new_staffworkday_update->start_date = $effective_date;
+                        $new_staffworkday_update->end_date = $staff->leave_company;
+                        $new_staffworkday_update->save();
+                    }
+                }
+            }
         }
-
-
         session()->flash('success','更新成功！');
         if ($staff->position_id > 7 && $staff->position_id != 12)
         {

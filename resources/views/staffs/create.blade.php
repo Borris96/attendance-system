@@ -101,7 +101,7 @@
       <tr>
           <td class="tableleft"></td>
           <td>
-              <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
+              <button type="submit" class="btn btn-primary" type="button" onclick="sure()">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
           </td>
       </tr>
   </table>
@@ -147,6 +147,12 @@
         oT.value=arr.join('');
       }
     }
+  }
+
+  function sure() {
+      if (!confirm("提交部分信息不可更改，是否无误？")) {
+          window.event.returnValue = false;
+      }
   }
 </script>
 
