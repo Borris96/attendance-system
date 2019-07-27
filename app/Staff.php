@@ -48,6 +48,11 @@ class Staff extends Model
         return $this->hasOne(Teacher::class);
     }
 
+    public function staffworkdayUpdates()
+    {
+        return $this->hasMany(StaffworkdayUpdate::class);
+    }
+
     /**
      * 计算年假
      * @param int $work_year, date $join_company

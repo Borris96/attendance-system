@@ -44,6 +44,12 @@
             @endfor
           </td>
       </tr>
+      <tr>
+          <td class="tableleft">生效日期*</td>
+           <td>
+            <input type="date" name="effective_date" value="old('effective_date')">
+          </td>
+      </tr>
 
       <tr>
           <td class="tableleft"></td>

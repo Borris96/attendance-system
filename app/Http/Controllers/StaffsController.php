@@ -13,6 +13,7 @@ use App\WorkHistory;
 use App\Absence;
 use App\LeaveStaff;
 use App\Card;
+use App\StaffworkdayUpdate;
 
 class StaffsController extends Controller
 {
@@ -193,6 +194,9 @@ class StaffsController extends Controller
             $staff->position_name = Position::find($staff->position_id)->position_name;
         }
         $staff->join_company = $request->get('join_company');
+        // 为了在考勤中方便查询在该月离职以及还未离职的员工
+        $staff->leave_company = '2038-01-01';
+        $staff->status = true;
 
         $work_times = $request->input('work_time');
         $home_times = $request->input('home_time');
@@ -205,7 +209,6 @@ class StaffsController extends Controller
         // exit();
 
         // 判断填写格式是否正确
-
         for ($i=0; $i<=6; $i++){
             if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
             {
@@ -298,7 +301,21 @@ class StaffsController extends Controller
                 $staffworkday->is_work = false;
             }
             $staffworkday->duration = Staffworkday::calDuration($work_times[$i],$home_times[$i]);
-            $staffworkday->save();
+            if ($staffworkday->save())
+            {
+                // 新建排班更新记录
+                $staffworkday_update = new StaffworkdayUpdate();
+                $staffworkday_update->staffworkday_id = $staffworkday->id;
+                $staffworkday_update->staff_id = $staffworkday->staff_id;
+                $staffworkday_update->workday_name = $staffworkday->workday_name;
+                $staffworkday_update->work_time = $staffworkday->work_time;
+                $staffworkday_update->home_time = $staffworkday->home_time;
+                $staffworkday_update->is_work = $staffworkday->is_work;
+                $staffworkday_update->duration = $staffworkday->duration;
+                $staffworkday_update->start_date = $staff->join_company;
+                $staffworkday_update->end_date = $staff->leave_company;
+                $staffworkday_update->save();
+            }
             // dump($staffworkday);
         }
 
@@ -313,10 +330,6 @@ class StaffsController extends Controller
         $card_info->card_number = $request->get('card_number');
         $card_info->bank = $request->get('bank');
         $card_info->staff_id = $staff->id;
-
-        // 为了在考勤中方便查询在该月离职以及还未离职的员工
-        $staff->leave_company = '2038-01-01';
-        $staff->status = true;
 
         if ($staff->save()) {
             $card_info->save();
@@ -359,6 +372,9 @@ class StaffsController extends Controller
         }
 
         $staff->join_company = $request->get('join_company');
+        // 为了在考勤中方便查询在该月离职以及还未离职的员工
+        $staff->leave_company = '2038-01-01';
+        $staff->status = true;
 
         $work_times = $request->input('work_time');
         $home_times = $request->input('home_time');
@@ -396,7 +412,21 @@ class StaffsController extends Controller
                 $staffworkday->is_work = false;
             }
             $staffworkday->duration = Staffworkday::calDuration($work_times[$i],$home_times[$i]);
-            $staffworkday->save();
+            if ($staffworkday->save())
+            {
+                // 新建排班更新记录
+                $staffworkday_update = new StaffworkdayUpdate();
+                $staffworkday_update->staffworkday_id = $staffworkday->id;
+                $staffworkday_update->staff_id = $staffworkday->staff_id;
+                $staffworkday_update->workday_name = $staffworkday->workday_name;
+                $staffworkday_update->work_time = $staffworkday->work_time;
+                $staffworkday_update->home_time = $staffworkday->home_time;
+                $staffworkday_update->is_work = $staffworkday->is_work;
+                $staffworkday_update->duration = $staffworkday->duration;
+                $staffworkday_update->start_date = $staff->join_company;
+                $staffworkday_update->end_date = $staff->leave_company;
+                $staffworkday_update->save();
+            }
             // dump($staffworkday);
         }
         $staff->annual_holiday = 0;
@@ -407,14 +437,11 @@ class StaffsController extends Controller
         $card_info->bank = $request->get('bank');
         $card_info->staff_id = $staff->id;
 
-        // 为了在考勤中方便查询在该月离职以及还未离职的员工
-        $staff->leave_company = '2038-01-01';
-        $staff->status = true;
-
         if ($staff->save()) {
             $card_info->save();
             session()->flash('success','保存成功！');
-            return redirect('staffs'); //应导向列表
+            $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('id','asc')->get();
+            return view('staffs.part_time_index',compact('staffs')); //应导向列表
         } else {
             session()->flash('danger','保存失败！');
             return redirect()->back()->withInput();
@@ -652,15 +679,17 @@ class StaffsController extends Controller
 
     }
 
-    public function updateWorkTime($id)
+    public function updateWorkTime(Request $request, $id)
     {
         $this->validate($request, [
-            'work_times'=>'required',
-            'home_times'=>'required',
+            // 'work_times'=>'required',
+            // 'home_times'=>'required',
+            'effective_date'=>'required',
         ]);
-
+        $staff = Staff::find($id);
         $work_times = $request->input('work_time');
         $home_times = $request->input('home_time');
+        $effective_date = $request->input('effective_date');
         // 判断填写格式是否正确
         for ($i=0; $i<=6; $i++){
             if (($work_times[$i]!=null && $home_times[$i]==null) || ($work_times[$i]==null && $home_times[$i]!=null))
@@ -689,5 +718,18 @@ class StaffsController extends Controller
             $origin_workdays[$i]->duration = Staffworkday::calDuration($work_times[$i],$home_times[$i]);
             $origin_workdays[$i]->save();
         }
+
+
+        session()->flash('success','更新成功！');
+        if ($staff->position_id > 7 && $staff->position_id != 12)
+        {
+            $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('id','asc')->get();
+            return view('staffs.part_time_index',compact('staffs')); //应导向列表
+        }
+        else
+        {
+            return redirect('staffs'); //应导向列表
+        }
+
     }
 }

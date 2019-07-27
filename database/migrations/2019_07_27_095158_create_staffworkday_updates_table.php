@@ -21,6 +21,8 @@ class CreateStaffworkdayUpdatesTable extends Migration
             $table->boolean('is_work');
             $table->time('work_time')->nullable();
             $table->time('home_time')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->decimal('duration',5,2)->nullable();
             $table->timestamps();
         });

@@ -13,6 +13,11 @@ class Staffworkday extends Model
         return $this->belongsTo(Staff::class);
     }
 
+    public function staffworkdayUpdates()
+    {
+        return $this->hasMany(StaffworkdayUpdate::class);
+    }
+
     public function getWorkdayName($i){
         switch ($i) {
             case '0':
