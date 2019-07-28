@@ -447,40 +447,136 @@ class AttendancesController extends Controller
                 $num = $spreadsheet->getSheetCount(); // Sheet的总数
                 // 判断读取的表格格式是否正确
                 $testsheet = $spreadsheet->getSheet(0);
-                if ($testsheet->getTitle() != '排班信息')
+                $sheet_title = $testsheet->getTitle();
+                // dump($sheet_title);
+                // dump(!stristr($sheet_title, '2019'));
+                // dump($sheet_title != '排班信息');
+                // exit();
+                if ($sheet_title != '排班信息' && !stristr($sheet_title, '考勤月报')) // 既不等于，又不等于
                 {
-                    session()->flash('danger','导入表格格式错误');
+                    session()->flash('danger','导入表格格式错误!');
                     return redirect()->back();
                 }
                 // 从第五张表开始是我们需要读的原始数据
-                for ($i = 4; $i<$num; $i++)
+                if ($sheet_title == '排班信息')
                 {
-                    $worksheet = $spreadsheet->getSheet($i); // 读取指定的sheet
+                    for ($i = 4; $i<$num; $i++)
+                    {
+                        $worksheet = $spreadsheet->getSheet($i); // 读取指定的sheet
+                        $highest_row = $worksheet->getHighestRow(); // 总行数
+                        $highest_column = $worksheet->getHighestColumn(); // 总列数
+                        $highest_column_index = Coordinate::columnIndexFromString($highest_column);
+                        $title = $worksheet->getCellByColumnAndRow(1,1)->getValue();
+                        if ($title != "考 勤 卡 表")
+                        {
+                            session()->flash('danger',"'".$worksheet->getTitle()."'工作表格式错误");
+                            return redirect()->back();
+                        }
+
+                        $month_period = $worksheet->getCellByColumnAndRow(4,2)->getValue();
+                        $this_month = explode('-', $month_period);
+                        $year = $this_month[0];
+                        $month = $this_month[1];
+                        $month_first_day = date('Y-m-01',strtotime($year.'-'.$month));
+                        $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
+                        // 查询这个月的节假日调休，接下来使用这个集合进行遍历
+                        $get_holidays = Holiday::where('date','<=',$month_last_day)->where('date','>=',$month_first_day)->get();
+                        for ($c = 1; $c < $highest_column_index; $c += 15)
+                        {
+                            $englishname = $worksheet->getCellByColumnAndRow($c+9,3)->getValue();
+                            // 查询离职日期为空或者晚于这个考勤月离职的员工。
+                            // 为了查询方便，我将未离职员工的离职日期默认设为时间戳能达到的最后一年第一天，即：2038-01-01
+                            $staff = Staff::where('leave_company','>=',$year.'-'.$month.'-01')->where('englishname',$englishname);
+                            // $staff = Staff::where('status',true)->where('englishname',$englishname);
+                            $staff_id = $staff->value('id');
+
+                            // 如果这个人存在于在职员工数据库中，那么我才读取他的数据。这样可以避免读取没有必要的数据。
+                            if (count($staff->get()) != 0)
+                            {
+                                $find = Attendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month); // 查询一下是否有该年该月的数据，防止导入重复的数据
+                                if (count($find->get()) == 0)
+                                { // 如果记录是新导入的，先把该员工当月每天的出勤记录导入，储存完成后，计算该员工当月的汇总记录。
+                                    $staff = Staff::find($staff_id);
+                                    // 导入该月每天数据
+                                    for ($r = 12; $r <= $highest_row; $r++ )
+                                    {
+                                        $attendance = new Attendance();
+                                        $date_and_day = explode(' ', $worksheet->getCellByColumnAndRow($c,$r)->getValue());
+                                        $date = $date_and_day[0];
+                                        $day = $date_and_day[1];
+                                        // 把当日基础数据录入
+                                        Attendance::postAttendance($worksheet, $c, $r, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day);
+                                    }
+
+                                    // 录入请假记录分割多天的请假记录到每一天，以便计算每天请假的小时数
+                                    // 取出这个月的该员工所有请假 （如果涉及跨月还查不到，需要修改）
+                                    // $absences = Absence::where('staff_id',$staff->id)->where('absence_start_time','>=',$month_first_day.' 0:00:00')->where('absence_end_time','<=',$month_last_day.' 24:00:00')->get();
+                                    // // 应该在生成请假记录时就拆分好的。
+                                    // Attendance::postAbsences($absences, $staff);
+                                    // 计算每一条attendance是否异常
+                                    $attendances = $staff->attendances->where('year',$year)->where('month',$month);
+                                    foreach ($attendances as $s_a)
+                                    {
+                                        Attendance::isAbnormal($s_a);
+                                    }
+                                    // 处理当日离职或入职员工的考勤异常
+                                    $join_company = $staff->join_company;
+                                    $leave_company = $staff->leave_company;
+                                    Attendance::joinOrLeave($attendances, $join_company, $leave_company, $month_first_day, $month_last_day, $year, $month);
+
+                                    // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表，并与每天考勤建立关联
+                                    $total_attendance = new TotalAttendance();
+                                    TotalAttendance::calTotal($total_attendance, $attendances, $staff, $year, $month);
+                                }
+                                // else {
+                                //     // dump($find->get());
+                                //     // exit();
+                                //     session()->flash('danger','该员工该月记录已存在！');
+                                //     return redirect()->back();
+                                // }
+                            }
+                        }
+                    }
+                }
+                elseif (stristr($sheet_title, '考勤月报'))
+                {
+                    $worksheet = $spreadsheet->getSheet(0); // 读取指定的sheet
                     $highest_row = $worksheet->getHighestRow(); // 总行数
                     $highest_column = $worksheet->getHighestColumn(); // 总列数
                     $highest_column_index = Coordinate::columnIndexFromString($highest_column);
                     $title = $worksheet->getCellByColumnAndRow(1,1)->getValue();
-                    if ($title != "考 勤 卡 表")
-                    {
-                        session()->flash('danger',"'".$worksheet->getTitle()."'工作表格式错误");
-                        return redirect()->back();
-                    }
-
-                    $month_period = $worksheet->getCellByColumnAndRow(4,2)->getValue();
-                    $this_month = explode('-', $month_period);
-                    $year = $this_month[0];
-                    $month = $this_month[1];
+                    // dump($highest_column);
+                    // dump($highest_column_index);
+                    // dump($highest_row);
+                    // dump($title);
+                    // exit();
+                    $year = substr($title, 0,4); // 获取年份
+                    $month = mb_substr($title, 5,2); // 获取月份
+                    $count = ($highest_row-6+1)/2; // 录入表的人数
+                    $days = $worksheet->getCellByColumnAndRow($highest_column_index,4)->getValue(); // 录入表的天数
+                    // dump($count);
+                    // dump($days);
+                    // exit();
                     $month_first_day = date('Y-m-01',strtotime($year.'-'.$month));
                     $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
                     // 查询这个月的节假日调休，接下来使用这个集合进行遍历
                     $get_holidays = Holiday::where('date','<=',$month_last_day)->where('date','>=',$month_first_day)->get();
-                    for ($c = 1; $c < $highest_column_index; $c += 15)
+                    for ($i = 0; $i<$count; $i++)
                     {
-                        $englishname = $worksheet->getCellByColumnAndRow($c+9,3)->getValue();
-                        // 查询离职日期为空或者晚于这个考勤月离职的员工。
-                        // 为了查询方便，我将未离职员工的离职日期默认设为时间戳能达到的最后一年第一天，即：2038-01-01
-                        $staff = Staff::where('leave_company','>=',$year.'-'.$month.'-01')->where('englishname',$englishname);
-                        // $staff = Staff::where('status',true)->where('englishname',$englishname);
+                        //录入一个人
+                        $name = $worksheet->getCellByColumnAndRow(3,6+2*$i)->getValue();
+                        $name_index = Attendance::getNameIndex($name);
+                        if ($name_index == 0) // 说明开头就是英文
+                        {
+                            $englishname = $name; // 只能通过英文名查找 $name
+                            $staff = Staff::where('leave_company','>=',$year.'-'.$month.'-01')->where('englishname',$englishname);
+                        }
+                        else
+                        {
+                            $staffname = mb_substr($name, 0,$name_index);
+                            $staff = Staff::where('leave_company','>=',$year.'-'.$month.'-01')->where('staffname',$staffname);
+                        }
+
                         $staff_id = $staff->value('id');
 
                         // 如果这个人存在于在职员工数据库中，那么我才读取他的数据。这样可以避免读取没有必要的数据。
@@ -491,14 +587,15 @@ class AttendancesController extends Controller
                             { // 如果记录是新导入的，先把该员工当月每天的出勤记录导入，储存完成后，计算该员工当月的汇总记录。
                                 $staff = Staff::find($staff_id);
                                 // 导入该月每天数据
-                                for ($r = 12; $r <= $highest_row; $r++ )
+                                for ($j = 0; $j < $days; $j++ )
                                 {
                                     $attendance = new Attendance();
-                                    $date_and_day = explode(' ', $worksheet->getCellByColumnAndRow($c,$r)->getValue());
+                                    $date_and_day = explode('/', $worksheet->getCellByColumnAndRow($j+10,4)->getValue());
                                     $date = $date_and_day[0];
                                     $day = $date_and_day[1];
+
                                     // 把当日基础数据录入
-                                    Attendance::postAttendance($worksheet, $c, $r, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day);
+                                    Attendance::postAttendance($worksheet, $j+10, 6+2*$i, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day, $option = '兼职助教');
                                 }
 
                                 // 录入请假记录分割多天的请假记录到每一天，以便计算每天请假的小时数

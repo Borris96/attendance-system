@@ -161,7 +161,7 @@ class Attendance extends Model
      * @return void
      *
      */
-    public static function postAttendance($worksheet, $c, $r, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day)
+    public static function postAttendance($worksheet, $c, $r, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day, $option = '正常')
     {
         $attendance->staff_id = $staff->id;
         // dump($attendance->staff_id);
@@ -172,6 +172,7 @@ class Attendance extends Model
         $attendance->date = $date;
         $attendance->day = $day;
         $ymd = $year.'-'.$month.'-'.$date;
+        // $complete_date = date('Y-m-d',strtotime($ymd));
         // 判断这一天是上班还是休息，录入该日期的类型
         if (count($get_holidays)!=0)
         {
@@ -184,19 +185,26 @@ class Attendance extends Model
                 foreach ($find_holiday as $h) {
                     $attendance->workday_type = $h->holiday_type;
                     $workday_name = $h->workday_name;
-                    $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                    $this_workday = $staff->staffworkdays->where('workday_name',$workday_name); // 那一天
+
                     // 如果节假日调休了，需要找到调上班那天应上下班时间
                     if ($attendance->workday_type == '上班')
                     {
                         foreach ($this_workday as $twd) {
-                            $should_work_time = $twd->work_time;
-                            $should_home_time = $twd->home_time;
+                            $workday_updates = $twd->staffworkdayUpdates; // 根据排班更新来确定上下班数据
+                            foreach ($workday_updates as $wu) {
+                                if (strtotime($ymd)>=strtotime($wu->start_date) && strtotime($ymd)<strtotime($wu->end_date)) // 如果这天在这条数据的起始范围内的话，就用
+                                {
+                                    $attendance->should_work_time = $wu->work_time;
+                                    $attendance->should_home_time = $wu->home_time;
+                                }
+                            }
                         }
                     }
                     if ($attendance->workday_type == '休息')
                     {
-                        $should_work_time = null;
-                        $should_home_time = null;
+                        $attendance->should_work_time = null;
+                        $attendance->should_home_time = null;
                     }
                 }
             }
@@ -205,18 +213,24 @@ class Attendance extends Model
                 // 否则寻找这一天是该员工休息日还是工作日
                 $this_workday = $staff->staffworkdays->where('workday_name',$day);
                 foreach ($this_workday as $twd) {
-                    $should_work_time = $twd->work_time;
-                    $should_home_time = $twd->home_time;
-                }
-                if (count($this_workday->where('work_time',!null)) != 0 && $attendance->workday_type == null) { // work_time非null，上班
-                    $attendance->workday_type = '上班';
-                }
-                elseif ($attendance->workday_type == null) {
-                    $attendance->workday_type = '休息';
+                    $workday_updates = $twd->staffworkdayUpdates; // 根据排班更新来确定上下班数据
+                    foreach ($workday_updates as $wu) {
+                        if (strtotime($ymd)>=strtotime($wu->start_date) && strtotime($ymd)<strtotime($wu->end_date)) // 如果这天在这条数据的起始范围内的话，就用
+                        {
+                            $attendance->should_work_time = $wu->work_time;
+                            $attendance->should_home_time = $wu->home_time;
+                            if ($wu->work_time != null && $attendance->workday_type == null) { // work_time非null，上班
+                                $attendance->workday_type = '上班';
+                            }
+                            elseif ($attendance->workday_type == null) {
+                                $attendance->workday_type = '休息';
+                            }
+                        }
+                    }
                 }
             }
-            $attendance->should_work_time = $should_work_time;
-            $attendance->should_home_time = $should_home_time;
+            // $attendance->should_work_time = $should_work_time;
+            // $attendance->should_home_time = $should_home_time;
         }
         else
         {
@@ -227,31 +241,55 @@ class Attendance extends Model
                 // dump($day);
                 // exit();
             foreach ($this_workday as $twd) {
-                $should_work_time = $twd->work_time;
-                $should_home_time = $twd->home_time;
+                $workday_updates = $twd->staffworkdayUpdates; // 根据排班更新来确定上下班数据
+                foreach ($workday_updates as $wu) {
+                    if (strtotime($ymd)>=strtotime($wu->start_date) && strtotime($ymd)<strtotime($wu->end_date)) // 如果这天在这条数据的起始范围内的话，就用
+                    {
+                        $attendance->should_work_time = $wu->work_time;
+                        $attendance->should_home_time = $wu->home_time;
+                        if ($wu->work_time != null && $attendance->workday_type == null) { // work_time非null，上班
+                            $attendance->workday_type = '上班';
+                        }
+                        elseif ($attendance->workday_type == null) {
+                            $attendance->workday_type = '休息';
+                        }
+                    }
+                }
             }
-            if (count($this_workday->where('work_time',!null)) != 0) { // work_time非null，上班
-                $attendance->workday_type = '上班';
-            }
-            else {
-                $attendance->workday_type = '休息';
-            }
-            $attendance->should_work_time = $should_work_time;
-            $attendance->should_home_time = $should_home_time;
+            // $attendance->should_work_time = $should_work_time;
+            // $attendance->should_home_time = $should_home_time;
         }
 
         // 录入实际上下班时间
         // 默认工作日休息日读取的列不同
-        if ($day == '日' || $day == '六') {
-            $work_time = $worksheet->getCellByColumnAndRow($c+10,$r)->getValue();
-            $home_time = $worksheet->getCellByColumnAndRow($c+12,$r)->getValue();
+        if ($option == '正常')
+        {
+            if ($day == '日' || $day == '六') {
+                $work_time = $worksheet->getCellByColumnAndRow($c+10,$r)->getValue();
+                $home_time = $worksheet->getCellByColumnAndRow($c+12,$r)->getValue();
+            }
+            else {
+                $work_time = $worksheet->getCellByColumnAndRow($c+1,$r)->getValue();
+                if ($work_time == '旷工') {
+                    $work_time = null;
+                }
+                $home_time = $worksheet->getCellByColumnAndRow($c+3,$r)->getValue();
+            }
         }
-        else {
-            $work_time = $worksheet->getCellByColumnAndRow($c+1,$r)->getValue();
-            if ($work_time == '旷工') {
+        elseif($option = '兼职助教')
+        {
+            $w_time = explode(' ', $worksheet->getCellByColumnAndRow($c,$r)->getValue());
+            $h_time = explode(' ', $worksheet->getCellByColumnAndRow($c,$r+1)->getValue());
+            $work_time = $w_time[0];
+            $home_time = $h_time[0]; // 在下一行
+            if ($work_time == '漏刷')
+            {
                 $work_time = null;
             }
-            $home_time = $worksheet->getCellByColumnAndRow($c+3,$r)->getValue();
+            if ($home_time == '漏刷')
+            {
+                $home_time = null;
+            }
         }
         $attendance->actual_work_time = $work_time;
         $attendance->actual_home_time = $home_time;
@@ -430,5 +468,45 @@ class Attendance extends Model
                 }
             }
         }
+    }
+
+    /**
+     * 拆分Unicode姓名字符串到数组
+     * @param string $str
+     * @return array $ret
+     *
+     */
+    public static function strSplitUnicode($str, $l = 0) {
+        if ($l > 0) {
+            $ret = array();
+            $len = mb_strlen($str, "UTF-8");
+            for ($i = 0; $i < $len; $i += $l) {
+                $ret[] = mb_substr($str, $i, $l, "UTF-8");
+            }
+            return $ret;
+        }
+        return preg_split("//u", $str, -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    /**
+     * 兼职助教表获取英文名所在的索引值
+     * @param string $name
+     * @return int $i index of Chinese name
+     *
+     */
+    public static function getNameIndex($name)
+    {
+        $name_array = Attendance::strSplitUnicode($name);
+        // $len = mb_strlen($name,'utf-8');
+        $len = count($name_array);
+        for ($i= 0; $i<$len; $i++)
+        {
+            if(!preg_match('/^[\x{4e00}-\x{9fa5}]+$/u', $name_array[$i])) // 不是中文
+            {
+                return $i;
+            }
+        }
+        return $false;
+
     }
 }
