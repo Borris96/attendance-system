@@ -453,9 +453,10 @@ class AttendancesController extends Controller
                     session()->flash('danger','导入表格格式错误!');
                     return redirect()->back();
                 }
-                // 从第五张表开始是我们需要读的原始数据
+                // 首先要查询该员工是否有这一天的考勤记录，如果有，看实际上下班是否有数据，只要有一个有，就不录入，如果都没有，且导的表中有，则录入
                 if ($sheet_title == '排班信息')
                 {
+                    // 从第五张表开始是我们需要读的原始数据
                     for ($i = 4; $i<$num; $i++)
                     {
                         $worksheet = $spreadsheet->getSheet($i); // 读取指定的sheet

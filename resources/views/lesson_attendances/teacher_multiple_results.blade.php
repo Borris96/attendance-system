@@ -63,12 +63,12 @@
       <tr>
           <td>{{ date('Y-m-d', strtotime($atew->extra_work_start_time)) }}</td>
           <td>{{ ($atew->duration)*1.0 }}</td>
-          @if ($atew->extra_work_type == '测试')
+          @if ($atew->extra_work_type == '带薪 1:1.2')
           <td>{{ ($atew->duration)*1.2 }}</td>
-          <td>{{$atew->extra_work_type}},1.2倍抵课时</td>
+          <td>{{$atew->extra_work_type}}抵课时</td>
           @else
           <td>{{ ($atew->duration)*1.0 }}</td>
-          <td>{{$atew->extra_work_type}},1:1抵课时</td>
+          <td>{{$atew->extra_work_type}}抵课时</td>
           @endif
       </tr>
       @endforeach

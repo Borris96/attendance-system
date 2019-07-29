@@ -27,7 +27,7 @@ class StaffsController extends Controller
         if ($request->get('englishname') == null)
         {
 
-            $staffs = Staff::where('status',true)->where('position_id','<>','8')->where('position_id','<>','9')->where('position_id','<>','10')->where('position_id','<>','11')->orderBy('id','asc')->get(); // 除了外教,实习生,兼职之外的员工更新年假
+            $staffs = Staff::where('status',true)->where('position_id','<>','8')->where('position_id','<>','9')->where('position_id','<>','10')->where('position_id','<>','11')->orderBy('department_id','asc')->get(); // 除了外教,实习生,兼职之外的员工更新年假
             foreach ($staffs as $staff) {
                 //每年更新一次
                 $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
@@ -71,7 +71,7 @@ class StaffsController extends Controller
 
     public function partTimeIndex()
     {
-        $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('id','asc')->get();
+        $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('department_id','asc')->get();
         return view('staffs/part_time_index',compact('staffs'));
     }
 

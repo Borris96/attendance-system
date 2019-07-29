@@ -40,6 +40,7 @@ class TotalAttendance extends Model
         $should_attend = 0;
         $actual_attend = 0;
         $total_extra_work_duration = 0;
+        $total_more_extra_work_duration = 0;
         $total_lieu_work_duration = 0;
         $total_absence_duration = 0;
         $total_basic_duration = 0;
@@ -95,6 +96,10 @@ class TotalAttendance extends Model
                 {
                     $total_lieu_work_duration += $at->extraWork->duration;
                 }
+                elseif ($at->extraWork->extra_work_type == '带薪 1:1.2')
+                {
+                    $total_more_extra_work_duration += $at->extraWork->duration;
+                }
             }
 
             if ($at->absence_id != null)
@@ -122,6 +127,7 @@ class TotalAttendance extends Model
         $total_attendance->should_attend = $should_attend;
         $total_attendance->actual_attend = $actual_attend;
         $total_attendance->total_extra_work_duration = $total_extra_work_duration;
+        $total_attendance->total_more_extra_work_duration = $total_more_extra_work_duration; // 带薪1:1.2时长
         $total_attendance->total_absence_duration = $total_absence_duration;
         $total_attendance->total_basic_duration = $total_basic_duration;
         $total_attendance->total_more_duration = $total_more_duration;
@@ -166,6 +172,7 @@ class TotalAttendance extends Model
         $total_should_duration = 0;
         $total_actual_duration = 0;
         $total_extra_work_duration = 0;
+        $total_more_extra_work_duration = 0;
         $total_absence_duration = 0;
         $total_basic_duration = 0;
         $total_lieu_work_duration = 0;
@@ -201,6 +208,10 @@ class TotalAttendance extends Model
                     if ($at->extraWork->extra_work_type == '调休')
                     {
                         $total_lieu_work_duration += $at->extraWork->duration;
+                    }
+                    elseif ($at->extraWork->extra_work_type == '带薪 1:1.2')
+                    {
+                        $total_more_extra_work_duration += $at->extraWork->duration;
                     }
                 }
 
@@ -259,6 +270,7 @@ class TotalAttendance extends Model
             $attendance->totalAttendance->should_attend = $should_attend;
             $attendance->totalAttendance->actual_attend = $actual_attend;
             $attendance->totalAttendance->total_extra_work_duration = $total_extra_work_duration;
+            $attendance->totalAttendance->total_more_extra_work_duration = $total_more_extra_work_duration;
             $attendance->totalAttendance->total_absence_duration = $total_absence_duration;
             $attendance->totalAttendance->total_basic_duration = $total_basic_duration;
             $attendance->totalAttendance->difference = $attendance->totalAttendance->total_basic_duration - $total_should_duration;
@@ -404,7 +416,7 @@ class TotalAttendance extends Model
             $worksheet->setCellValueByColumnAndRow(8, 5+$key, $tmta->total_basic_duration);
             $worksheet->setCellValueByColumnAndRow(9, 5+$key, $tmta->total_more_duration);
             $worksheet->setCellValueByColumnAndRow(10, 5+$key, $tmta->total_lieu_work_duration);
-            $worksheet->setCellValueByColumnAndRow(11, 5+$key, $tmta->total_salary_work_duration);
+            $worksheet->setCellValueByColumnAndRow(11, 5+$key, round(($tmta->total_salary_work_duration-$tmta->total_more_extra_work_duration),2).'/'.round($tmta->total_more_extra_work_duration,2));
             $worksheet->setCellValueByColumnAndRow(12, 5+$key, $tmta->total_absence_duration);
             $worksheet->setCellValueByColumnAndRow(13, 5+$key, $tmta->total_is_late);
             $worksheet->setCellValueByColumnAndRow(14, 5+$key, $tmta->total_late_work);

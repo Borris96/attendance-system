@@ -251,11 +251,12 @@ class LessonAttendancesController extends Controller
                         $term_end_date = date('Y-m-d H:i:s',strtotime($term->end_date));
 
                         // 加班目前取学期中的所有加班记录(除了调休加班外)
-                        $extra_works = ExtraWork::where('staff_id',$t->staff->id)->where('extra_work_type','<>','调休')->where('extra_work_end_time','<=',$term_end_date)->where('extra_work_end_time','>=',$term_start_date)->get();
+                        // $extra_works = ExtraWork::where('staff_id',$t->staff->id)->where('extra_work_type','<>','调休')->where('extra_work_end_time','<=',$term_end_date)->where('extra_work_end_time','>=',$term_start_date)->get();
+                        $extra_works = ExtraWork::where('staff_id',$t->staff->id)->where('extra_work_end_time','<=',$term_end_date)->where('extra_work_end_time','>=',$term_start_date)->get();
                         // 计算总计加班工时（转换后）
                         $total = 0;
                         foreach ($extra_works as $ew) {
-                            if ($ew->extra_work_type == '测试')
+                            if ($ew->extra_work_type == '带薪 1:1.2')
                             {
                                 $total += ($ew->duration)*1.2;
                             }
