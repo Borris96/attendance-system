@@ -448,10 +448,6 @@ class AttendancesController extends Controller
                 // 判断读取的表格格式是否正确
                 $testsheet = $spreadsheet->getSheet(0);
                 $sheet_title = $testsheet->getTitle();
-                // dump($sheet_title);
-                // dump(!stristr($sheet_title, '2019'));
-                // dump($sheet_title != '排班信息');
-                // exit();
                 if ($sheet_title != '排班信息' && !stristr($sheet_title, '考勤月报')) // 既不等于，又不等于
                 {
                     session()->flash('danger','导入表格格式错误!');
@@ -493,47 +489,59 @@ class AttendancesController extends Controller
                             // 如果这个人存在于在职员工数据库中，那么我才读取他的数据。这样可以避免读取没有必要的数据。
                             if (count($staff->get()) != 0)
                             {
-                                $find = Attendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month); // 查询一下是否有该年该月的数据，防止导入重复的数据
-                                if (count($find->get()) == 0)
-                                { // 如果记录是新导入的，先把该员工当月每天的出勤记录导入，储存完成后，计算该员工当月的汇总记录。
-                                    $staff = Staff::find($staff_id);
-                                    // 导入该月每天数据
-                                    for ($r = 12; $r <= $highest_row; $r++ )
+                                $repeat = false; // 用于判断是否有重复数据的导入。如果没有，正常新建total_attendance; 否则，删除原来的total_attendance再新建
+                                $staff = Staff::find($staff_id);
+                                // 导入该月每天数据
+                                for ($r = 12; $r <= $highest_row; $r++ )
+                                {
+                                    $date_and_day = explode(' ', $worksheet->getCellByColumnAndRow($c,$r)->getValue());
+                                    $date = $date_and_day[0];
+                                    $day = $date_and_day[1];
+
+                                    $find_id = Attendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->where('date',$date)->value('id');
+
+                                    if ($find_id == null) // 这一天考勤数据中不存在
                                     {
                                         $attendance = new Attendance();
-                                        $date_and_day = explode(' ', $worksheet->getCellByColumnAndRow($c,$r)->getValue());
-                                        $date = $date_and_day[0];
-                                        $day = $date_and_day[1];
                                         // 把当日基础数据录入
                                         Attendance::postAttendance($worksheet, $c, $r, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day);
                                     }
-
-                                    // 录入请假记录分割多天的请假记录到每一天，以便计算每天请假的小时数
-                                    // 取出这个月的该员工所有请假 （如果涉及跨月还查不到，需要修改）
-                                    // $absences = Absence::where('staff_id',$staff->id)->where('absence_start_time','>=',$month_first_day.' 0:00:00')->where('absence_end_time','<=',$month_last_day.' 24:00:00')->get();
-                                    // // 应该在生成请假记录时就拆分好的。
-                                    // Attendance::postAbsences($absences, $staff);
-                                    // 计算每一条attendance是否异常
-                                    $attendances = $staff->attendances->where('year',$year)->where('month',$month);
-                                    foreach ($attendances as $s_a)
+                                    else // 考勤中已存在这一天
                                     {
-                                        Attendance::isAbnormal($s_a);
+                                        $exist_attendance = Attendance::find($find_id);
+                                        if ($exist_attendance->actual_home_time == null && $exist_attendance->actual_work_time == null) // 如果实际上下班记录之前都是空的，再在这张表上读取数据
+                                        {
+                                            Attendance::postAttendance($worksheet, $c, $r, $exist_attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day);
+                                            $repeat = true;
+                                        }
+                                        // 否则，保留原始数据，不做任何操作
                                     }
-                                    // 处理当日离职或入职员工的考勤异常
-                                    $join_company = $staff->join_company;
-                                    $leave_company = $staff->leave_company;
-                                    Attendance::joinOrLeave($attendances, $join_company, $leave_company, $month_first_day, $month_last_day, $year, $month);
 
-                                    // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表，并与每天考勤建立关联
-                                    $total_attendance = new TotalAttendance();
-                                    TotalAttendance::calTotal($total_attendance, $attendances, $staff, $year, $month);
+
                                 }
-                                // else {
-                                //     // dump($find->get());
-                                //     // exit();
-                                //     session()->flash('danger','该员工该月记录已存在！');
-                                //     return redirect()->back();
-                                // }
+
+                                // 录入请假记录分割多天的请假记录到每一天，以便计算每天请假的小时数
+                                // Attendance::postAbsences($absences, $staff);
+                                // 计算每一条attendance是否异常
+                                $attendances = $staff->attendances->where('year',$year)->where('month',$month);
+                                foreach ($attendances as $s_a)
+                                {
+                                    Attendance::isAbnormal($s_a);
+                                }
+                                // 处理当日离职或入职员工的考勤异常
+                                $join_company = $staff->join_company;
+                                $leave_company = $staff->leave_company;
+                                Attendance::joinOrLeave($attendances, $join_company, $leave_company, $month_first_day, $month_last_day, $year, $month);
+
+                                // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表，并与每天考勤建立关联
+                                if ($repeat) // 如果之前有数据，是漏录数据的补录，那么先把之前的那条total_attendance删掉
+                                {
+                                    $total_attendance_id = TotalAttendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->value('id');
+                                    $total_attendance = TotalAttendance::find($total_attendance_id);
+                                    $total_attendance->delete();
+                                }
+                                $total_attendance = new TotalAttendance();
+                                TotalAttendance::calTotal($total_attendance, $attendances, $staff, $year, $month);
                             }
                         }
                     }
@@ -545,18 +553,10 @@ class AttendancesController extends Controller
                     $highest_column = $worksheet->getHighestColumn(); // 总列数
                     $highest_column_index = Coordinate::columnIndexFromString($highest_column);
                     $title = $worksheet->getCellByColumnAndRow(1,1)->getValue();
-                    // dump($highest_column);
-                    // dump($highest_column_index);
-                    // dump($highest_row);
-                    // dump($title);
-                    // exit();
                     $year = substr($title, 0,4); // 获取年份
                     $month = mb_substr($title, 5,2); // 获取月份
                     $count = ($highest_row-6+1)/2; // 录入表的人数
                     $days = $worksheet->getCellByColumnAndRow($highest_column_index,4)->getValue(); // 录入表的天数
-                    // dump($count);
-                    // dump($days);
-                    // exit();
                     $month_first_day = date('Y-m-01',strtotime($year.'-'.$month));
                     $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
                     // 查询这个月的节假日调休，接下来使用这个集合进行遍历
@@ -582,48 +582,59 @@ class AttendancesController extends Controller
                         // 如果这个人存在于在职员工数据库中，那么我才读取他的数据。这样可以避免读取没有必要的数据。
                         if (count($staff->get()) != 0)
                         {
-                            $find = Attendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month); // 查询一下是否有该年该月的数据，防止导入重复的数据
-                            if (count($find->get()) == 0)
-                            { // 如果记录是新导入的，先把该员工当月每天的出勤记录导入，储存完成后，计算该员工当月的汇总记录。
-                                $staff = Staff::find($staff_id);
-                                // 导入该月每天数据
-                                for ($j = 0; $j < $days; $j++ )
+                            $repeat = false; // 用于判断是否有重复数据的导入。如果没有，正常新建total_attendance; 否则，删除原来的total_attendance再新建
+                            $staff = Staff::find($staff_id);
+                            // 导入该月每天数据
+                            for ($j = 0; $j < $days; $j++ )
+                            {
+                                $date_and_day = explode('/', $worksheet->getCellByColumnAndRow($j+10,4)->getValue());
+                                $date = $date_and_day[0];
+                                $day = $date_and_day[1];
+
+                                $find_id = Attendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->where('date',$date)->value('id');
+                                // dump($find_id);
+                                // exit();
+
+                                if ($find_id == null) // 这一天考勤数据中不存在
                                 {
                                     $attendance = new Attendance();
-                                    $date_and_day = explode('/', $worksheet->getCellByColumnAndRow($j+10,4)->getValue());
-                                    $date = $date_and_day[0];
-                                    $day = $date_and_day[1];
-
                                     // 把当日基础数据录入
                                     Attendance::postAttendance($worksheet, $j+10, 6+2*$i, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day, $option = '兼职助教');
                                 }
-
-                                // 录入请假记录分割多天的请假记录到每一天，以便计算每天请假的小时数
-                                // 取出这个月的该员工所有请假 （如果涉及跨月还查不到，需要修改）
-                                // $absences = Absence::where('staff_id',$staff->id)->where('absence_start_time','>=',$month_first_day.' 0:00:00')->where('absence_end_time','<=',$month_last_day.' 24:00:00')->get();
-                                // // 应该在生成请假记录时就拆分好的。
-                                // Attendance::postAbsences($absences, $staff);
-                                // 计算每一条attendance是否异常
-                                $attendances = $staff->attendances->where('year',$year)->where('month',$month);
-                                foreach ($attendances as $s_a)
+                                else // 考勤中已存在这一天
                                 {
-                                    Attendance::isAbnormal($s_a);
+                                    $exist_attendance = Attendance::find($find_id);
+                                    if ($exist_attendance->actual_home_time == null && $exist_attendance->actual_work_time == null) // 如果实际上下班记录之前都是空的，再在这张表上读取数据
+                                    {
+                                        Attendance::postAttendance($worksheet, $j+10, 6+2*$i, $exist_attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day, $option = '兼职助教');
+                                        $repeat = true;
+                                    }
+                                    // 否则，保留原始数据，不做任何操作
                                 }
-                                // 处理当日离职或入职员工的考勤异常
-                                $join_company = $staff->join_company;
-                                $leave_company = $staff->leave_company;
-                                Attendance::joinOrLeave($attendances, $join_company, $leave_company, $month_first_day, $month_last_day, $year, $month);
-
-                                // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表，并与每天考勤建立关联
-                                $total_attendance = new TotalAttendance();
-                                TotalAttendance::calTotal($total_attendance, $attendances, $staff, $year, $month);
                             }
-                            // else {
-                            //     // dump($find->get());
-                            //     // exit();
-                            //     session()->flash('danger','该员工该月记录已存在！');
-                            //     return redirect()->back();
-                            // }
+
+                            // 录入请假记录分割多天的请假记录到每一天，以便计算每天请假的小时数
+                            // Attendance::postAbsences($absences, $staff);
+                            // 计算每一条attendance是否异常
+                            $attendances = $staff->attendances->where('year',$year)->where('month',$month);
+                            foreach ($attendances as $s_a)
+                            {
+                                Attendance::isAbnormal($s_a);
+                            }
+                            // 处理当日离职或入职员工的考勤异常
+                            $join_company = $staff->join_company;
+                            $leave_company = $staff->leave_company;
+                            Attendance::joinOrLeave($attendances, $join_company, $leave_company, $month_first_day, $month_last_day, $year, $month);
+
+                            // 将刚才储存好的该员工当月每天数据进行汇总计算，录入总表，并与每天考勤建立关联
+                            if ($repeat) // 如果之前有数据，是漏录数据的补录，那么先把之前的那条total_attendance删掉
+                            {
+                                $total_attendance_id = TotalAttendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->value('id');
+                                $total_attendance = TotalAttendance::find($total_attendance_id);
+                                $total_attendance->delete();
+                            }
+                            $total_attendance = new TotalAttendance();
+                            TotalAttendance::calTotal($total_attendance, $attendances, $staff, $year, $month);
                         }
                     }
                 }
