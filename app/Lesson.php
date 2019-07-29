@@ -18,9 +18,14 @@ class Lesson extends Model
         return $this->belongsTo(Teacher::class);
     }
 
-    public function substitute()
+    public function substitutes() // 这个课程可能会有很多代课记录
     {
-        return $this->hasOne(Substitute::class);
+        return $this->hasMany(Substitute::class);
+    }
+
+    public function alters() // 这个课程可能会有很多代课记录
+    {
+        return $this->hasMany(Alter::class);
     }
 
     public function lessonUpdates()

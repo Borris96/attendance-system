@@ -64,7 +64,12 @@
                 <form action="{{ route('lessons.destroy',array($l->id, 'term_id'=>$term_id)) }}" method="POST" style="display: inline-block;">
                   {{ method_field('DELETE') }}
                   {{ csrf_field() }}
+                  @if (count($l->substitutes) != 0 || count($l->alters) != 0)
+                  <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();" disabled="">删除</button>
+                  @else
                   <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">删除</button>
+                  @endif
+
                 </form>
             </td>
         </tr>
