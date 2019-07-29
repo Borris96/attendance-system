@@ -285,22 +285,33 @@ class Teacher extends Model
         // 这个月老师的坐班时间
         while($str_this_date<=strtotime($month_last_day))
         {
+            $this_date = date('Y-m-d',$str_this_date); // Y-m-d
             $this_day = date('w',$str_this_date); // 获取这一天是星期几
             foreach($teacher_work_days as $twd) // 如果其中一天和这一天的星期相等，坐班时间累加
             {
                 if ($day_array[$this_day] == $twd->workday_name) // 查找这一天的工作时长并加上
                 {
-                    $office_duration += $twd->duration;
-                    $is_work = $twd->is_work;
-                    $this_day_duration = $twd->duration;
+                    $workday_updates = $twd->staffworkdayUpdates;
+                    foreach ($workday_updates as $wu) {
+                        if (strtotime($this_date)>=strtotime($wu->start_date) && strtotime($this_date)<strtotime($wu->end_date)) // 如果这天在这条数据的起始范围内的话，就用
+                        {
+                            $office_duration += $wu->duration;
+                            $is_work = $wu->is_work;
+                            $this_day_duration = $wu->duration;
+                        }
+                    }
                 }
             }
 
             $holiday = Holiday::where('date',date('Y-m-d',$str_this_date));
+
             if (count($holiday->get())!=0) // 如果在节假日中，进一步处理
             {
                 $holiday_date = $holiday->value('date');
                 $holiday_day = date('w',strtotime($holiday_date));
+
+
+
 
                 // 是老师的工作日，且节假日休息的，减时长
                 if ($is_work == true)
@@ -320,7 +331,13 @@ class Teacher extends Model
                         {
                             if ($day_array[$holiday_workday] == $twd->workday_name) // 查找这一天的工作时长并加上
                             {
-                                $office_duration += $twd->duration;
+                                $workday_updates = $twd->staffworkdayUpdates;
+                                foreach ($workday_updates as $wu) {
+                                    if (strtotime($holiday_date)>=strtotime($wu->start_date) && strtotime($holiday_date)<strtotime($wu->end_date)) // 如果这天在这条数据的起始范围内的话，就用
+                                    {
+                                        $office_duration += $wu->duration;
+                                    }
+                                }
                             }
                         }
                     }
@@ -328,7 +345,6 @@ class Teacher extends Model
             }
             $str_this_date = $str_this_date+3600*24; // 加一天
         }
-
         $duration = $work_duration - $office_duration; // 应排课 = 应上班时长-坐班时长
         return $duration;
     }
