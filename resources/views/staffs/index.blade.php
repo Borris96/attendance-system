@@ -23,9 +23,9 @@
     <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
     查看员工 <span class="caret"></span></button>
     <ul class="dropdown-menu" role="menu">
-    <a href="{{route('leave_staffs.index')}}" class="btn btn-link">离职员工</a>
-    &nbsp;&nbsp;
     <a class="btn btn-link" href="{{ route('staffs.part_time_index') }}">兼职员工</a>
+    &nbsp;&nbsp;
+    <a href="{{route('leave_staffs.index')}}" class="btn btn-link">离职员工</a>
     </ul>
   </div>
 

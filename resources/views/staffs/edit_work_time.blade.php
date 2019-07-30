@@ -54,7 +54,12 @@
       <tr>
           <td class="tableleft"></td>
           <td>
-              <button type="submit" class="btn btn-primary" type="button" onclick="sure()">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
+              <button type="submit" class="btn btn-primary" type="button" onclick="sure()">提交</button> &nbsp;&nbsp;
+              @if ($staff_id != null)
+              <a class="btn btn-success" href="{{ route('staffs.part_time_index') }}" role="button">返回列表</a>
+              @else
+              <a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
+              @endif
           </td>
       </tr>
   </table>

@@ -96,6 +96,9 @@
     @endforeach
 </table>
 <p style="margin: 0px 20px; text-align: right;">本周应工作时长：{{ $total_duration }} 小时</p> <!-- 要考虑和午休没有交集，有交集要减去1小时 -->
+<p style="margin: 0px 20px; text-align: right;">
+  <u><a href="{{ route('staffs.show_work_time',$staff->id) }}">查看历史排班</a></u>
+</p>
 
 @if (count($work_historys) != 0 )
 <table class="table table-bordered table-hover definewidth m10">
@@ -117,6 +120,7 @@
 
 <div style="margin: 20px">
   <a class="btn btn-primary"  href="{{ route('staffs.edit',$staff->id) }}" role="button">编辑信息</a>
+  <a href="{{ route('staffs.edit_work_time',$staff->id) }}" class="btn btn-primary">修改排班</a>
   <a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
 </div>
 

@@ -37,7 +37,7 @@
             <td>
                 <a href="{{route('staffs.show_part_time',array('id'=>$staff->id))}}" class="btn btn-info">详情</a>
                 <a href="{{ route('staffs.edit_part_time',array('id'=>$staff->id)) }}" class="btn btn-primary">编辑信息</a>
-                <a href="{{ route('staffs.edit_work_time',$staff->id) }}" class="btn btn-primary">修改排班</a>
+                <a href="{{ route('staffs.edit_work_time',array($staff->id,'staff_id'=>$staff->id)) }}" class="btn btn-primary">修改排班</a>
                 <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('PATCH') }}
                   {{ csrf_field() }}

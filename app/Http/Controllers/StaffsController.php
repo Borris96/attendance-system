@@ -100,7 +100,7 @@ class StaffsController extends Controller
         foreach ($staffworkdays as $workday) {
             $total_duration += $workday->duration;
         }
-        return view('staffs.show_part_time',compact('staff','staffworkdays','total_duration'));
+        return view('staffs.show_part_time',compact('staff','staffworkdays','total_duration','id'));
     }
 
     public function create()
@@ -140,12 +140,15 @@ class StaffsController extends Controller
         return view('staffs.edit_part_time',compact('staff','workdays','departments','positions','days'));
     }
 
-    public function editWorkTime($id)
+    public function editWorkTime($id, Request $request)
     {
+        $staff_id = $request->input('staff_id'); // 用来判断是否兼职
+        // dump($staff_id);
+        // exit();
         $staff = Staff::find($id);
         $days = ['一','二','三','四','五','六','日'];
         $workdays = $staff->staffworkdays;
-        return view('staffs/edit_work_time',compact('staff','days','workdays'));
+        return view('staffs/edit_work_time',compact('staff','days','workdays','staff_id'));
     }
 
 // 任何和该员工有关联的数据都应该删除 （员工ID不是unique的）
@@ -762,5 +765,30 @@ class StaffsController extends Controller
             return redirect('staffs'); //应导向列表
         }
 
+    }
+
+    public function showWorkTime($id, Request $request)
+    {
+        $staff = Staff::find($id);
+        $updates = $staff->staffworkdayUpdates->where('workday_name','日');
+        $id = $request->input('id');
+        foreach ($updates as $u) // 获取几段更新历史的起止时间
+        {
+            $update_historys_s[] = $u->start_date;
+            $update_historys_e[] = $u->end_date;
+        }
+
+        for($i=0; $i<count($update_historys_s); $i++)
+        {
+            $this_total_duration = 0;
+            $this_period_workdays = $staff->staffworkdayUpdates->where('start_date',$update_historys_s[$i])->where('end_date',$update_historys_e[$i]);
+            foreach ($this_period_workdays as $wd) {
+                $this_total_duration += $wd->duration;
+            }
+            $staffworkdays[] = $this_period_workdays;
+            $total_duration[] = $this_total_duration;
+        }
+
+        return view('staffs.show_work_time',compact('staff','update_historys_s','update_historys_e','staffworkdays','total_duration','id'));
     }
 }

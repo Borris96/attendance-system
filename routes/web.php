@@ -29,6 +29,7 @@ Route::patch('/update_part_time', 'StaffsController@updatePartTime')->name('staf
 Route::get('/show_part_time', 'StaffsController@showPartTime')->name('staffs.show_part_time');
 
 Route::get('/staffs/{staff}/edit_work_time', 'StaffsController@editWorkTime')->name('staffs.edit_work_time');
+Route::get('/staffs/{staff}/show_work_time', 'StaffsController@showWorkTime')->name('staffs.show_work_time');
 Route::patch('/staffs/{staff}/update_work_time', 'StaffsController@updateWorkTime')->name('staffs.update_work_time');
 Route::patch('/staffs/{staff}/leave', 'StaffsController@leave')->name('staffs.leave');
 

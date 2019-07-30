@@ -82,7 +82,7 @@
       <tr>
           <td class="tableleft"></td>
           <td>
-              <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.index') }}" role="button">返回列表</a>
+              <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('staffs.part_time_index') }}" role="button">返回列表</a>
           </td>
       </tr>
   </table>
