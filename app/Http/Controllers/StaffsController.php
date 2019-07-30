@@ -71,7 +71,7 @@ class StaffsController extends Controller
 
     public function partTimeIndex()
     {
-        $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('department_id','asc')->get();
+        $staffs = Staff::where('status',true)->where('position_id','>','7')->where('position_id','<>','12')->orderBy('department_id','asc')->get();
         return view('staffs/part_time_index',compact('staffs'));
     }
 
@@ -443,7 +443,7 @@ class StaffsController extends Controller
         if ($staff->save()) {
             $card_info->save();
             session()->flash('success','保存成功！');
-            $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('id','asc')->get();
+            $staffs = Staff::where('status',true)->where('position_id','>','7')->where('position_id','<>','12')->orderBy('id','asc')->get();
             return view('staffs.part_time_index',compact('staffs')); //应导向列表
         } else {
             session()->flash('danger','保存失败！');
@@ -673,7 +673,7 @@ class StaffsController extends Controller
         if ($staff->save()) {
             $card_info->save();
             session()->flash('success','更新成功！');
-            $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('id','asc')->get();
+            $staffs = Staff::where('status',true)->where('position_id','>','7')->where('position_id','<>','12')->orderBy('id','asc')->get();
             return view('staffs.part_time_index',compact('staffs')); //应导向列表
         } else {
             session()->flash('danger','更新失败！');
@@ -757,7 +757,7 @@ class StaffsController extends Controller
         session()->flash('success','更新成功！');
         if ($staff->position_id > 7 && $staff->position_id != 12)
         {
-            $staffs = Staff::where('status',true)->where('position_id','>','7')->where('id','<>','12')->orderBy('id','asc')->get();
+            $staffs = Staff::where('status',true)->where('position_id','>','7')->where('position_id','<>','12')->orderBy('id','asc')->get();
             return view('staffs.part_time_index',compact('staffs')); //应导向列表
         }
         else

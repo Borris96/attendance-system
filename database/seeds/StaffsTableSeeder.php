@@ -12,18 +12,50 @@ class StaffsTableSeeder extends Seeder
      */
     public function run()
     {
-        // DB::table('staffs')->insert([
-        //     'id'=>'2012060101',
-        //     'staffname'=>'胡遐近',
-        //     'englishname'=>'IreneHu',
-        //     'department_name'=>'客服部',
-        //     'poistion_name'=>'主任',
-        //     'join_company'=>'2012-06-01',
-        //     'created_at'=>now(),
-        //     'updated_at'=>now(),
-        //     ]);
+        // 全职员工
 
-        // 固定时长员工
+        DB::table('staffs')->insert([
+            'id'=>'2019070101',
+            'staffname'=>'周琤',
+            'englishname'=>'JoyZhou',
+            'department_id'=>'7',
+            'position_id'=>'12',
+            'department_name'=>'其他',
+            'position_name'=>'其他',
+            'join_company'=>'2019-07-01',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
+            'id'=>'2012060101',
+            'staffname'=>'胡遐近',
+            'englishname'=>'IreneHu',
+            'department_id'=>'1',
+            'position_id'=>'4',
+            'department_name'=>'客服部',
+            'position_name'=>'主任',
+            'join_company'=>'2012-06-01',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
+            'id'=>'2017040501',
+            'staffname'=>'范佳秋',
+            'englishname'=>'FannyFan',
+            'department_id'=>'1',
+            'position_id'=>'1',
+            'department_name'=>'客服部',
+            'position_name'=>'助理',
+            'join_company'=>'2017-04-05',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
         DB::table('staffs')->insert([
             'id'=>'2018050701',
             'staffname'=>'陈嘉琛',
@@ -39,6 +71,62 @@ class StaffsTableSeeder extends Seeder
             ]);
 
         DB::table('staffs')->insert([
+            'id'=>'2018082901',
+            'staffname'=>'唐菲菲',
+            'englishname'=>'ConnieTang',
+            'department_id'=>'1',
+            'position_id'=>'1',
+            'department_name'=>'客服部',
+            'position_name'=>'助理',
+            'join_company'=>'2018-08-29',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
+            'id'=>'2019070801',
+            'staffname'=>'李茹君',
+            'englishname'=>'AlinaLi',
+            'department_id'=>'1',
+            'position_id'=>'1',
+            'department_name'=>'客服部',
+            'position_name'=>'助理',
+            'join_company'=>'2019-07-08',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
+            'id'=>'2019071501',
+            'staffname'=>'夏璐',
+            'englishname'=>'SherryXia',
+            'department_id'=>'1',
+            'position_id'=>'1',
+            'department_name'=>'客服部',
+            'position_name'=>'助理',
+            'join_company'=>'2019-07-15',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
+            'id'=>'2019070102',
+            'staffname'=>'侯晨',
+            'englishname'=>'LucyHou',
+            'department_id'=>'1',
+            'position_id'=>'1',
+            'department_name'=>'客服部',
+            'position_name'=>'助理',
+            'join_company'=>'2019-07-01',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
             'id'=>'2011110101',
             'staffname'=>'舒旻',
             'englishname'=>'SunnyShu',
@@ -47,20 +135,6 @@ class StaffsTableSeeder extends Seeder
             'department_name'=>'教材部',
             'position_name'=>'文员',
             'join_company'=>'2011-11-01',
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            'status'=>true, 'leave_company'=>'2038-01-01',
-            ]);
-
-        DB::table('staffs')->insert([
-            'id'=>'2019010101',
-            'staffname'=>'TinaChen',
-            'englishname'=>'TinaChen',
-            'department_id'=>'2',
-            'position_id'=>'3',
-            'department_name'=>'教材部',
-            'position_name'=>'文员',
-            'join_company'=>'2019-01-01',
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true, 'leave_company'=>'2038-01-01',
@@ -123,9 +197,23 @@ class StaffsTableSeeder extends Seeder
             ]);
 
         DB::table('staffs')->insert([
+            'id'=>'2013031501',
+            'staffname'=>'余婕婷',
+            'englishname'=>'JessieYu',
+            'department_id'=>'6',
+            'position_id'=>'2',
+            'department_name'=>'财务部',
+            'position_name'=>'经理',
+            'join_company'=>'2013-03-15',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
             'id'=>'2017030101',
             'staffname'=>'张颖',
-            'englishname'=>'lillianZhang',
+            'englishname'=>'LillianZhang',
             'department_id'=>'5',
             'position_id'=>'2',
             'department_name'=>'人事行政部',
@@ -186,92 +274,50 @@ class StaffsTableSeeder extends Seeder
             'position_id'=>'5',
             'department_name'=>'网课部',
             'position_name'=>'主管',
-            'join_company'=>'2016-11-26',
+            'join_company'=>'2018-11-26',
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
-        // 非固定员工
         DB::table('staffs')->insert([
-            'id'=>'2015060401',
-            'staffname'=>'侯春燕',
-            'englishname'=>'JoeyHou',
-            'department_id'=>'1',
+            'id'=>'2019070103',
+            'staffname'=>'杨霁',
+            'englishname'=>'JessieYang',
+            'department_id'=>'4',
             'position_id'=>'1',
-            'department_name'=>'客服部',
+            'department_name'=>'网课部',
             'position_name'=>'助理',
-            'join_company'=>'2015-06-04',
+            'join_company'=>'2019-07-01',
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
-        DB::table('staffs')->insert([
-            'id'=>'2017040501',
-            'staffname'=>'范佳秋',
-            'englishname'=>'FannyFan',
-            'department_id'=>'1',
-            'position_id'=>'1',
-            'department_name'=>'客服部',
-            'position_name'=>'助理',
-            'join_company'=>'2017-04-05',
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            'status'=>true, 'leave_company'=>'2038-01-01',
-            ]);
+        // DB::table('staffs')->insert([
+        //     'id'=>'',
+        //     'staffname'=>'ShirleyLi',
+        //     'englishname'=>'ShirleyLi',
+        //     'department_id'=>'7',
+        //     'position_id'=>'12',
+        //     'department_name'=>'其他',
+        //     'position_name'=>'其他',
+        //     'join_company'=>'',
+        //     'created_at'=>now(),
+        //     'updated_at'=>now(),
+        //     'status'=>false,
+        //     'leave_company'=>'',
+        //     ]);
 
         DB::table('staffs')->insert([
-            'id'=>'2017010106',
-            'staffname'=>'GingerJiao',
-            'englishname'=>'GingerJiao',
-            'department_id'=>'1',
-            'position_id'=>'11',
-            'department_name'=>'客服部',
-            'position_name'=>'实习生',
-            'join_company'=>'2017-01-01',
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            'status'=>true, 'leave_company'=>'2038-01-01',
-            ]);
-
-        DB::table('staffs')->insert([
-            'id'=>'2017010107',
-            'staffname'=>'FinnFeng',
-            'englishname'=>'FinnFeng',
-            'department_id'=>'7',
-            'position_id'=>'8',
-            'department_name'=>'其他',
-            'position_name'=>'兼职批作业',
-            'join_company'=>'2017-01-01',
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            'status'=>true, 'leave_company'=>'2038-01-01',
-            ]);
-
-        DB::table('staffs')->insert([
-            'id'=>'2017010108',
-            'staffname'=>'SherryXiong',
-            'englishname'=>'SherryXiong',
-            'department_id'=>'7',
-            'position_id'=>'8',
-            'department_name'=>'其他',
-            'position_name'=>'兼职批作业',
-            'join_company'=>'2017-01-01',
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            'status'=>true, 'leave_company'=>'2038-01-01',
-            ]);
-
-        DB::table('staffs')->insert([
-            'id'=>'2017010109',
-            'staffname'=>'RyanWu',
-            'englishname'=>'RyanWu',
-            'department_id'=>'7',
-            'position_id'=>'8',
-            'department_name'=>'其他',
-            'position_name'=>'兼职批作业',
-            'join_company'=>'2017-01-01',
+            'id'=>'2019040101',
+            'staffname'=>'杨蓓',
+            'englishname'=>'BeiYang',
+            'department_id'=>'6',
+            'position_id'=>'5',
+            'department_name'=>'财务部',
+            'position_name'=>'主管',
+            'join_company'=>'2019-04-01',
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true, 'leave_company'=>'2038-01-01',
@@ -279,142 +325,139 @@ class StaffsTableSeeder extends Seeder
 
         // 外教
         DB::table('staffs')->insert([
-            'id'=>'2017010102',
+            'id'=>'2016082901',
             'teacher_id'=>'1',
-            'staffname'=>'Rosalia',
-            'englishname'=>'Rosalia',
+            'staffname'=>'Stephan Mukai',
+            'englishname'=>'StephanMaKai',
             'department_id'=>'3',
             'position_id'=>'6',
             'department_name'=>'外教部',
             'position_name'=>'全职教师',
-            'join_company'=>'2017-01-01',
+            'join_company'=>'2016-08-29',
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
         DB::table('staffs')->insert([
-            'id'=>'2017010110',
+            'id'=>'2018080101',
             'teacher_id'=>'2',
-            'staffname'=>'Sarah',
+            'staffname'=>'Dieter Michael Woehrle',
+            'englishname'=>'DieterWoehrle',
+            'department_id'=>'3',
+            'position_id'=>'6',
+            'department_name'=>'外教部',
+            'position_name'=>'全职教师',
+            'join_company'=>'2018-08-01',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
+            'id'=>'2017090101',
+            'teacher_id'=>'3',
+            'staffname'=>'Sarah Vetter',
             'englishname'=>'Sarah',
             'department_id'=>'3',
             'position_id'=>'6',
             'department_name'=>'外教部',
             'position_name'=>'全职教师',
-            'join_company'=>'2017-01-01',
+            'join_company'=>'2017-09-01',
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
         DB::table('staffs')->insert([
-            'id'=>'2018010110',
-            'teacher_id'=>'3',
-            'staffname'=>'James',
+            'id'=>'2018070102',
+            'teacher_id'=>'4',
+            'staffname'=>'Rosalia Romas Guerra',
+            'englishname'=>'Rosalia',
+            'department_id'=>'3',
+            'position_id'=>'6',
+            'department_name'=>'外教部',
+            'position_name'=>'全职教师',
+            'join_company'=>'2018-07-01',
+            'created_at'=>now(),
+            'updated_at'=>now(),
+            'status'=>true, 'leave_company'=>'2038-01-01',
+            ]);
+
+        DB::table('staffs')->insert([
+            'id'=>'2018010101',
+            'teacher_id'=>'5',
+            'staffname'=>'James Cody Wilson',
             'englishname'=>'James',
             'department_id'=>'3',
-            'position_id'=>'9',
+            'position_id'=>'6',
             'department_name'=>'外教部',
-            'position_name'=>'兼职教师',
+            'position_name'=>'全职教师',
             'join_company'=>'2018-01-01',
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
-        // 当月入职
         DB::table('staffs')->insert([
-            'id'=>'2019032501',
-            'staffname'=>'MichelleZhang',
-            'englishname'=>'MichelleZhang',
-            'department_id'=>'1',
-            'position_id'=>'1',
-            'department_name'=>'客服部',
-            'position_name'=>'助理',
-            'join_company'=>'2019-03-25',
+            'id'=>'2018092001',
+            'teacher_id'=>'6',
+            'staffname'=>'Nicole Jillian Heldt',
+            'englishname'=>'HeldtNicole',
+            'department_id'=>'3',
+            'position_id'=>'6',
+            'department_name'=>'外教部',
+            'position_name'=>'全职教师',
+            'join_company'=>'2018-09-20',
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
         DB::table('staffs')->insert([
-            'id'=>'2019030101',
-            'staffname'=>'AsaSmithXue',
-            'englishname'=>'AsaSmithXue',
-            'department_id'=>'1',
-            'position_id'=>'1',
-            'department_name'=>'客服部',
-            'position_name'=>'助理',
-            'join_company'=>'2019-03-01',
+            'id'=>'2019021801',
+            'teacher_id'=>'7',
+            'staffname'=>'Emma Case',
+            'englishname'=>'EmmaCase',
+            'department_id'=>'3',
+            'position_id'=>'6',
+            'department_name'=>'外教部',
+            'position_name'=>'全职教师',
+            'join_company'=>'2019-02-18',
             'created_at'=>now(),
             'updated_at'=>now(),
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
-        // 离职员工
-        // 当月
         DB::table('staffs')->insert([
-            'id'=>'2017010101',
-            'staffname'=>'JasmxnJin',
-            'englishname'=>'JasmxnJin',
-            'department_id'=>'2',
-            'position_id'=>'3',
-            'department_name'=>'教材部',
-            'position_name'=>'文员',
-            'join_company'=>'2017-07-01',
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            'status'=>false,
-            'leave_company'=>'2019-03-11',
-            ]);
-
-        // 当月初
-        DB::table('staffs')->insert([
-            'id'=>'2017010103',
-            'staffname'=>'AmieeHu',
-            'englishname'=>'AmieeHu',
-            'department_id'=>'2',
-            'position_id'=>'3',
-            'department_name'=>'教材部',
-            'position_name'=>'文员',
-            'join_company'=>'2017-07-01',
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            'status'=>false,
-            'leave_company'=>'2019-03-01',
-            ]);
-
-        // 上月
-        DB::table('staffs')->insert([
-            'id'=>'2017010104',
-            'staffname'=>'ThomasBacker',
-            'englishname'=>'ThomasBacker',
+            'id'=>'2019021802',
+            'teacher_id'=>'8',
+            'staffname'=>'Anastasiia Eremina',
+            'englishname'=>'Anastasia',
             'department_id'=>'3',
-            'position_id'=>'9',
+            'position_id'=>'6',
             'department_name'=>'外教部',
-            'position_name'=>'兼职教师',
-            'join_company'=>'2017-07-01',
+            'position_name'=>'全职教师',
+            'join_company'=>'2019-02-18',
             'created_at'=>now(),
             'updated_at'=>now(),
-            'status'=>false,
-            'leave_company'=>'2019-02-16',
+            'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
-        // 下月
         DB::table('staffs')->insert([
-            'id'=>'2017010105',
-            'staffname'=>'ShirleyLi',
-            'englishname'=>'ShirleyLi',
+            'id'=>'2019022201',
+            'teacher_id'=>'9',
+            'staffname'=>'Joel Boulet',
+            'englishname'=>'JoelBoulet',
             'department_id'=>'3',
-            'position_id'=>'10',
+            'position_id'=>'6',
             'department_name'=>'外教部',
-            'position_name'=>'兼职助教',
-            'join_company'=>'2017-07-01',
+            'position_name'=>'全职教师',
+            'join_company'=>'2019-02-22',
             'created_at'=>now(),
             'updated_at'=>now(),
-            'status'=>false,
-            'leave_company'=>'2019-04-11',
+            'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
+
     }
 }

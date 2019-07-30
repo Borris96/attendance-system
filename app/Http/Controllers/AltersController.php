@@ -31,8 +31,17 @@ class AltersController extends Controller
             $end_date = date('Y-m-d',strtotime($request->get('end_date'))+24*3600);
             // 查询开始时间在此区间的加班记录
             $alters = Alter::where('lesson_date','>=',$start_date)->where('lesson_date','<=',$end_date)->orderBy('lesson_date','asc')->get();
-            $spreadsheet = new Spreadsheet();
-            Alter::export($request->get('start_date'), $request->get('end_date'), $alters, $spreadsheet);
+
+            if (count($alters)!=0)
+            {
+                $spreadsheet = new Spreadsheet();
+                Alter::export($request->get('start_date'), $request->get('end_date'), $alters, $spreadsheet);
+            }
+            else
+            {
+                session()->flash('warning','记录不存在！');
+                return redirect()->back()->withInput();
+            }
         }
     }
 
