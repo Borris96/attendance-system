@@ -7,12 +7,33 @@ use App\Alter;
 use App\Term;
 use App\Lesson;
 use App\MonthDuration;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class AltersController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    public function exportAlter(Request $request)
+    {
+        if ($request->get('start_date') == null || $request->get('end_date') == null) // 有一个为空说明查询不成功
+        {
+            $terms = Term::all();
+            $term_id = $request->get('term_id');
+            $alters = Alter::where('term_id',$term_id)->orderBy('lesson_date')->get();
+            return view('alters/index',compact('alters','terms','term_id'));
+        }
+        else
+        {
+            $start_date = $request->get('start_date');
+            $end_date = date('Y-m-d',strtotime($request->get('end_date'))+24*3600);
+            // 查询开始时间在此区间的加班记录
+            $alters = Alter::where('lesson_date','>=',$start_date)->where('lesson_date','<=',$end_date)->orderBy('lesson_date','asc')->get();
+            $spreadsheet = new Spreadsheet();
+            Alter::export($request->get('start_date'), $request->get('end_date'), $alters, $spreadsheet);
+        }
     }
 
     public function index(Request $request)

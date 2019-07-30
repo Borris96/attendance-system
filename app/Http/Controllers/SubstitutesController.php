@@ -8,6 +8,7 @@ use App\Term;
 use App\Lesson;
 use App\Teacher;
 use App\TermTotal;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class SubstitutesController extends Controller
 {
@@ -15,6 +16,28 @@ class SubstitutesController extends Controller
     {
         $this->middleware('auth');
     }
+
+
+    public function exportSub(Request $request)
+    {
+        if ($request->get('start_date') == null || $request->get('end_date') == null) // 有一个为空说明查询不成功
+        {
+            $terms = Term::all();
+            $term_id = $request->get('term_id');
+            $substitutes = Substitute::where('term_id',$term_id)->orderBy('lesson_date')->get();
+            return view('substitutes/index',compact('substitutes','terms','term_id'));
+        }
+        else
+        {
+            $start_date = $request->get('start_date');
+            $end_date = date('Y-m-d',strtotime($request->get('end_date'))+24*3600);
+            // 查询开始时间在此区间的加班记录
+            $substitutes = Substitute::where('lesson_date','>=',$start_date)->where('lesson_date','<=',$end_date)->orderBy('lesson_date','asc')->get();
+            $spreadsheet = new Spreadsheet();
+            Substitute::export($request->get('start_date'), $request->get('end_date'), $substitutes, $spreadsheet);
+        }
+    }
+
 
     public function index(Request $request)
     {

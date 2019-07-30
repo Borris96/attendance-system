@@ -25,6 +25,15 @@
     <button type="submit" class="btn btn-primary">选择学期</button>
 </form>
 
+<form action="{{ route('substitutes.export_sub', array('term_id'=>$term_id)) }}" method="POST" style="margin-top: 15px; margin-left: 25px;">
+  {{ csrf_field() }}
+  开始日期<input type="date" name="start_date" value="old('start_date')">
+  &nbsp;&nbsp;
+  结束日期<input type="date" name="end_date" value="old('end_date')">
+  &nbsp;&nbsp;
+  <button type="submit" class="btn btn-success" type="button">导出代课缺课记录</button>
+</form>
+
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>

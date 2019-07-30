@@ -90,10 +90,12 @@ Route::patch('/lessons/{lesson}/updateTeacher', 'LessonsController@updateTeacher
 Route::resource('/missings','MissingsController');
 
 Route::resource('/substitutes','SubstitutesController');
+Route::post('/substitutes/export_sub','SubstitutesController@exportSub')->name('substitutes.export_sub');
 
 Route::resource('/alters','AltersController');
 Route::get('/one_time','AltersController@oneTime')->name('alters.one_time');
 Route::post('/store_all','AltersController@storeAll')->name('alters.store_all');
+Route::post('/alters/export_alter','AltersController@exportAlter')->name('alters.export_alter');
 
 Route::resource('/lesson_attendances','LessonAttendancesController');
 Route::get('teacher_results','LessonAttendancesController@index')->name('lesson_attendances.teacher_results');
