@@ -9,12 +9,31 @@ use App\Attendance;
 use App\Lieu;
 use App\SeparateAbsence;
 use App\TotalAttendance;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class AbsencesController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    public function exportAbsence(Request $request)
+    {
+        if ($request->get('start_date') == null || $request->get('end_date') == null) // 有一个为空说明查询不成功
+        {
+            $absences = Absence::orderBy('updated_at','desc')->get();
+            return view('absences/index', compact('absences'));
+        }
+        else
+        {
+            $start_date = date('Y-m-d H:i:s',strtotime($request->get('start_date')));
+            $end_date = date('Y-m-d H:i:s',strtotime($request->get('end_date'))+24*3600);
+            // 查询开始时间在此区间的加班记录
+            $absences = Absence::where('absence_start_time','>=',$start_date)->where('absence_start_time','<=',$end_date)->orderBy('absence_start_time','asc')->get();
+            $spreadsheet = new Spreadsheet();
+            Absence::export($request->get('start_date'), $request->get('end_date'), $absences, $spreadsheet);
+        }
     }
 
     public function index(Request $request)

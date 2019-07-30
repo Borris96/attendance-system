@@ -8,6 +8,16 @@
     <button type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;
     <a class="btn btn-success" href="{{ route('extra_works.create') }}" role="button">新增加班</a>
 </form>
+
+<form action="{{ route('extra_works.export_extra') }}" method="POST" style="margin-top: 10px; margin-left: 25px;">
+  {{ csrf_field() }}
+  开始日期<input type="date" name="start_date" value="old('start_date')">
+  &nbsp;&nbsp;
+  结束日期<input type="date" name="end_date" value="old('end_date')">
+  &nbsp;&nbsp;
+  <button type="submit" class="btn btn-success" type="button">导出加班记录</button>
+</form>
+
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>

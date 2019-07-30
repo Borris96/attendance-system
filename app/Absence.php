@@ -4,6 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Writer;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class Absence extends Model
 {
@@ -203,5 +208,96 @@ class Absence extends Model
         } else {
             return true;
         }
+    }
+
+    /**
+     * 导出请假记录
+     * @param date $start_date
+     * @param date $end_date
+     * @param collection $absences
+     * @param object $spreadsheet
+     *
+     * @return void
+     */
+    public static function export($start_date, $end_date, $absences, $spreadsheet)
+    {
+        $worksheet = $spreadsheet->getSheet(0);
+        $title = $start_date.'~'.$end_date.' 请假信息汇总';
+        $worksheet->setTitle('请假信息汇总');
+
+        $worksheet->setCellValueByColumnAndRow(1, 1, '请假记录汇总表'); // (列，行)
+        $worksheet->setCellValueByColumnAndRow(1, 2, '统计日期:');
+        $worksheet->setCellValueByColumnAndRow(2, 2, $start_date.'~'.$end_date);
+        $worksheet->setCellValueByColumnAndRow(1, 3, '编号');
+        $worksheet->setCellValueByColumnAndRow(2, 3, '英文名');
+        $worksheet->setCellValueByColumnAndRow(3, 3, '姓名');
+        $worksheet->setCellValueByColumnAndRow(4, 3, '所属部门');
+        $worksheet->setCellValueByColumnAndRow(5, 3, '请假类型');
+        $worksheet->setCellValueByColumnAndRow(6, 3, '请假开始时间');
+        $worksheet->setCellValueByColumnAndRow(7, 3, '请假结束时间');
+        $worksheet->setCellValueByColumnAndRow(8, 3, '时长');
+        $worksheet->setCellValueByColumnAndRow(9, 3, '是否批准');
+        $worksheet->setCellValueByColumnAndRow(10, 3, '备注');
+
+        $worksheet->mergeCells('A1:J1'); // 合并第一行单元格
+        $title_array = [
+            'font' => [
+                'bold' => true
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
+        ];
+        $content_array = [
+            'font' => [
+                'bold' => false
+            ],
+            // 'alignment' => [
+            //     'horizontal' => Alignment::HORIZONTAL_CENTER,
+            // ],
+        ];
+
+        //设置单元格样式
+        $worksheet->getStyle('A1')->applyFromArray($title_array)->getFont()->setSize(24);
+        $worksheet->getStyle('A2:B2')->applyFromArray($content_array)->getFont()->setSize(10);
+        $worksheet->getStyle('A3:J3')->applyFromArray($title_array)->getFont()->setSize(9);
+
+
+        $count = $absences->count();
+        foreach ($absences as $key => $ab) {
+            $worksheet->setCellValueByColumnAndRow(1, 4+$key, $ab->staff_id);
+            $worksheet->setCellValueByColumnAndRow(2, 4+$key, $ab->staff->staffname);
+            $worksheet->setCellValueByColumnAndRow(3, 4+$key, $ab->staff->englishname);
+            $worksheet->setCellValueByColumnAndRow(4, 4+$key, $ab->staff->department_name);
+            $worksheet->setCellValueByColumnAndRow(5, 4+$key, $ab->absence_type);
+            $worksheet->setCellValueByColumnAndRow(6, 4+$key, $ab->absence_start_time);
+            $worksheet->setCellValueByColumnAndRow(7, 4+$key, $ab->absence_end_time);
+            $worksheet->setCellValueByColumnAndRow(8, 4+$key, $ab->duration);
+            if ($ab->approve)
+            {
+                $worksheet->setCellValueByColumnAndRow(9, 4+$key, '是');
+            }
+            else
+            {
+                $worksheet->setCellValueByColumnAndRow(9, 4+$key, '否');
+            }
+            $worksheet->setCellValueByColumnAndRow(10, 4+$key, $ab->note);
+        }
+        $worksheet->getStyle('A4:J'.($count+3))->applyFromArray($content_array)->getFont()->setSize(9);
+        $worksheet->getStyle('A3:J'.($count+3))->getAlignment()->setWrapText(true);
+        $worksheet->getColumnDimension('A')->setWidth(10);
+        $worksheet->getColumnDimension('B')->setWidth(10);
+        $worksheet->getColumnDimension('C')->setWidth(10);
+        $worksheet->getColumnDimension('F')->setWidth(15);
+        $worksheet->getColumnDimension('G')->setWidth(15);
+
+        // 下载
+        $filename = $title.'.xlsx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
+        header('Cache-Control: max-age=0');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
     }
 }

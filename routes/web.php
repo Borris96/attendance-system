@@ -35,8 +35,10 @@ Route::patch('/staffs/{staff}/leave', 'StaffsController@leave')->name('staffs.le
 Route::resource('/leave_staffs','LeaveStaffsController');
 
 Route::resource('/absences','AbsencesController');
+Route::post('/absences/export_absence','AbsencesController@exportAbsence')->name('absences.export_absence');
 
 Route::resource('/extra_works','ExtraWorksController');
+Route::post('/extra_works/export_extra','ExtraWorksController@exportExtra')->name('extra_works.export_extra');
 
 Route::resource('/attendances','AttendancesController');
 

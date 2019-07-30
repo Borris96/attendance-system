@@ -8,6 +8,9 @@
     <button type="submit" class="btn btn-primary">查询</button>
     &nbsp;&nbsp;
     <a href="{{route('staffs.index')}}" class="btn btn-info">查看在职员工</a>
+    &nbsp;&nbsp;
+    <a class="btn btn-success" href="{{ route('staffs.create_part_time') }}" role="button">新建兼职员工</a>
+    </ul>
 </form>
 
 <table class="table table-bordered table-hover definewidth m10">

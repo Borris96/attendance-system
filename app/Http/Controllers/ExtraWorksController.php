@@ -9,6 +9,7 @@ use App\ExtraWork;
 use App\Lieu;
 use App\Attendance;
 use App\TotalAttendance;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class ExtraWorksController extends Controller
 {
@@ -16,9 +17,34 @@ class ExtraWorksController extends Controller
     {
         $this->middleware('auth');
     }
+
+    public function exportExtra(Request $request)
+    {
+        if ($request->get('start_date') == null || $request->get('end_date') == null) // 有一个为空说明查询不成功
+        {
+            $extra_works = ExtraWork::orderBy('updated_at','desc')->get();
+            return view('extra_works/index', compact('extra_works'));
+        }
+        else
+        {
+            $start_date = date('Y-m-d H:i:s',strtotime($request->get('start_date')));
+            $end_date = date('Y-m-d H:i:s',strtotime($request->get('end_date'))+24*3600);
+            // 查询开始时间在此区间的加班记录
+            $extra_works = ExtraWork::where('extra_work_start_time','>=',$start_date)->where('extra_work_start_time','<=',$end_date)->orderBy('extra_work_start_time','asc')->get();
+            $spreadsheet = new Spreadsheet();
+            ExtraWork::export($request->get('start_date'), $request->get('end_date'), $extra_works, $spreadsheet);
+            // 将这些数据导出
+            // dump($start_date);
+            // dump($end_date);
+            // dump($extra_works);
+            // exit();
+            // 进行导出
+        }
+    }
+
     public function index(Request $request)
     {
-        if ($request->get('englishname') == null)
+        if ($request->get('englishname') == null) // 说明没有查询请求
         {
             $extra_works = ExtraWork::orderBy('updated_at','desc')->get();
         }
