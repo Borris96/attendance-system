@@ -124,6 +124,43 @@
 @include('shared._nothing')
 @endif
 
+<h5 style="margin: 20px;">课程时间变更信息</h5>
+<table class="table table-bordered table-hover definewidth m10">
+    <thead>
+    <tr>
+        <th>课程名称</th>
+        <th>星期</th>
+        <th>时长</th>
+        <th>有效日期</th>
+    </tr>
+    </thead>
+    @if (count($lessons) != 0)
+      @foreach ($lessons as $lesson)
+      @foreach ($lesson->lessonUpdates as $key=>$lu)
+        @if($key < count($lesson->lessonUpdates)-1)
+        <tr>
+          <td>
+            {{ $lesson->lesson_name }}
+          </td>
+          <td>
+            {{$lu->day}}
+          </td>
+          <td>
+            {{ $lu->duration }}
+          </td>
+          <td>
+            {{ $lu->start_date }} ~ {{ $lu->end_date }}
+          </td>
+        </tr>
+        @endif
+      @endforeach
+      @endforeach
+</table>
+@else
+</table>
+@include('shared._nothing')
+@endif
+
 <div style="margin: 20px">
   @if ($teacher->status == true)
   <a class="btn btn-primary"  href="{{ route('teachers.edit',array($teacher->id,'term_id'=>$current_term_id)) }}" role="button">关联课程</a>&nbsp;&nbsp;
