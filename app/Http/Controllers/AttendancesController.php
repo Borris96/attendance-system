@@ -77,7 +77,7 @@ class AttendancesController extends Controller
         $staff = $total_attendance->staff;
         // $attendances = $total_attendance->attendances;
         $attendances = Attendance::where('total_attendance_id',$total_attendance->id)->orderBy('date','asc')->get();
-        return view('attendances.show',compact('staff','attendances','staff_id','month','year'));
+        return view('attendances.show',compact('staff','attendances','month','year'));
     }
 
 

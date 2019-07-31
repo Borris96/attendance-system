@@ -65,7 +65,7 @@
     <tr>
         <td class="tableleft">请假时间*</td>
         <td>
-          @if (count($staffs) != 0)
+          @if ($staffs != null)
           <input type="datetime-local" name="absence_start_time"
           @if (old('absence_start_time')!=null) value="{{ date('Y-m-d',strtotime(old('absence_start_time'))).'T'.date('H:i',strtotime(old('absence_start_time'))) }}"
           @endif
