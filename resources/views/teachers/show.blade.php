@@ -61,27 +61,31 @@
     @if (count($month_durations) != 0)
     @if (stristr($term->term_name,'Summer'))
     @foreach ($month_durations as $md)
-    <tr>
-      <td>{{$md->month}}</td>
-      <td>{{$md->mon_duration}}</td>
-      <td>{{$md->wed_duration}}</td>
-      <td>{{$md->fri_duration}}</td>
-      <td>{{$md->other_duration}}</td>
-      <td>{{$md->actual_duration}}</td>
-      <td>{{$month_should_durations[$md->month]}}</td>
-    </tr>
+      @if (array_key_exists($md->month,$month_should_durations))
+      <tr>
+        <td>{{$md->month}}</td>
+        <td>{{$md->mon_duration}}</td>
+        <td>{{$md->wed_duration}}</td>
+        <td>{{$md->fri_duration}}</td>
+        <td>{{$md->other_duration}}</td>
+        <td>{{$md->actual_duration}}</td>
+        <td>{{$month_should_durations[$md->month]}}</td>
+      </tr>
+      @endif
     @endforeach
     @else
     @foreach ($month_durations as $md)
-    <tr>
-      <td>{{$md->month}}</td>
-      <td>{{$md->fri_duration}}</td>
-      <td>{{$md->sat_duration}}</td>
-      <td>{{$md->sun_duration}}</td>
-      <td>{{$md->other_duration}}</td>
-      <td>{{$md->actual_duration}}</td>
-      <td>{{$month_should_durations[$md->month]}}</td>
-    </tr>
+      @if (array_key_exists($md->month,$month_should_durations))
+      <tr>
+        <td>{{$md->month}}</td>
+        <td>{{$md->fri_duration}}</td>
+        <td>{{$md->sat_duration}}</td>
+        <td>{{$md->sun_duration}}</td>
+        <td>{{$md->other_duration}}</td>
+        <td>{{$md->actual_duration}}</td>
+        <td>{{$month_should_durations[$md->month]}}</td>
+      </tr>
+      @endif
     @endforeach
     @endif
 </table>
