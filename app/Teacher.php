@@ -125,7 +125,7 @@ class Teacher extends Model
         {
            $month_duration_id = MonthDuration::where('teacher_id',$lesson_update->teacher_id)->where('year',$year)->where('month',$month)->value('id');
         }
-        else
+        else // 更换老师后：否则找原老师的记录
         {
             $month_duration_id = MonthDuration::where('teacher_id',$teacher_id)->where('year',$year)->where('month',$month)->value('id');
         }
@@ -353,6 +353,11 @@ class Teacher extends Model
      * 计算一段时间内（几个月时间）的每月实际上课
      * @param date $start_date Y-m-d
      * @param date $end_date Y-m-d
+     * @param string $option 'add', 'substract' 用于区分减去还是加上时长。一些功能中，比如更换上课老师，原老师的时长需要减去，而新老师的时长要加上。
+     * @param int $teacher_id 一般情况下不填，当更换上课老师时，原老师减去的时长要基于$new_update，所以需要赋值否则函数中将不能正确查找
+     * @param decimal $origin_duration
+     * @param string $origin_day
+     * 上面两个参数一般情况为空，当课程基本信息更改，并且影响到已分配老师时，该老师需要先依据这两个减去原来的上课时长
      * @return int $duration
      *
      */

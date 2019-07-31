@@ -62,8 +62,12 @@ class TeachersController extends Controller
         $start_date = $term->start_date;
         $end_date = $term->end_date;
         $start_year = date('Y',strtotime($start_date));
+        // dump($term);
+        // exit();
 
         $term_months = Teacher::getTermMonths($start_date, $end_date);
+        // dump($term_months);
+        // exit();
         $month_should_durations = [];
         $year = $start_year;
         foreach ($term_months as $key => $m)
@@ -95,17 +99,18 @@ class TeachersController extends Controller
             }
 
             $month_should_durations[$m] = Teacher::calShouldMonthDuration($teacher, $month_first_day,$month_last_day);
+
             if ($term_months[$key] == 12) // 到12月了那么年数加一
             {
                 $year+=1;
             }
         }
-        // dump($month_should_durations);
+        // dump(array_key_exists(2,$month_should_durations));
         // exit();
         $lesson_updates = LessonUpdate::where('teacher_id',$id)->orderBy('lesson_id')->get();
         $lessons = Lesson::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('lesson_name','asc')->get();
         // 本学期每月实际排课
-        $month_durations = MonthDuration::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('year','asc')->get();
+        $month_durations = MonthDuration::where('teacher_id',$id)->where('term_id',$current_term_id)->orderBy('year','asc')->orderBy('month','asc')->get();
         $term_totals = TermTotal::where('teacher_id',$id)->where('term_id',$current_term_id)->get();
 
         $flag = stristr($term->term_name, 'Summer');
@@ -292,7 +297,7 @@ class TeachersController extends Controller
             session()->flash('danger','起止日期填反！');
             return redirect()->back()->withInput();
         }
-        $terms = Term::where('term_id','<>',$term->id)->get();
+        $terms = Term::where('id','<>',$term->id)->get();
         foreach($terms as $t)
         {
             if (WorkHistory::isCrossing($term->start_date,$term->end_date,$t->start_date,$t->end_date))
@@ -304,11 +309,57 @@ class TeachersController extends Controller
 
         // 需要修改课程的前后有效时间，并且需要修改老师学期首末月实际排课 -- 最后做吧，毕竟不是常用功能
 
-        // 开始时间延后
-        // 开始时间提前
+        // 更新课程的起止时间
+        $lessons = Lesson::where('term_id',$term->id)->get();
+        foreach ($lessons as $lesson) {
+            foreach ($lesson->lessonUpdates as $key=>$lu) {
+                if ($key == 0)
+                {
+                    $lu->start_date = $term->start_date;
+                    $lu->save();
+                }
+                if ($key == count($lesson->lessonUpdates)-1)
+                {
+                    $lu->end_date = $term->end_date;
+                    $lu->save();
+                }
+            }
+        }
 
-        // 结束时间提前
-        // 结束时间延后
+        // 重新计算所有老师的实际排课
+        // 先把之前所有老师的这学期所有实际排课删除
+        $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->start_date)->get();
+
+        foreach ($teachers as $key => $teacher) {
+            if ($teacher->monthDurations != null)
+            {
+                $month_durations = $teacher->monthDurations->where('term_id',$term->id);
+                if (count($month_durations) != 0)
+                {
+                    foreach ($month_durations as $md) {
+                        $md->sat_duration = 0;
+                        $md->sun_duration = 0;
+                        $md->fri_duration = 0;
+                        $md->mon_duration = 0;
+                        $md->wed_duration = 0;
+                        $md->actual_duration = 0;
+                        $md->save();
+                    }
+                }
+            }
+        }
+        // 随后对每一节课计算学期总的duration
+        // dump($term->start_date);
+        // dump($term->end_date);
+        // exit();
+        foreach ($lessons as $lesson) {
+            foreach ($lesson->lessonUpdates as $lu) {
+                if ($lu->teacher_id != null) // 只处理分配了老师的课程更新记录
+                {
+                    Teacher::calTermDuration($term->start_date, $term->end_date, $lu);
+                }
+            }
+        }
 
         $term_id = $request->input('term_id');
         if ($term->save())

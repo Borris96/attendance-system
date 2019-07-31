@@ -30,8 +30,8 @@
     </select>&nbsp;&nbsp;&nbsp;
     <button type="submit" class="btn btn-info">选择学期</button>
     &nbsp;&nbsp;
-    <!-- <a class="btn btn-primary" href="{{ route('edit_term',array('term_id'=>$term_id)) }}" role="button">修改当前学期</a> -->
-    <a class="btn btn-primary" href="" role="button" disabled>修改当前学期</a>
+    <a class="btn btn-primary" href="{{ route('edit_term',array('term_id'=>$term_id)) }}" role="button">修改当前学期</a>
+    <!-- <a class="btn btn-primary" href="" role="button" disabled>修改当前学期</a> -->
     &nbsp;&nbsp;
     <a class="btn btn-success" href="{{ route('create_term',array('term_id'=>$term_id)) }}" role="button">新增学期</a>
 </form>
