@@ -31,14 +31,17 @@ class ExtraWorksController extends Controller
             $end_date = date('Y-m-d H:i:s',strtotime($request->get('end_date'))+24*3600);
             // 查询开始时间在此区间的加班记录
             $extra_works = ExtraWork::where('extra_work_start_time','>=',$start_date)->where('extra_work_start_time','<=',$end_date)->orderBy('extra_work_start_time','asc')->get();
-            $spreadsheet = new Spreadsheet();
-            ExtraWork::export($request->get('start_date'), $request->get('end_date'), $extra_works, $spreadsheet);
-            // 将这些数据导出
-            // dump($start_date);
-            // dump($end_date);
-            // dump($extra_works);
-            // exit();
-            // 进行导出
+
+            if (count($extra_works)!=0)
+            {
+                $spreadsheet = new Spreadsheet();
+                ExtraWork::export($request->get('start_date'), $request->get('end_date'), $extra_works, $spreadsheet);
+            }
+            else
+            {
+                session()->flash('warning','记录不存在！');
+                return redirect()->back()->withInput();
+            }
         }
     }
 

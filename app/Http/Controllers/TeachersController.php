@@ -26,10 +26,10 @@ class TeachersController extends Controller
         $terms = Term::all();
         $term_id = $request->get('term_id');
         // 添加老师时使用
-        $staffs = Staff::where('status',true)->where('teacher_id',null)->orderBy('id','asc')->get();
+        $staffs = Staff::where('status',true)->where('teacher_id',null)->orderBy('department_id','asc')->get();
         if ($term_id == null) // 如果没有输入要使用的学期，默认是当日所在的学期
         {
-            // $today = '2019-05-05';
+            // $today = '2020-05-05';
             $today = date('Y-m-d'); // 等投入使用之后再改过来
             foreach ($terms as $t) {
                 if ($today <= $t->end_date && $today >= $t->start_date)
@@ -37,6 +37,11 @@ class TeachersController extends Controller
                     $term_id = $t->id;
                 }
             }
+        }
+
+        if ($term_id == null) // 如果这个学期没定义，$term_id 等于上学期的 $term_id
+        {
+            $term_id = Term::max('id');
         }
         $term = Term::find($term_id);
         $flag = stristr($term->term_name, 'Summer');

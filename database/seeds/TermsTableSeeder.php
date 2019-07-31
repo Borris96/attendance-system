@@ -13,26 +13,26 @@ class TermsTableSeeder extends Seeder
     {
         DB::table('terms')->insert([
             'term_name'=>'2019 Spring',
-            'start_date'=>'2018-12-15',
+            'start_date'=>'2019-03-01',
             'end_date'=>'2019-06-30',
             'created_at'=>now(),
             'updated_at'=>now(),
             ]);
 
-        DB::table('terms')->insert([
-            'term_name'=>'2019 Summer 1',
-            'start_date'=>'2019-07-09',
-            'end_date'=>'2019-08-02',
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            ]);
+        // DB::table('terms')->insert([
+        //     'term_name'=>'2019 Summer 1',
+        //     'start_date'=>'2019-07-08',
+        //     'end_date'=>'2019-07-26',
+        //     'created_at'=>now(),
+        //     'updated_at'=>now(),
+        //     ]);
 
-        DB::table('terms')->insert([
-            'term_name'=>'2019 Summer 2',
-            'start_date'=>'2019-08-05',
-            'end_date'=>'2019-08-31',
-            'created_at'=>now(),
-            'updated_at'=>now(),
-            ]);
+        // DB::table('terms')->insert([
+        //     'term_name'=>'2019 Summer 2',
+        //     'start_date'=>'2019-07-29',
+        //     'end_date'=>'2019-08-16',
+        //     'created_at'=>now(),
+        //     'updated_at'=>now(),
+        //     ]);
     }
 }

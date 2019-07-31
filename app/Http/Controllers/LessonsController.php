@@ -31,6 +31,11 @@ class LessonsController extends Controller
                 }
             }
         }
+
+        if ($term_id == null) // 如果这个学期没定义，$term_id 等于上学期的 $term_id
+        {
+            $term_id = Term::max('id');
+        }
         $term = Term::find($term_id);
         $teachers = Teacher::where('join_date','<=',$term->start_date)->where('leave_date','>=',$term->start_date)->get();
         if (stristr($term->term_name,'Summer'))

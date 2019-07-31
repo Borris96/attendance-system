@@ -31,8 +31,17 @@ class AbsencesController extends Controller
             $end_date = date('Y-m-d H:i:s',strtotime($request->get('end_date'))+24*3600);
             // 查询开始时间在此区间的加班记录
             $absences = Absence::where('absence_start_time','>=',$start_date)->where('absence_start_time','<=',$end_date)->orderBy('absence_start_time','asc')->get();
-            $spreadsheet = new Spreadsheet();
-            Absence::export($request->get('start_date'), $request->get('end_date'), $absences, $spreadsheet);
+
+            if (count($absences)!=0)
+            {
+                $spreadsheet = new Spreadsheet();
+                Absence::export($request->get('start_date'), $request->get('end_date'), $absences, $spreadsheet);
+            }
+            else
+            {
+                session()->flash('warning','记录不存在！');
+                return redirect()->back()->withInput();
+            }
         }
     }
 

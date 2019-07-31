@@ -5,7 +5,10 @@
 @foreach ($staffworkdays as $key=>$sw)
 <table class="table table-bordered table-hover definewidth m10">
   <h4 style="margin-left: 20px; margin-right: 20px; margin-top: 20px; margin-bottom: 0px;">
-   {{ $update_historys_s[$key] }} ~ @if ($update_historys_e[$key] == '2038-01-01') 至今 @else {{ $update_historys_e[$key] }} @endif
+
+   @if ($key == 0) 入职 @else {{ $update_historys_s[$key] }} @endif
+   ~
+   @if ($key == count($staffworkdays)-1) 至今 @else {{ $update_historys_e[$key] }} @endif
   </h4>
     <thead>
     <tr>
