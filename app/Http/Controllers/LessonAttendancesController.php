@@ -41,13 +41,17 @@ class LessonAttendancesController extends Controller
                 }
             }
         }
+        if ($term_id == null) // 如果这个学期没定义，$term_id 等于上学期的 $term_id
+        {
+            $term_id = Term::max('id');
+        }
         $term = Term::find($term_id);
         $start_year = date('Y',strtotime($term->start_date));
         $end_year = date('Y',strtotime($term->end_date));
         $term_first_month = $start_year.'-'.date('m',strtotime($term->start_date));
         $term_last_month = $end_year.'-'.date('m',strtotime($term->end_date));
         /////////////// 此处之后要改成真实的今天日期！
-        $this_today = '2019-09-15'; // 测试用
+        // $this_today = '2019-09-15'; // 测试用
         // $this_today = date('Y-m-d');
         // 学期的开始结束年份
         if ($request->get('start_month') != null)
@@ -67,11 +71,11 @@ class LessonAttendancesController extends Controller
                 }
 
                 // 只能查询这个月以前的上课考勤数据。
-                if (strtotime($s_m_y)>=strtotime(date('Y-m',strtotime($this_today))))
-                {
-                    session()->flash('warning','只能查询本月前的上课考勤数据！');
-                    return view('lesson_attendances/index',compact('terms','term_id'));
-                }
+                // if (strtotime($s_m_y)>=strtotime(date('Y-m',strtotime($this_today))))
+                // {
+                //     session()->flash('warning','只能查询本月前的上课考勤数据！');
+                //     return view('lesson_attendances/index',compact('terms','term_id'));
+                // }
 
                 $month_f_l = LessonAttendance::decideMonthFirstLast($term->start_date, $term->end_date, $s_m_y);
                 $month_first_day = $month_f_l[0];
@@ -154,11 +158,11 @@ class LessonAttendancesController extends Controller
                 }
 
                 // 只能查询这个月以前的上课考勤数据。
-                if (strtotime($s_m_y)>=strtotime(date('Y-m',strtotime($this_today))) || strtotime($e_m_y)>=strtotime(date('Y-m',strtotime($this_today))))
-                {
-                    session()->flash('warning','只能查询本月前的上课考勤数据！');
-                    return view('lesson_attendances/index',compact('terms','term_id'));
-                }
+                // if (strtotime($s_m_y)>=strtotime(date('Y-m',strtotime($this_today))) || strtotime($e_m_y)>=strtotime(date('Y-m',strtotime($this_today))))
+                // {
+                //     session()->flash('warning','只能查询本月前的上课考勤数据！');
+                //     return view('lesson_attendances/index',compact('terms','term_id'));
+                // }
 
                 if (strtotime($s_m_y) == strtotime($e_m_y))
                 {

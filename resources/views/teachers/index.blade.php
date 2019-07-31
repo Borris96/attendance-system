@@ -34,8 +34,8 @@
     <a class="btn btn-primary" href="" role="button" disabled>修改当前学期</a>
     &nbsp;&nbsp;
     <a class="btn btn-success" href="{{ route('create_term',array('term_id'=>$term_id)) }}" role="button">新增学期</a>
-
 </form>
+@if ($term_id != null)
 <table class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
@@ -117,6 +117,7 @@
 @include('shared._pagination')
 @endif
 
+@endif
 <script>
 
   function delcfm() {

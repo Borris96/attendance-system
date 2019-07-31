@@ -65,6 +65,11 @@ class SubstitutesController extends Controller
                 }
             }
         }
+        if ($term_id == null) // 如果这个学期没定义，$term_id 等于上学期的 $term_id
+        {
+            $term_id = Term::max('id');
+        }
+
         $substitutes = Substitute::where('term_id',$term_id)->orderBy('lesson_date')->get();
         return view('substitutes/index',compact('substitutes','terms','term_id'));
     }

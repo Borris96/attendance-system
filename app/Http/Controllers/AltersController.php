@@ -60,6 +60,10 @@ class AltersController extends Controller
                 }
             }
         }
+        if ($term_id == null) // 如果这个学期没定义，$term_id 等于上学期的 $term_id
+        {
+            $term_id = Term::max('id');
+        }
         $term = Term::find($term_id);
         $alters = Alter::where('term_id',$term_id)->orderBy('lesson_date')->get();
         return view('alters/index',compact('alters','terms','term_id'));

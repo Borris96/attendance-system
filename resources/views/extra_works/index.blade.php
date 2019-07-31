@@ -11,9 +11,9 @@
 
 <form action="{{ route('extra_works.export_extra') }}" method="POST" style="margin-top: 10px; margin-left: 25px;">
   {{ csrf_field() }}
-  开始日期<input type="date" name="start_date" value="old('start_date')">
+  开始日期&nbsp;<input type="date" name="start_date" value="old('start_date')">
   &nbsp;&nbsp;
-  结束日期<input type="date" name="end_date" value="old('end_date')">
+  结束日期&nbsp;<input type="date" name="end_date" value="old('end_date')">
   &nbsp;&nbsp;
   <button type="submit" class="btn btn-success" type="button">导出加班记录</button>
 </form>
