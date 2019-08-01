@@ -24,7 +24,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'其他',
             'join_company'=>'2019-07-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -38,7 +38,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'主任',
             'join_company'=>'2012-06-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -52,7 +52,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'助理',
             'join_company'=>'2017-04-05',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -66,7 +66,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'助理',
             'join_company'=>'2018-05-07',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -80,7 +80,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'助理',
             'join_company'=>'2018-08-29',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -94,7 +94,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'助理',
             'join_company'=>'2019-07-08',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -108,7 +108,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'助理',
             'join_company'=>'2019-07-15',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -122,7 +122,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'助理',
             'join_company'=>'2019-07-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -136,7 +136,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'文员',
             'join_company'=>'2011-11-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -150,7 +150,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'文员',
             'join_company'=>'2016-03-16',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -164,7 +164,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'文员',
             'join_company'=>'2017-07-03',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -178,7 +178,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'文员',
             'join_company'=>'2017-07-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -192,7 +192,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'文员',
             'join_company'=>'2018-07-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -206,7 +206,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'经理',
             'join_company'=>'2013-03-15',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -220,7 +220,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'经理',
             'join_company'=>'2017-03-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -234,7 +234,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'助理',
             'join_company'=>'2018-06-04',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -248,7 +248,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'设计',
             'join_company'=>'2017-03-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -262,7 +262,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'经理',
             'join_company'=>'2018-09-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -276,7 +276,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'主管',
             'join_company'=>'2018-11-26',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -290,7 +290,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'助理',
             'join_company'=>'2019-07-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -304,7 +304,7 @@ class StaffsTableSeeder extends Seeder
         //     'position_name'=>'其他',
         //     'join_company'=>'',
         //     'created_at'=>now(),
-        //     'updated_at'=>now(),
+        //     'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
         //     'status'=>false,
         //     'leave_company'=>'',
         //     ]);
@@ -319,7 +319,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'主管',
             'join_company'=>'2019-04-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -335,7 +335,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'全职教师',
             'join_company'=>'2016-08-29',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -350,7 +350,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'全职教师',
             'join_company'=>'2018-08-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -365,7 +365,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'全职教师',
             'join_company'=>'2017-09-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -380,7 +380,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'全职教师',
             'join_company'=>'2018-07-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -395,7 +395,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'全职教师',
             'join_company'=>'2018-01-01',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -410,7 +410,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'全职教师',
             'join_company'=>'2018-09-20',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -425,7 +425,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'全职教师',
             'join_company'=>'2019-02-18',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -440,7 +440,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'全职教师',
             'join_company'=>'2019-02-18',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
@@ -455,7 +455,7 @@ class StaffsTableSeeder extends Seeder
             'position_name'=>'全职教师',
             'join_company'=>'2019-02-22',
             'created_at'=>now(),
-            'updated_at'=>now(),
+            'updated_at'=>now(),'annual_holiday'=>0,'remaining_annual_holiday'=>0,
             'status'=>true, 'leave_company'=>'2038-01-01',
             ]);
 
