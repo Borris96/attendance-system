@@ -26,7 +26,7 @@
           />
         </td>
     </tr>
-    <tr>
+<!--     <tr>
         <td class="tableleft">调上周几的班<br>(调休类型为上班时必填)</td>
           <td>
             <select name="workday">
@@ -35,6 +35,12 @@
               <option value='{{ $key }}' @if(old('workday') == $workday) selected @endif>周{{ $workday }}</option>
               @endforeach
             </select>
+          </td>
+    </tr> -->
+    <tr>
+        <td class="tableleft">调上班日期<br>(调休类型为上班时必填)</td>
+          <td>
+            <input type="date" name="work_date" value="old('work_date')">
           </td>
     </tr>
     <tr>

@@ -9,6 +9,7 @@ use App\Attendance;
 use App\Lieu;
 use App\SeparateAbsence;
 use App\TotalAttendance;
+use App\Holiday;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class AbsencesController extends Controller
@@ -189,11 +190,54 @@ class AbsencesController extends Controller
                     $last_day_work_time = $wu->work_time;
                 }
             }
-
             // $is_work_last = $lwd->is_work;
         }
 
         // 要考虑到那一天是否是调休日
+        $holidays = Holiday::where('date','>=',$first_date)->where('date','<=',$last_date)->get();
+        if (count($holidays) != 0)
+        {
+            foreach ($holidays as $h)
+            {
+                if ($h->date == $first_date)
+                {
+                    if ($h->holiday_type == '上班') // 节假日调休为上班
+                    {
+                        $is_work_first = true;
+                        // $holiday_day_name = $weekarray[date('w', $h->workday_name)];
+                        // $holiday_day_workdays = $staff->staffworkdays->where('workday_name',$holiday_day_name);
+                        // foreach ($holiday_day_workdays as $hwd) { // 其实只有一个值
+                        //     $workday_updates = $hwd->staffworkdayUpdates; // 这个工作日所有的更新记录
+                        //     // 找到这次请假第一天这个日期适用的工作数据
+                        //     foreach ($workday_updates as $wu) {
+                        //         if (strtotime($first_date)>=strtotime($wu->start_date) && strtotime($first_date)<strtotime($wu->end_date)) // 如果这天在这条数据的起始范围内的话，就用
+                        //         {
+                        //             $is_work_first = $wu->is_work;
+                        //             $first_day_home_time = $wu->home_time;
+                        //             $first_day_work_time = $wu->work_time;
+                        //         }
+                        //     }
+                        // }
+                    }
+                    else
+                    {
+                        $is_work_first = false;
+                    }
+                }
+                elseif ($h->date == $last_date)
+                {
+                    if ($h->holiday_type == '上班')
+                    {
+                        $is_work_last = true;
+                    }
+                    else
+                    {
+                        $is_work_last = false;
+                    }
+                }
+            }
+        }
+
         if ($is_work_first == false || $is_work_last == false)
         {
             session()->flash('danger','起止时间包含非工作日！');
@@ -568,6 +612,38 @@ class AbsencesController extends Controller
             }
             // $is_work_last = $lwd->is_work;
         }
+
+        // 要考虑到那一天是否是调休日
+        $holidays = Holiday::where('date','>=',$first_date)->where('date','<=',$last_date)->get();
+        if (count($holidays) != 0)
+        {
+            foreach ($holidays as $h)
+            {
+                if ($h->date == $first_date)
+                {
+                    if ($h->holiday_type == '上班')
+                    {
+                        $is_work_first = true;
+                    }
+                    else
+                    {
+                        $is_work_first = false;
+                    }
+                }
+                elseif ($h->date == $last_date)
+                {
+                    if ($h->holiday_type == '上班')
+                    {
+                        $is_work_last = true;
+                    }
+                    else
+                    {
+                        $is_work_last = false;
+                    }
+                }
+            }
+        }
+
         if ($is_work_first == false || $is_work_last == false)
         {
             session()->flash('danger','起止时间包含非工作日！');

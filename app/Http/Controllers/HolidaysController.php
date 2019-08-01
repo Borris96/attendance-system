@@ -54,26 +54,17 @@ class HolidaysController extends Controller
 
         if ($holiday->holiday_type == '上班')
         {
-            $holiday->workday_name = $request->workday;
-            if ($holiday->workday_name == null)
+            $holiday->work_date = $request->work_date;
+            // dump($holiday->work_date);
+            // exit();
+            $holiday->workday_name = date('w',strtotime($holiday->work_date));
+            if ($holiday->work_date == null)
             {
                 session()->flash('warning','请填写调上周几的班！');
                 return redirect()->back()->withInput();
             }
         }
         $holiday->note = $request->note;
-
-        //日期重复检测 -> 已经被表单验证代替了
-        // $current_date = strtotime($holiday->date);
-        // $holidays = Holiday::all(); //这个要改，只需遍历当年的日期
-        // foreach ($holidays as $h) {
-        //     $old_date = strtotime($h->date);
-        //     if ($holiday->isRepeat($current_date, $old_date) == true)
-        //     {
-        //         session()->flash('danger','时间已存在！');
-        //         return redirect()->back()->withInput();
-        //     }
-        // }
 
         if ($holiday->save()) {
             session()->flash('success','保存成功！');
@@ -100,7 +91,8 @@ class HolidaysController extends Controller
 
         if ($holiday->holiday_type == '上班')
         {
-            $holiday->workday_name = $request->workday;
+            $holiday->work_date = $request->work_date;
+            $holiday->workday_name = date('w',strtotime($holiday->work_date));
             if ($holiday->workday_name == null)
             {
                 session()->flash('warning','请填写调上周几的班！');
