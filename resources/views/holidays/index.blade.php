@@ -21,7 +21,7 @@
             <td>{{ $h->date }}</td>
             <td>{{ $h->holiday_type }}</td>
             @if ($h->workday_name != null)
-            <td>周{{ $workdays[$h->workday_name] }}</td>
+            <td>{{$h->work_date}},&nbsp;周{{ $workdays[$h->workday_name] }}</td>
             @else
             <td></td>
             @endif

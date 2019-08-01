@@ -204,31 +204,44 @@ class AbsencesController extends Controller
                     if ($h->holiday_type == '上班') // 节假日调休为上班
                     {
                         $is_work_first = true;
-                        // $holiday_day_name = $weekarray[date('w', $h->workday_name)];
-                        // $holiday_day_workdays = $staff->staffworkdays->where('workday_name',$holiday_day_name);
-                        // foreach ($holiday_day_workdays as $hwd) { // 其实只有一个值
-                        //     $workday_updates = $hwd->staffworkdayUpdates; // 这个工作日所有的更新记录
-                        //     // 找到这次请假第一天这个日期适用的工作数据
-                        //     foreach ($workday_updates as $wu) {
-                        //         if (strtotime($first_date)>=strtotime($wu->start_date) && strtotime($first_date)<strtotime($wu->end_date)) // 如果这天在这条数据的起始范围内的话，就用
-                        //         {
-                        //             $is_work_first = $wu->is_work;
-                        //             $first_day_home_time = $wu->home_time;
-                        //             $first_day_work_time = $wu->work_time;
-                        //         }
-                        //     }
-                        // }
+                        $holiday_day_name = $weekarray[$h->workday_name];
+                        $holiday_day_workdays = $staff->staffworkdays->where('workday_name',$holiday_day_name);
+                        foreach ($holiday_day_workdays as $hwd) { // 其实只有一个值
+                            $workday_updates = $hwd->staffworkdayUpdates; // 这个工作日所有的更新记录
+                            // 找到这次请假第一天这个日期适用的工作数据
+                            foreach ($workday_updates as $wu) {
+                                if (strtotime($h->work_date)>=strtotime($wu->start_date) && strtotime($h->work_date)<strtotime($wu->end_date)) // 调上班那一天如果在这条排班更新数据的起始范围内的话，就用
+                                {
+                                    $first_day_home_time = $wu->home_time;
+                                    $first_day_work_time = $wu->work_time;
+                                }
+                            }
+                        }
                     }
                     else
                     {
                         $is_work_first = false;
                     }
                 }
-                elseif ($h->date == $last_date)
+
+                if ($h->date == $last_date)
                 {
                     if ($h->holiday_type == '上班')
                     {
                         $is_work_last = true;
+                        $holiday_day_name = $weekarray[$h->workday_name];
+                        $holiday_day_workdays = $staff->staffworkdays->where('workday_name',$holiday_day_name);
+                        foreach ($holiday_day_workdays as $hwd) { // 其实只有一个值
+                            $workday_updates = $hwd->staffworkdayUpdates; // 这个工作日所有的更新记录
+                            // 找到这次请假第一天这个日期适用的工作数据
+                            foreach ($workday_updates as $wu) {
+                                if (strtotime($h->work_date)>=strtotime($wu->start_date) && strtotime($h->work_date)<strtotime($wu->end_date)) // 调上班那一天如果在这条排班更新数据的起始范围内的话，就用
+                                {
+                                    $last_day_home_time = $wu->home_time;
+                                    $last_day_work_time = $wu->work_time;
+                                }
+                            }
+                        }
                     }
                     else
                     {
