@@ -193,6 +193,7 @@ class AbsencesController extends Controller
             // $is_work_last = $lwd->is_work;
         }
 
+        // 要考虑到那一天是否是调休日
         if ($is_work_first == false || $is_work_last == false)
         {
             session()->flash('danger','起止时间包含非工作日！');
@@ -304,11 +305,11 @@ class AbsencesController extends Controller
             $y_m_d_s = explode('-',date("Y-m-d", strtotime($absence->absence_start_time)));
             $attendance = Attendance::where('staff_id',$staff->id)->where('year',$y_m_d_s[0])->where('month',$y_m_d_s[1])->where('date',$y_m_d_s[2])->get();
 
-            if (count($attendance)!=0)
-            {
-                session()->flash('warning','暂不支持补录多日的请假记录');
-                return redirect()->back()->withInput();
-            }
+            // if (count($attendance)!=0)
+            // {
+            //     session()->flash('warning','暂不支持补录多日的请假记录');
+            //     return redirect()->back()->withInput();
+            // }
 
             $middle_duration = 0;
             // 将每一天分开，请假除去收尾的天按当日工作时长计算请假时长
@@ -317,18 +318,18 @@ class AbsencesController extends Controller
 
             // 录入第一天
             $separate_absence_start = new SeparateAbsence();
-            $y_m_d = explode('-', date('Y-m-d',$absence_start_time));
-            $separate_absence_start->year = $y_m_d[0];
-            $separate_absence_start->month = $y_m_d[1];
-            $separate_absence_start->date = $y_m_d[2];
+            $y_m_d_f = explode('-', date('Y-m-d',$absence_start_time));
+            $separate_absence_start->year = $y_m_d_f[0];
+            $separate_absence_start->month = $y_m_d_f[1];
+            $separate_absence_start->date = $y_m_d_f[2];
             $separate_absence_start->duration = $duration_array[0];
             $separate_absence_start->save();
             // 录入最后一天
             $separate_absence_end = new SeparateAbsence();
-            $y_m_d = explode('-', date('Y-m-d',$absence_end_time));
-            $separate_absence_end->year = $y_m_d[0];
-            $separate_absence_end->month = $y_m_d[1];
-            $separate_absence_end->date = $y_m_d[2];
+            $y_m_d_l = explode('-', date('Y-m-d',$absence_end_time));
+            $separate_absence_end->year = $y_m_d_l[0];
+            $separate_absence_end->month = $y_m_d_l[1];
+            $separate_absence_end->date = $y_m_d_l[2];
             $separate_absence_end->duration = $duration_array[1];
             $separate_absence_end->save();
 
@@ -428,7 +429,7 @@ class AbsencesController extends Controller
                 $separate_absence->save();
                 if (count($attendance)!=0)
                 {
-                    foreach ($attendance as $at) {
+                    foreach ($attendance as $at) { // 其实只是一天的请假
                         $at->absence_id = $absence->id;
                         $at->absence_duration = $absence->duration;
                         $at->absence_type = $absence->absence_type;
@@ -451,6 +452,36 @@ class AbsencesController extends Controller
                     $maa->absence_id = $absence->id;
                     $maa->staff_id = $absence->staff_id;
                     $maa->save();
+                }
+
+                // 把多日请假录入考勤记录
+                if (count($attendance)!=0)
+                {
+                    // 第一天肯定不是假期
+                    $separate_absences = SeparateAbsence::where('absence_id',$absence->id)->orderBy('year','asc')->orderBy('month','asc')->orderBy('date','asc')->get();
+
+                    // 录入的年和月
+                    $year = $y_m_d_f[0];
+                    $month = $y_m_d_f[1];
+
+                    // 找到多日请假对应的几条考勤记录
+                    foreach ($separate_absences as $sa) {
+                        if ($sa->month == $month) // 录入同一个月的数请假数据
+                        {
+                            $attendance_id = Attendance::where('staff_id',$absence->staff_id)->where('year',$sa->year)->where('month',$sa->month)->where('date',$sa->date)->value('id');
+                            $attendance = Attendance::find($attendance_id);
+                            if ($attendance != null)
+                            {
+                                $attendance->absence_id = $absence->id;
+                                $attendance->absence_duration = $sa->duration;
+                                $attendance->absence_type = $absence->absence_type;
+                                Attendance::isAbnormal($attendance);
+                                $this_month_attendances = $attendance->totalAttendance->attendances;
+                                TotalAttendance::updateTotal($this_month_attendances, $attendance, $type='absence');
+                            }
+                        }
+                    }
+                    return redirect()->route('attendances.show',$attendance->totalAttendance->id); //应导向列表
                 }
             }
 
