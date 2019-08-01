@@ -786,28 +786,54 @@ class AbsencesController extends Controller
             {
                 $workday_name = $weekarray[date('w',strtotime($date_day[$j]))];
                 $workday_date = date('Y-m-d',$absence_start_time+24*3600*$j);
-                // 寻找这一天（星期）的该员工工作时长
-                $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
-                foreach ($this_workday as $twd) { // 其实只有一个 workday
 
-                    $workday_updates = $twd->staffworkdayUpdates; // 这个工作日所有的更新记录
-                    // 找到这次请假最后一天这个日期适用的工作数据
-                    foreach ($workday_updates as $wu) {
-                        if (strtotime($workday_date)>=strtotime($wu->start_date) && strtotime($workday_date)<strtotime($wu->end_date)) // 如果这天在这条数据的起始范围内的话，就用
+                // 寻找这一天（星期）的该员工工作时长, 如果是节假日调休的话, 按节假日调休的日期来算
+                $is_rest = false; //
+                $holidays = Holiday::where('date','>=',$workday_date)->where('date','<=',$workday_date)->get();
+                if (count($holidays) != 0)
+                {
+                    foreach ($holidays as $h)
+                    {
+                        if ($h->date == $workday_date)
                         {
-                            if ($wu->duration != null)
+                            if ($h->holiday_type == '上班') // 节假日调休为上班
                             {
-                                if ($wu->duration != 0)
+                                $workday_name = $weekarray[$h->workday_name];
+                                $workday_date = $h->work_date;
+                            }
+                            else // 这天休息
+                            {
+                                $is_rest = true;
+                            }
+                        }
+                    }
+                }
+
+                if (!$is_rest)
+                {
+                    // 寻找这一天（星期）的该员工工作时长
+                    $this_workday = $staff->staffworkdays->where('workday_name',$workday_name);
+                    foreach ($this_workday as $twd) { // 其实只有一个 workday
+
+                        $workday_updates = $twd->staffworkdayUpdates; // 这个工作日所有的更新记录
+                        // 找到这次请假最后一天这个日期适用的工作数据
+                        foreach ($workday_updates as $wu) {
+                            if (strtotime($workday_date)>=strtotime($wu->start_date) && strtotime($workday_date)<strtotime($wu->end_date)) // 如果这天在这条数据的起始范围内的话，就用
+                            {
+                                if ($wu->duration != null)
                                 {
-                                    $middle_absence_array[$j] = new SeparateAbsence();
-                                    $y_m_d = explode('-', date('Y-m-d',strtotime($date_day[$j])));
-                                    $middle_absence_array[$j]->year = $y_m_d[0];
-                                    $middle_absence_array[$j]->month = $y_m_d[1];
-                                    $middle_absence_array[$j]->date = $y_m_d[2];
-                                    $middle_absence_array[$j]->duration = $wu->duration;
-                                    $middle_absence_array[$j]->save();
-                                    $middle_duration += $middle_absence_array[$j]->duration;
-                                    // dump($middle_absence_array[$j]->duration);
+                                    if ($wu->duration != 0)
+                                    {
+                                        $middle_absence_array[$j] = new SeparateAbsence();
+                                        $y_m_d = explode('-', date('Y-m-d',strtotime($date_day[$j])));
+                                        $middle_absence_array[$j]->year = $y_m_d[0];
+                                        $middle_absence_array[$j]->month = $y_m_d[1];
+                                        $middle_absence_array[$j]->date = $y_m_d[2];
+                                        $middle_absence_array[$j]->duration = $wu->duration;
+                                        $middle_absence_array[$j]->save();
+                                        $middle_duration += $middle_absence_array[$j]->duration;
+                                        // dump($middle_absence_array[$j]->duration);
+                                    }
                                 }
                             }
                         }
