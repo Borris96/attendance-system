@@ -102,6 +102,12 @@ class ExtraWorksController extends Controller
         {
             foreach ($attendance as $at) {
                 $at->extra_work_id = null; // 取消加班和这条加班记录的关联
+                if ($at->should_duration != null && $at->actual_duration != null) // 应上班且打卡时，再次判定是否迟到
+                {
+                    $at->is_late = Attendance::lateOrEarly($at->late_work, $at->should_duration, $at->actual_duration);
+                    $at->is_early = Attendance::lateOrEarly($at->early_home, $at->should_duration, $at->actual_duration);
+                }
+                $at->save();
                 Attendance::isAbnormal($at);
                 $this_month_attendances = $at->totalAttendance->attendances;
                 TotalAttendance::updateTotal($this_month_attendances, $at, $type='extra');
@@ -137,15 +143,15 @@ class ExtraWorksController extends Controller
             {
                 $start = $at->actual_work_time; // H:i
                 $end = $at->actual_home_time; // H:i
-                if ($at->actual_duration != null)
-                {
-                    // 工作日，已经打卡，加班时间段必须在打卡时间内
-                    if (strtotime(date("H:i",strtotime($extra_work->extra_work_start_time)))<strtotime($start) || strtotime(date("H:i",strtotime($extra_work->extra_work_end_time)))>strtotime($end))
-                    {
-                        session()->flash('danger','加班时间需要在打卡时间内！');
-                        return redirect()->back()->withInput();
-                    }
-                }
+                // if ($at->actual_duration != null)
+                // {
+                //     // 工作日，已经打卡，加班时间段必须在打卡时间内
+                //     if (strtotime(date("H:i",strtotime($extra_work->extra_work_start_time)))<strtotime($start) || strtotime(date("H:i",strtotime($extra_work->extra_work_end_time)))>strtotime($end))
+                //     {
+                //         session()->flash('danger','加班时间需要在打卡时间内！');
+                //         return redirect()->back()->withInput();
+                //     }
+                // }
             }
         }
 
@@ -207,8 +213,10 @@ class ExtraWorksController extends Controller
                     $at->extra_work_id = $extra_work->id;
                     Attendance::isAbnormal($at);
                     $this_month_attendances = $at->totalAttendance->attendances;
+                    $month = $at->month;
+                    $year = $at->year;
                     TotalAttendance::updateTotal($this_month_attendances, $at, $type='extra');
-                    return redirect()->route('attendances.show',$at->totalAttendance->id); //应导向列表
+                    return redirect()->route('attendances.show',array($at->totalAttendance->id,'month'=>$month,'year'=>$year)); //应导向列表
                 }
             }
             session()->flash('success','保存成功！');

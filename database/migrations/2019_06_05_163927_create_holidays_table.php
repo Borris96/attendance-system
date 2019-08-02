@@ -15,9 +15,10 @@ class CreateHolidaysTable extends Migration
     {
         Schema::create('holidays', function (Blueprint $table) {
             $table->increments('id');
-            $table->date('date');
+            $table->date('date')->nullable();
             $table->string('holiday_type')->nullable();
             $table->string('workday_name')->nullable(); // 调为周几的班
+            $table->date('work_date')->nullable();
             $table->text('note',140)->nullable();
             $table->timestamps();
         });
