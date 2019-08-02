@@ -102,6 +102,26 @@ class AbsencesController extends Controller
             $absence->staff->lieu->save();
         }
 
+        $attendances = Attendance::where('absence_id',$absence->id)->get();
+        if (count($attendances)!=0)
+        {
+            foreach ($attendances as $at)
+            {
+                $at->absence_id = null;
+                $at->absence_duration = null;
+                $at->absence_type = null;
+                if ($at->should_duration != null && $at->actual_duration != null) // 应上班且打卡时，再次判定是否迟到
+                {
+                    $at->is_late = Attendance::lateOrEarly($at->late_work, $at->should_duration, $at->actual_duration);
+                    $at->is_early = Attendance::lateOrEarly($at->early_home, $at->should_duration, $at->actual_duration);
+                }
+                $at->save();
+                Attendance::isAbnormal($at);
+                $this_month_attendances = $at->totalAttendance->attendances;
+                TotalAttendance::updateTotal($this_month_attendances, $at, $type='absence');
+            }
+        }
+
         if ($absence->separateAbsences != null)
         {
             foreach ($absence->separateAbsences as $s_a) {
