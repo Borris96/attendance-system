@@ -28,7 +28,7 @@ class StaffsController extends Controller
         if ($request->get('englishname') == null)
         {
 
-            $staffs = Staff::where('status',true)->where('position_id','<>','8')->where('position_id','<>','9')->where('position_id','<>','10')->where('position_id','<>','11')->orderBy('department_id','asc')->get(); // 除了外教,实习生,兼职之外的员工更新年假
+            $staffs = Staff::where('status',true)->where('position_id','<>','8')->where('position_id','<>','9')->where('position_id','<>','10')->where('position_id','<>','11')->orderBy('department_id','asc')->orderBy('id','asc')->get(); // 除了外教,实习生,兼职之外的员工更新年假
             foreach ($staffs as $staff) {
                 //每年更新一次
                 $updated_at = $staff->updated_at; //获取年份，以便更新年假时到新一年再更新
@@ -72,7 +72,7 @@ class StaffsController extends Controller
 
     public function partTimeIndex()
     {
-        $staffs = Staff::where('status',true)->where('position_id','>','7')->where('position_id','<>','12')->orderBy('department_id','asc')->get();
+        $staffs = Staff::where('status',true)->where('position_id','>','7')->where('position_id','<>','12')->orderBy('department_id','asc')->orderBy('id','asc')->get();
         return view('staffs/part_time_index',compact('staffs'));
     }
 
@@ -819,4 +819,24 @@ class StaffsController extends Controller
 
         return view('staffs.show_work_time',compact('staff','update_historys_s','update_historys_e','staffworkdays','total_duration','id'));
     }
+
+    public function destroy($id) // 如果员工新建错误，或者没有任何数据与之关联，可以将其删除
+    {
+        $staff = Staff::find($id);
+        Staffworkday::where('staff_id',$id)->delete();
+        StaffworkdayUpdate::where('staff_id',$id)->delete();
+        if (count($staff->workHistorys) != 0)
+        {
+            WorkHistory::where('staff_id',$id)->delete();
+        }
+        if ($staff->card != null)
+        {
+            Card::where('staff_id',$id)->delete();
+        }
+
+        $staff->delete();
+        session()->flash('success','删除成功！');
+        return redirect()->back()->withInput();
+    }
+
 }

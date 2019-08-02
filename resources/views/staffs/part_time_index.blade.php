@@ -38,11 +38,30 @@
                 <a href="{{route('staffs.show_part_time',array('id'=>$staff->id))}}" class="btn btn-info">详情</a>
                 <a href="{{ route('staffs.edit_part_time',array('id'=>$staff->id)) }}" class="btn btn-primary">编辑信息</a>
                 <a href="{{ route('staffs.edit_work_time',array($staff->id,'staff_id'=>$staff->id)) }}" class="btn btn-primary">修改排班</a>
+                @if ($staff->lieu == null && count($staff->extraWorks)==0 && count($staff->absences)==0 && count($staff->totalAttendances)==0 && $staff->teacher_id == null)
+                <div class="btn-group">
+                  <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                  操作 <span class="caret"></span></button>
+                  <ul class="dropdown-menu" role="menu">
+                    <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;">
+                      {{ method_field('PATCH') }}
+                      {{ csrf_field() }}
+                      <button type="submit" class="btn btn-link" type="button" onclick="delcfm();">员工离职</button>
+                    </form>
+                    <form action="{{ route('staffs.destroy', $staff->id) }}" method="POST">
+                      {{ method_field('DELETE') }}
+                      {{ csrf_field() }}
+                      <button type="submit" class="btn btn-link" type="button" onclick="delcfm();">删除</button>
+                    </form>
+                  </ul>
+                </div>
+                @else
                 <form action="{{ route('staffs.leave', $staff->id) }}" method="POST" style="display: inline-block;">
                   {{ method_field('PATCH') }}
                   {{ csrf_field() }}
                   <button type="submit" class="btn btn-warning" type="button" onclick="delcfm();">员工离职</button>
                 </form>
+                @endif
             </td>
         </tr>
       @endforeach
