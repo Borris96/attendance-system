@@ -102,6 +102,12 @@ class ExtraWorksController extends Controller
         {
             foreach ($attendance as $at) {
                 $at->extra_work_id = null; // 取消加班和这条加班记录的关联
+                if ($at->should_duration != null && $at->actual_duration != null) // 应上班且打卡时，再次判定是否迟到
+                {
+                    $at->is_late = Attendance::lateOrEarly($at->late_work, $at->should_duration, $at->actual_duration);
+                    $at->is_early = Attendance::lateOrEarly($at->early_home, $at->should_duration, $at->actual_duration);
+                }
+                $at->save();
                 Attendance::isAbnormal($at);
                 $this_month_attendances = $at->totalAttendance->attendances;
                 TotalAttendance::updateTotal($this_month_attendances, $at, $type='extra');
