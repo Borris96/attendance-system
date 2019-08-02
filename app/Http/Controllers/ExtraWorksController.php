@@ -207,8 +207,10 @@ class ExtraWorksController extends Controller
                     $at->extra_work_id = $extra_work->id;
                     Attendance::isAbnormal($at);
                     $this_month_attendances = $at->totalAttendance->attendances;
+                    $month = $at->month;
+                    $year = $at->year;
                     TotalAttendance::updateTotal($this_month_attendances, $at, $type='extra');
-                    return redirect()->route('attendances.show',$at->totalAttendance->id); //应导向列表
+                    return redirect()->route('attendances.show',array($at->totalAttendance->id,'month'=>$month,'year'=>$year)); //应导向列表
                 }
             }
             session()->flash('success','保存成功！');
