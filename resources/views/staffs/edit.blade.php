@@ -67,6 +67,23 @@
       </tr>
 
       <tr>
+          <td class="tableleft">调休小时数</td>
+          @if ($staff->lieu != null)
+          <td><input type="text" name="lieu_total_time" placeholder="" value="{{ $staff->lieu->total_time }}" /></td>
+          @else
+          <td><input type="text" name="lieu_total_time" placeholder="" value="0.00" /></td>
+          @endif
+      </tr>
+      <tr>
+          <td class="tableleft">剩余小时数</td>
+          @if ($staff->lieu != null)
+          <td><input type="text" name="lieu_remaining_time" placeholder="" value="{{ $staff->lieu->remaining_time }}" /></td>
+          @else
+          <td><input type="text" name="lieu_remaining_time" placeholder="" value="0.00" /></td>
+          @endif
+      </tr>
+
+      <tr>
           <td class="tableleft">工作经历</td>
           <td>
             @for($i=0;$i<=9;$i++)

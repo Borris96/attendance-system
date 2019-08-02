@@ -14,6 +14,7 @@ use App\Absence;
 use App\LeaveStaff;
 use App\Card;
 use App\StaffworkdayUpdate;
+use App\Lieu;
 
 class StaffsController extends Controller
 {
@@ -458,6 +459,8 @@ class StaffsController extends Controller
             'bank'=>'max:50',
             'annual_holiday'=>'numeric',
             'remaining_annual_holiday'=>'numeric',
+            'lieu_total_time'=>'numeric',
+            'lieu_remaining_time'=>'numeric',
         ]);
 
         $staff = Staff::find($id);
@@ -612,8 +615,32 @@ class StaffsController extends Controller
         // } else {
         //     $staff->annual_holiday = $staff->getAnnualHolidays($staff->work_year, $staff->join_company);
         // }
-
-
+        // dump($request->input('lieu_total_time'));
+        // dump($request->input('lieu_remaining_time'));
+        // exit();
+        if ($request->input('lieu_total_time')<$request->input('lieu_remaining_time'))
+        {
+            session()->flash('warning','剩余调休大于总调休时长！');
+            return redirect()->back()->withInput();
+        }
+        else
+        {
+            // dump($staff->lieu);
+            // exit();
+            if ($staff->lieu == null)
+            {
+                $lieu = new Lieu();
+                $lieu->staff_id = $staff->id;
+                $lieu->total_time = $request->input('lieu_total_time');
+                $lieu->remaining_time = $request->input('lieu_remaining_time');
+            }
+            else
+            {
+                $lieu = $staff->lieu;
+                $lieu->total_time = $request->input('lieu_total_time');
+                $lieu->remaining_time = $request->input('lieu_remaining_time');
+            }
+        }
 
         if ($staff->card == null){
             $card_info = new Card();
@@ -630,6 +657,7 @@ class StaffsController extends Controller
 
         if ($staff->save()) {
             $card_info->save();
+            $lieu->save();
             session()->flash('success','更新成功！');
             return redirect('staffs'); //应导向列表
         } else {
