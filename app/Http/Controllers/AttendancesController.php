@@ -152,7 +152,9 @@ class AttendancesController extends Controller
     {
         $attendance = Attendance::find($id);
         $total_attendance = $attendance->totalAttendance;
-        return view('attendances.add_note',compact('attendance','total_attendance'));
+        $month = $attendance->month;
+        $year = $attendance->year;
+        return view('attendances.add_note',compact('attendance','total_attendance','month','year'));
     }
 
     public function createAddNote($id, Request $request)
@@ -165,16 +167,20 @@ class AttendancesController extends Controller
         $abnormal_note = new AbnormalNote();
         $abnormal_note->note = $request->get('note');
         $abnormal_note->attendance_id = $attendance->id;
+        $month = $attendance->month;
+        $year = $attendance->year;
         if ($abnormal_note->save())
         {
             session()->flash('success', '异常备注添加成功！');
-            return redirect()->route('attendances.show',$total_attendance->id);
+            return redirect()->route('attendances.show',array($total_attendance->id,'month'=>$month,'year'=>$year));
         }
     }
 
     public function addTime($id)
     {
         $attendance = Attendance::find($id);
+        $month = $attendance->month;
+        $year = $attendance->year;
         $total_attendance = $attendance->totalAttendance;
         // 最多支持添加两段增补记录，一首一尾，以便解决更新是否迟到早退的问题。
         $all_add_times = count($attendance->addTimes);
@@ -186,7 +192,7 @@ class AttendancesController extends Controller
         }
         else
         {
-            return view('attendances.add_time',compact('attendance','total_attendance'));
+            return view('attendances.add_time',compact('attendance','total_attendance','month','year'));
         }
     }
 
@@ -335,12 +341,14 @@ class AttendancesController extends Controller
             }
             // }
 
+            $month = $attendance->month;
+            $year = $attendance->year;
             if ($attendance->save())
             {
                 // 这条记录保存之后，判断该月记录是否仍然异常
                 $this_month_attendances = $attendance->totalAttendance->attendances;
                 TotalAttendance::updateTotal($this_month_attendances, $attendance);
-                return redirect()->route('attendances.show',$total_attendance->id);
+                return redirect()->route('attendances.show',array($total_attendance->id,'month'=>$month,'year'=>$year));
             }
         }
     }
@@ -348,8 +356,10 @@ class AttendancesController extends Controller
     public function clock($id)
     {
         $attendance = Attendance::find($id);
+        $month = $attendance->month;
+        $year = $attendance->year;
         $total_attendance = $attendance->totalAttendance;
-        return view('attendances.clock',compact('attendance','total_attendance'));
+        return view('attendances.clock',compact('attendance','total_attendance','month','year'));
     }
 
     public function updateClock(Request $request, $id)
@@ -398,13 +408,15 @@ class AttendancesController extends Controller
         // 计算这一条attendance是否异常
         Attendance::isAbnormal($attendance);
         Attendance::calBasic($attendance, $attendance->extra_work_id);
+        $month = $attendance->month;
+        $year = $attendance->year;
 
         if ($attendance->save())
         {
             // 这条记录保存之后，判断该月记录是否仍然异常
             $this_month_attendances = $attendance->totalAttendance->attendances;
             TotalAttendance::updateTotal($this_month_attendances, $attendance, $type='clock');
-            return redirect()->route('attendances.show',$total_attendance->id);
+            return redirect()->route('attendances.show',array($total_attendance->id,'month'=>$month, 'year'=>$year));
         }
         // }
         // else
@@ -660,8 +672,10 @@ class AttendancesController extends Controller
     public function basic($id)
     {
         $attendance = Attendance::find($id);
+        $month = $attendance->month;
+        $year = $attendance->year;
         $total_attendance = $attendance->totalAttendance;
-        return view('attendances.change_basic',compact('attendance','total_attendance'));
+        return view('attendances.change_basic',compact('attendance','total_attendance','month','year'));
     }
 
         public function changeBasic($id, Request $request)
@@ -682,8 +696,10 @@ class AttendancesController extends Controller
             $total_attendance->total_basic_duration = $total_attendance->total_basic_duration + ($new_duration-$old_duration);
             $total_attendance->difference = $total_attendance->total_basic_duration - $total_attendance->total_should_duration;
             $total_attendance->save();
+            $month = $attendance->month;
+            $year = $attendance->year;
             session()->flash('success','基本工时修改成功！');
-            return redirect()->route('attendances.show',$total_attendance->id);
+            return redirect()->route('attendances.show',array($total_attendance->id,'month'=>$month,'year'=>$year));
         }
         else
         {

@@ -40,7 +40,7 @@
     <tr>
         <td class="tableleft"></td>
         <td>
-            <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('attendances.show',$total_attendance->id) }}" role="button">返回个人考勤</a>
+            <button type="submit" class="btn btn-primary" type="button">提交</button> &nbsp;&nbsp;<a class="btn btn-success" href="{{ route('attendances.show',array($total_attendance->id,'month'=>$month,'year'=>$year)) }}" role="button">返回个人考勤</a>
         </td>
     </tr>
 </table>
