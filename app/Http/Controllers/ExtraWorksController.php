@@ -137,15 +137,15 @@ class ExtraWorksController extends Controller
             {
                 $start = $at->actual_work_time; // H:i
                 $end = $at->actual_home_time; // H:i
-                if ($at->actual_duration != null)
-                {
-                    // 工作日，已经打卡，加班时间段必须在打卡时间内
-                    if (strtotime(date("H:i",strtotime($extra_work->extra_work_start_time)))<strtotime($start) || strtotime(date("H:i",strtotime($extra_work->extra_work_end_time)))>strtotime($end))
-                    {
-                        session()->flash('danger','加班时间需要在打卡时间内！');
-                        return redirect()->back()->withInput();
-                    }
-                }
+                // if ($at->actual_duration != null)
+                // {
+                //     // 工作日，已经打卡，加班时间段必须在打卡时间内
+                //     if (strtotime(date("H:i",strtotime($extra_work->extra_work_start_time)))<strtotime($start) || strtotime(date("H:i",strtotime($extra_work->extra_work_end_time)))>strtotime($end))
+                //     {
+                //         session()->flash('danger','加班时间需要在打卡时间内！');
+                //         return redirect()->back()->withInput();
+                //     }
+                // }
             }
         }
 

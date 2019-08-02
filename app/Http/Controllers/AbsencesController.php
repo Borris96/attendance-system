@@ -318,11 +318,11 @@ class AbsencesController extends Controller
                         $str_start = strtotime(date("Y-m-d", strtotime($absence->absence_start_time)).' '.$start);
                         $str_end = strtotime(date("Y-m-d", strtotime($absence->absence_start_time)).' '.$end);
                         // 工作日，已经打卡，请假时间段必须在打卡时间外
-                        if($absence->isCrossing($absence_start_time, $absence_end_time, $str_start, $str_end))
-                        {
-                            session()->flash('danger','请假时间需要在打卡时间外！');
-                            return redirect()->back()->withInput();
-                        }
+                        // if($absence->isCrossing($absence_start_time, $absence_end_time, $str_start, $str_end))
+                        // {
+                        //     session()->flash('danger','请假时间需要在打卡时间外！');
+                        //     return redirect()->back()->withInput();
+                        // }
                     }
                 }
             }
