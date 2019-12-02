@@ -535,7 +535,7 @@ class AltersController extends Controller
         $this->validate($request, [
             'lesson_id'=>'required',
             'lesson_date'=>'required',
-            'alter_date'=>'required',
+            // 'alter_date'=>'required',
         ]);
 
         $lesson_day_array = ['Sun'=>0,'Fri'=>5,'Sat'=>6, 'Mon'=>1, 'Wed'=>3];
