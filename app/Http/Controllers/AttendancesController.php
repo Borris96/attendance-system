@@ -510,7 +510,12 @@ class AttendancesController extends Controller
                                 for ($r = 12; $r <= $highest_row; $r++ )
                                 {
                                     $date_and_day = explode(' ', $worksheet->getCellByColumnAndRow($c,$r)->getValue());
+
                                     $date = $date_and_day[0];
+                                    if (empty($date)) {
+                                        continue;
+                                    }
+
                                     $day = $date_and_day[1];
 
                                     $find_id = Attendance::where('staff_id',$staff_id)->where('year',$year)->where('month',$month)->where('date',$date)->value('id');
