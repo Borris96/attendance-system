@@ -4,9 +4,20 @@ JadeClass 考勤管理系统
 ---
 本系统根据 JadeClass 公司实际情况定制，使用 Laravel 开发，目的是能够提高 JadeClass 人事行政部门每个月进行的考勤统计效率以及准确性。目前本项目基本功能已经完成。
 
-## 8月2日更新日志
-1. 考勤记录中可以补录多日请假。
-2. 优化提交增补操作后的返回路径。
+## 1月14日更新日志
+1. readme.md 中新增了界面展示
+2. 优化读取表格时对空行的识别
+
+部分界面展示
+---
+##### 员工信息界面
+![image](https://github.com/Borris96/attendance-system/blob/master/images/StaffInfo.jpg)
+##### 管理界面
+![image](https://github.com/Borris96/attendance-system/blob/master/images/Absence.jpg)
+##### 考勤查询
+![image](https://github.com/Borris96/attendance-system/blob/master/images/Attendance.jpg)
+##### 结果页
+![image](https://github.com/Borris96/attendance-system/blob/master/images/Result.jpg)
 
 ## 基本功能介绍
 ### 员工部分
