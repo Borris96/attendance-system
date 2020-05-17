@@ -19,6 +19,8 @@
           <input id="file" type="file" class="form-control" name="select_file" accept="">
           <br><br>
           <button type="submit" class="btn btn-success">上传表格</button>
+          <br><br>
+          <p style="font-size: 11px">"考勤月报"表请另存为成 xlsx 格式文件再上传</p>
         </td>
       </tr>
 </form>
