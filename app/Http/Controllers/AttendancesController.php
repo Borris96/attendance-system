@@ -447,6 +447,8 @@ class AttendancesController extends Controller
                 // 临时绝对路径
                 $realPath = $file->getRealPath();
 
+
+
                 if ($ext == 'xlsx') {
                     $reader = new Xlsx();
                 } elseif ($ext == 'xls') {
@@ -457,7 +459,14 @@ class AttendancesController extends Controller
                 }
 
                 $reader->setReadDataOnly(TRUE); // 只读
-                $spreadsheet = $reader->load($realPath);
+                try {
+                    /** Load $inputFileName to a Spreadsheet Object  **/
+                    $spreadsheet = $reader->load($realPath);
+                } catch(\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+                    session()->flash('danger','请将表格另存为成 xlsx 格式!');
+                    return redirect()->back();
+                }
+
                 $num = $spreadsheet->getSheetCount(); // Sheet的总数
                 // 判断读取的表格格式是否正确
                 $testsheet = $spreadsheet->getSheet(0);
@@ -576,11 +585,27 @@ class AttendancesController extends Controller
                     $year = substr($title, 0,4); // 获取年份
                     $month = mb_substr($title, 5,2); // 获取月份
                     $count = ($highest_row-6+1)/2; // 录入表的人数
-                    $days = $worksheet->getCellByColumnAndRow($highest_column_index,4)->getValue(); // 录入表的天数
+                    $days_str = $worksheet->getCellByColumnAndRow($highest_column_index,4)->getValue(); // 录入表的天数
+                    $days = (int)substr($days_str,0,strpos($days_str, '/'));
                     $month_first_day = date('Y-m-01',strtotime($year.'-'.$month));
                     $month_last_day = date('Y-m-d', strtotime("$month_first_day +1 month -1 day"));
                     // 查询这个月的节假日调休，接下来使用这个集合进行遍历
                     $get_holidays = Holiday::where('date','<=',$month_last_day)->where('date','>=',$month_first_day)->get();
+
+                    // 获取日期的开始索引
+                    $date_head = 0;
+                    for ($i = 0; $i < $highest_column_index; $i++) {
+                        $cell_value = $worksheet->getCellByColumnAndRow($i,4)->getValue();
+                        if (strcmp($cell_value, "签到") == 0) {
+                            $date_head = $i + 1;
+                        }
+                    }
+
+                    if ($date_head == 0) {
+                        session()->flash('danger','文件格式错误！');
+                        redirect()->back();
+                    }
+
                     for ($i = 0; $i<$count; $i++)
                     {
                         //录入一个人
@@ -607,7 +632,12 @@ class AttendancesController extends Controller
                             // 导入该月每天数据
                             for ($j = 0; $j < $days; $j++ )
                             {
-                                $date_and_day = explode('/', $worksheet->getCellByColumnAndRow($j+10,4)->getValue());
+                                // if ($j == ($days - 1)){
+                                //     var_dump($j);
+                                //     exit();
+                                // }
+
+                                $date_and_day = explode('/', $worksheet->getCellByColumnAndRow($j+$date_head,4)->getValue());
                                 $date = $date_and_day[0];
                                 $day = $date_and_day[1];
 
@@ -619,14 +649,14 @@ class AttendancesController extends Controller
                                 {
                                     $attendance = new Attendance();
                                     // 把当日基础数据录入
-                                    Attendance::postAttendance($worksheet, $j+10, 6+2*$i, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day, $option = '兼职助教');
+                                    Attendance::postAttendance($worksheet, $j+$date_head, 6+2*$i, $attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day, $option = '二楼');
                                 }
                                 else // 考勤中已存在这一天
                                 {
                                     $exist_attendance = Attendance::find($find_id);
                                     if ($exist_attendance->actual_home_time == null && $exist_attendance->actual_work_time == null) // 如果实际上下班记录之前都是空的，再在这张表上读取数据
                                     {
-                                        Attendance::postAttendance($worksheet, $j+10, 6+2*$i, $exist_attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day, $option = '兼职助教');
+                                        Attendance::postAttendance($worksheet, $j+$date_head, 6+2*$i, $exist_attendance, $staff, $get_holidays, $year, $month, $date, $day, $month_first_day, $month_last_day, $option = '兼职助教');
                                         $repeat = true;
                                     }
                                     // 否则，保留原始数据，不做任何操作

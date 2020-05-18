@@ -282,11 +282,11 @@ class Attendance extends Model
             $h_time = explode(' ', $worksheet->getCellByColumnAndRow($c,$r+1)->getValue());
             $work_time = $w_time[0];
             $home_time = $h_time[0]; // 在下一行
-            if ($work_time == '漏刷')
+            if (strcmp($work_time, '漏刷') == 0 || strcmp($work_time, '') == 0)
             {
                 $work_time = null;
             }
-            if ($home_time == '漏刷')
+            if (strcmp($work_time, '漏刷') == 0 || strcmp($work_time, '') == 0)
             {
                 $home_time = null;
             }
